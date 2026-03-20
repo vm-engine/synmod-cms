@@ -1,0 +1,58 @@
+{{-- $targetType, $wireModelUrl, $wireModelTargetId --}}
+@if ($targetType === 'album_list')
+    {{-- No input needed — resolves to the gallery index page --}}
+    <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.type_album_list') }}</p>
+@elseif ($targetType === 'url')
+    <label class="form-label">{{ __('cms::labels.url') }}</label>
+    <input
+        class="form-input"
+        type="text"
+        wire:model="{{ $wireModelUrl }}"
+        placeholder="https://..."
+    />
+    @error($wireModelUrl)
+        <p class="form-error">{{ $message }}</p>
+    @enderror
+@else
+    <label class="form-label required">{{ __('cms::labels.select_target') }}</label>
+    @if ($targetType === 'page')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchPages"
+            load-method="loadPages"
+        />
+    @elseif ($targetType === 'section')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchSections"
+            load-method="loadSections"
+        />
+    @elseif ($targetType === 'category')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchCategories"
+            load-method="loadCategories"
+        />
+    @elseif ($targetType === 'article')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchArticles"
+            load-method="loadArticles"
+        />
+    @elseif ($targetType === 'album')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchAlbums"
+            load-method="loadAlbums"
+        />
+    @elseif ($targetType === 'album_image')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchAlbumImages"
+            load-method="loadAlbumImages"
+        />
+    @endif
+    @error($wireModelTargetId)
+        <p class="form-error">{{ $message }}</p>
+    @enderror
+@endif

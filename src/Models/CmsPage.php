@@ -1,0 +1,138 @@
+<?php
+
+declare(strict_types=1);
+
+namespace VmEngine\Cms\Models;
+
+use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Support\Carbon;
+use VmEngine\Cms\Factories\CmsPageFactory;
+use VmEngine\Synapse\Traits\WithDeleteToken;
+
+/**
+ * @property int $id
+ * @property int|null $parent_id
+ * @property string $title
+ * @property string $slug
+ * @property string $full_slug
+ * @property string|null $body
+ * @property string|null $excerpt
+ * @property string|null $cover_image
+ * @property string $status
+ * @property Carbon|null $published_at
+ * @property int $sort_order
+ * @property array|null $config
+ * @property string|null $meta_title
+ * @property string|null $meta_description
+ * @property string|null $og_image
+ * @property int|null $created_by
+ * @property Carbon $created_at
+ * @property Carbon $updated_at
+ * @property-read CmsPage|null $parent
+ * @property-read Collection<int, CmsPage> $children
+ */
+class CmsPage extends Model
+{
+    use HasFactory;
+    use WithDeleteToken;
+
+    protected $table = 'cms_pages';
+
+    protected $fillable = [
+        'parent_id',
+        'title',
+        'slug',
+        'full_slug',
+        'body',
+        'excerpt',
+        'cover_image',
+        'status',
+        'published_at',
+        'sort_order',
+        'config',
+        'meta_title',
+        'meta_description',
+        'og_image',
+        'created_by',
+    ];
+
+    protected $casts = [
+        'published_at' => 'datetime',
+        'config' => 'array',
+        'sort_order' => 'integer',
+    ];
+
+    protected static function newFactory(): CmsPageFactory
+    {
+        return CmsPageFactory::new();
+    }
+
+    #[Scope]
+    protected function published(Builder $builder): void
+    {
+        $builder->where('status', 'published')
+            ->where(function ($q) {
+                $q->whereNull('published_at')
+                    ->orWhere('published_at', '<=', now());
+            });
+    }
+
+    #[Scope]
+    protected function search(Builder $builder, string $q): void
+    {
+        $builder->whereAny(['title', 'slug', 'excerpt'], 'like', "%{$q}%");
+    }
+
+    #[Scope]
+    protected function roots(Builder $builder): void
+    {
+        $builder->whereNull('parent_id');
+    }
+
+    public function parent(): BelongsTo
+    {
+        return $this->belongsTo(CmsPage::class, 'parent_id');
+    }
+
+    public function children(): HasMany
+    {
+        return $this->hasMany(CmsPage::class, 'parent_id')->orderBy('sort_order');
+    }
+
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+    }
+
+    public function getDepth(): int
+    {
+        $depth = 0;
+        $page = $this;
+        while ($page->parent_id !== null) {
+            $depth++;
+            $page = $page->parent;
+        }
+
+        return $depth;
+    }
+
+    public function computeFullSlug(): string
+    {
+        if ($this->parent_id === null) {
+            return $this->slug;
+        }
+
+        $parent = CmsPage::find($this->parent_id);
+        if ($parent === null) {
+            return $this->slug;
+        }
+
+        return $parent->full_slug.'/'.$this->slug;
+    }
+}

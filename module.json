@@ -1,0 +1,119 @@
+{
+    "id": "cms",
+    "id_case": {
+        "snake": "cms",
+        "pascal": "Cms",
+        "slug": "cms",
+        "studly": "Cms"
+    },
+    "name": "CMS",
+    "description": "Content Management System — static pages, dynamic articles, gallery, and frontend menu management",
+    "version": "0.1.0",
+    "author": "Adods",
+    "email": "theadods@gmail.com",
+    "url_prefix": "cms",
+    "load_priority": 60,
+    "dependencies": {
+        "npm": {
+            "main": {
+                "tinymce": "^7.0",
+                "sortablejs": "^1.15"
+            },
+            "dev": {}
+        },
+        "composer": {
+            "main": {
+                "vm-engine/synapps-fallback": "*",
+                "vm-engine/synmod-fm": "*"
+            },
+            "dev": {}
+        }
+    },
+    "nav": {
+        "backend": {
+            "name": "__cms::menu.be.parent",
+            "position": 5,
+            "class": "",
+            "icon": "fa-solid fa-newspaper",
+            "acl": "cms.any",
+            "sub": {
+                "page": {
+                    "id": "page",
+                    "name": "__cms::menu.be.page",
+                    "class": "",
+                    "route": "cms.page.index",
+                    "icon": "fa-solid fa-file-lines",
+                    "acl": "cms.page.read"
+                },
+                "section": {
+                    "id": "section",
+                    "name": "__cms::menu.be.section",
+                    "class": "",
+                    "route": "cms.section.index",
+                    "icon": "fa-solid fa-layer-group",
+                    "acl": "cms.section.read"
+                },
+                "gallery": {
+                    "id": "gallery",
+                    "name": "__cms::menu.be.gallery",
+                    "class": "",
+                    "route": "cms.album.index",
+                    "icon": "fa-solid fa-images",
+                    "acl": "cms.gallery.read"
+                },
+                "menu": {
+                    "id": "menu",
+                    "name": "__cms::menu.be.menu",
+                    "class": "",
+                    "route": "cms.menu.index",
+                    "icon": "fa-solid fa-bars",
+                    "acl": "cms.menu.read"
+                },
+                "tag": {
+                    "id": "tag",
+                    "name": "__cms::menu.be.tag",
+                    "class": "",
+                    "route": "cms.tag.index",
+                    "icon": "fa-solid fa-tags",
+                    "acl": "cms.tag.read"
+                }
+            }
+        }
+    },
+    "acl": {
+        "page": {
+            "label": "__cms::acl.page",
+            "create": 1, "read": 1, "update": 1, "delete": 1,
+            "sub": {
+                "publish": { "label": "__cms::acl.page_publish", "create": 0, "read": 1, "update": 1, "delete": 0 }
+            }
+        },
+        "section": {
+            "label": "__cms::acl.section",
+            "create": 1, "read": 1, "update": 1, "delete": 1
+        },
+        "article": {
+            "label": "__cms::acl.article",
+            "create": 1, "read": 1, "update": 1, "delete": 1,
+            "sub": {
+                "publish": { "label": "__cms::acl.article_publish", "create": 0, "read": 1, "update": 1, "delete": 0 }
+            }
+        },
+        "gallery": {
+            "label": "__cms::acl.gallery",
+            "create": 1, "read": 1, "update": 1, "delete": 1
+        },
+        "menu": {
+            "label": "__cms::acl.menu",
+            "create": 1, "read": 1, "update": 1, "delete": 1
+        },
+        "tag": {
+            "label": "__cms::acl.tag",
+            "create": 1, "read": 1, "update": 1, "delete": 1
+        },
+        "settings": {
+            "label": "__cms::acl.settings",
+            "create": 0, "read": 1, "update": 1, "delete": 0
+        }
+    }
+}
