@@ -26,6 +26,14 @@ new class extends Component
 
     public function render()
     {
-        return $this->view()->title($this->title());
+        $layout = theme_service()->resolveThemeLayout('frontend');
+
+        if (! view()->exists($layout)) {
+            $layout = 'synapps::components.layouts.layout';
+        }
+
+        return view('cms::components.frontend.article-viewer.article-viewer')
+            ->title($this->title())
+            ->layout($layout);
     }
 };

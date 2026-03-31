@@ -64,5 +64,10 @@
             "type": "path",
             "url": "../synmod-fm"
         }
-    ]
+    ],
+    "config": {
+        "allow-plugins": {
+            "pestphp/pest-plugin": true
+        }
+    }
 }

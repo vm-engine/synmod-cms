@@ -2,6 +2,7 @@
 
 return [
     // Generic
+    'home' => 'Home',
     'add' => 'Add',
     'edit' => 'Edit',
     'delete' => 'Delete',
@@ -120,6 +121,9 @@ return [
     'image_url' => 'Image URL / Path',
     'image_title' => 'Image Title',
     'caption' => 'Caption',
+    'gallery' => 'Gallery',
+    'photos' => 'photos',
+    'no_albums' => 'No albums available.',
     'no_images' => 'No images in this album.',
     'image_added' => 'Image added successfully.',
     'image_deleted' => 'Image deleted.',

@@ -82,7 +82,7 @@ class CmsMenuItem extends Model
         }
 
         if ($this->target_type === 'album_list') {
-            return '/gallery';
+            return '/'.($this->target_url ?: 'gallery');
         }
 
         if ($this->target_id === null) {

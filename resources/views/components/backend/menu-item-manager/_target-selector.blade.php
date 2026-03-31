@@ -1,7 +1,16 @@
 {{-- $targetType, $wireModelUrl, $wireModelTargetId --}}
 @if ($targetType === 'album_list')
-    {{-- No input needed — resolves to the gallery index page --}}
-    <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.type_album_list') }}</p>
+    <label class="form-label">{{ __('cms::labels.gallery_slug') }}</label>
+    <input
+        class="form-input"
+        type="text"
+        wire:model="{{ $wireModelUrl }}"
+        placeholder="gallery"
+    />
+    <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.gallery_slug_hint') }}</p>
+    @error($wireModelUrl)
+        <p class="form-error">{{ $message }}</p>
+    @enderror
 @elseif ($targetType === 'url')
     <label class="form-label">{{ __('cms::labels.url') }}</label>
     <input

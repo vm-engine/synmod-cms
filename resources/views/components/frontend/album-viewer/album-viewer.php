@@ -11,10 +11,19 @@ new class extends Component
 
     public ?CmsAlbum $album = null;
 
+    public string $galleryUrl = '/gallery';
+
     public function mount(int $album_id): void
     {
         $this->album_id = $album_id;
         $this->album = CmsAlbum::with('images.file')->active()->normal()->findOrFail($album_id);
+
+        // Derive the gallery index URL by stripping /{album-slug} from the current path
+        $path = ltrim(request()->getPathInfo(), '/');
+        $parts = explode('/', $path);
+        if (count($parts) >= 2) {
+            $this->galleryUrl = '/'.implode('/', array_slice($parts, 0, count($parts) - 1));
+        }
     }
 
     public function title(): string
@@ -24,6 +33,14 @@ new class extends Component
 
     public function render()
     {
-        return $this->view()->title($this->title());
+        $layout = theme_service()->resolveThemeLayout('frontend');
+
+        if (! view()->exists($layout)) {
+            $layout = 'synapps::components.layouts.layout';
+        }
+
+        return view('cms::components.frontend.album-viewer.album-viewer')
+            ->title($this->title())
+            ->layout($layout);
     }
 };

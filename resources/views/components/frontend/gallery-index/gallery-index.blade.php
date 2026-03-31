@@ -1,0 +1,46 @@
+<div class="cms-gallery-index">
+    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+        <ol class="cms-breadcrumb__list">
+            <li class="cms-breadcrumb__item"><a href="/" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
+            <li class="cms-breadcrumb__item cms-breadcrumb__item--active">{{ __('cms::labels.gallery') }}</li>
+        </ol>
+    </nav>
+
+    <header class="cms-gallery-index__header">
+        <h1 class="cms-gallery-index__title">{{ __('cms::labels.gallery') }}</h1>
+    </header>
+
+    <div class="cms-gallery-grid">
+        @forelse($albums as $album)
+        <a
+            href="/gallery/{{ $album->slug }}"
+            class="cms-gallery-album-card"
+        >
+            @if($album->cover_image)
+            <div class="cms-gallery-album-card__image">
+                <img
+                    src="{{ $album->cover_image }}"
+                    alt="{{ $album->title }}"
+                    loading="lazy"
+                />
+            </div>
+            @else
+            <div class="cms-gallery-album-card__image cms-gallery-album-card__image--empty">
+                <span class="fa-solid fa-images"></span>
+            </div>
+            @endif
+            <div class="cms-gallery-album-card__body">
+                <h2 class="cms-gallery-album-card__title">{{ $album->title }}</h2>
+                @if($album->description)
+                <p class="cms-gallery-album-card__desc">{{ $album->description }}</p>
+                @endif
+                <span class="cms-gallery-album-card__count">
+                    {{ $album->images->count() }} {{ __('cms::labels.photos') }}
+                </span>
+            </div>
+        </a>
+        @empty
+        <div class="cms-empty">{{ __('cms::labels.no_albums') }}</div>
+        @endforelse
+    </div>
+</div>

@@ -27,5 +27,25 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fallback route registration/removal via Eloquent model observers on all public content models
 - Migration `_000008_` to convert `target_type` enum column to plain string, removing the SQLite CHECK constraint and adding `album_image` and `album_list` support
 
+### Added
+- Gallery index frontend component (`cms::frontend.gallery-index`) with album card grid, breadcrumb (`Home > Gallery`), and empty state
+- Album viewer frontend component: breadcrumbs (`Home > Gallery > Album`), gallery URL derived from request path, and full Alpine.js lightbox with prev/next navigation, keyboard shortcuts (←/→/Escape), image counter, title and caption display
+- `CmsAlbumImageObserver`: automatically sets album `cover_image` from the first image added; updates cover to next image when the cover image is deleted
+- `CmsMenuItemObserver`: registers/forgets the gallery-index fallback route when `album_list` menu items are created, updated, or deleted; handles slug changes and multi-item slug deduplication
+- Gallery slug configurable per menu item — `target_url` field on `album_list` items stores the gallery slug (defaults to `gallery`)
+- `CmsFallbackService::syncGalleryIndex(string $slug)` and `forgetGalleryIndex(string $slug)` for gallery fallback management
+- All 5 frontend MFC components (`page-viewer`, `section-index`, `category-index`, `article-viewer`, `album-viewer`) now resolve layout via `theme_service()` with fallback to default layout
+- `home` translation key added to `lang/en/labels.php`
+- Lightbox CSS (`cms-lightbox`, `cms-lightbox__stage`, `cms-lightbox__nav`, `cms-lightbox__caption-bar`) in theme.css
+- Gallery index CSS (`cms-gallery-index`, `cms-gallery-album-card`) in theme.css
+
+### Fixed
+- `input-group` / `input-group-item` CSS redesigned to proper flex layout — Browse button in all FM file pickers now displays correctly with full text, correct border-radius, and is clickable
+- Icon color in `input-group-item.btn` no longer forced to gray; inherits from button variant (white on primary)
+- All list pages (page, article, album, section, category) moved filter button after search input to match flex DOM order
+- `FallbackRoutingMiddleware`: `livewire` handler type now uses `LivewirePageController::class.'@__invoke'` and stores component alias in `action['livewire_component']`, fixing "Method name must be a string" error
+- Frontend MFC components used `$this->view()` (not available on `Livewire\Component`) — replaced with global `view()` helper
+- `CmsAlbumImage` model: added `@property-read FmFile|null $file` PHPDoc for correct static analysis
+
 ### Fixed
 - `target_type` enum in `cms_menu_items` migration was missing `album_image` and `album_list` values — updated original migration and added alter migration for existing databases

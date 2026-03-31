@@ -40,6 +40,14 @@ new class extends Component
             ->paginate($perPage)
             ->onEachSide(1);
 
-        return $this->view(['articles' => $articles])->title($this->title());
+        $layout = theme_service()->resolveThemeLayout('frontend');
+
+        if (! view()->exists($layout)) {
+            $layout = 'synapps::components.layouts.layout';
+        }
+
+        return view('cms::components.frontend.section-index.section-index', ['articles' => $articles])
+            ->title($this->title())
+            ->layout($layout);
     }
 };

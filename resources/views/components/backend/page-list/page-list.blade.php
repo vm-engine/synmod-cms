@@ -22,6 +22,12 @@
                     </a>
                     @endcanAccess
                     <div class="input-group">
+                        <input
+                            class="form-input grow p-2"
+                            type="text"
+                            placeholder="{{ __('cms::labels.search') }}"
+                            wire:model.live.debounce="q"
+                        >
                         <button
                             class="input-group-item right btn"
                             type="button"
@@ -29,12 +35,6 @@
                         >
                             <span class="fa-solid fa-filter"></span>
                         </button>
-                        <input
-                            class="form-input p-2"
-                            type="text"
-                            placeholder="{{ __('cms::labels.search') }}"
-                            wire:model.live.debounce="q"
-                        >
                     </div>
                 </div>
             </div>

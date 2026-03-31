@@ -21,6 +21,7 @@ use VmEngine\Fm\Models\FmFile;
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read CmsAlbum $album
+ * @property-read FmFile|null $file
  */
 class CmsAlbumImage extends Model
 {

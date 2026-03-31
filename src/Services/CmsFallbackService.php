@@ -25,7 +25,7 @@ class CmsFallbackService
 
         Fallback::register(
             slug: $page->full_slug,
-            handler: 'cms::page-viewer',
+            handler: 'cms::frontend.page-viewer',
             module: 'cms',
             params: ['page_id' => $page->id],
             handlerType: 'livewire',
@@ -47,7 +47,7 @@ class CmsFallbackService
 
         Fallback::register(
             slug: $section->slug,
-            handler: 'cms::section-index',
+            handler: 'cms::frontend.section-index',
             module: 'cms',
             params: ['section_id' => $section->id],
             handlerType: 'livewire',
@@ -74,7 +74,7 @@ class CmsFallbackService
 
         Fallback::register(
             slug: $slug,
-            handler: 'cms::category-index',
+            handler: 'cms::frontend.category-index',
             module: 'cms',
             params: ['category_id' => $category->id],
             handlerType: 'livewire',
@@ -106,7 +106,7 @@ class CmsFallbackService
 
         Fallback::register(
             slug: $slug,
-            handler: 'cms::article-viewer',
+            handler: 'cms::frontend.article-viewer',
             module: 'cms',
             params: ['article_id' => $article->id],
             handlerType: 'livewire',
@@ -136,7 +136,7 @@ class CmsFallbackService
 
         Fallback::register(
             slug: 'gallery/'.$album->slug,
-            handler: 'cms::album-viewer',
+            handler: 'cms::frontend.album-viewer',
             module: 'cms',
             params: ['album_id' => $album->id],
             handlerType: 'livewire',
@@ -146,6 +146,31 @@ class CmsFallbackService
     public function forgetAlbum(CmsAlbum $album): void
     {
         Fallback::forget('gallery/'.$album->slug);
+    }
+
+    public function syncGalleryIndex(string $slug): void
+    {
+        Fallback::register(
+            slug: $slug,
+            handler: 'cms::frontend.gallery-index',
+            module: 'cms',
+            params: [],
+            handlerType: 'livewire',
+        );
+    }
+
+    public function forgetGalleryIndex(string $slug): void
+    {
+        // Only remove the fallback if no other album_list item resolves to this slug.
+        $effectiveSlug = $slug ?: 'gallery';
+
+        $stillUsed = \VmEngine\Cms\Models\CmsMenuItem::where('target_type', 'album_list')
+            ->get()
+            ->contains(fn ($item) => ($item->target_url ?: 'gallery') === $effectiveSlug);
+
+        if (! $stillUsed) {
+            Fallback::forget($effectiveSlug);
+        }
     }
 
     /**
