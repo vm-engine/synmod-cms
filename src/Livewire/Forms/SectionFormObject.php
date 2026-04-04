@@ -41,6 +41,11 @@ class SectionFormObject extends Form
 
     public string $og_image = '';
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $customVars = [];
+
+    public bool $customVarAllowAdd = false;
+
     public function setSection(CmsSection $section): void
     {
         $this->section = $section;
@@ -60,6 +65,8 @@ class SectionFormObject extends Form
         $this->meta_title = $section->meta_title ?? '';
         $this->meta_description = $section->meta_description ?? '';
         $this->og_image = $section->og_image ?? '';
+        $this->customVars = $config['custom_var'] ?? [];
+        $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
     }
 
     public function rules(): array
@@ -93,6 +100,8 @@ class SectionFormObject extends Form
                 'show_author' => $this->show_author,
                 'show_thumbnail' => $this->show_thumbnail,
                 'items_per_page' => $this->items_per_page,
+                'custom_var' => $this->customVars,
+                'custom_var_allow_add' => $this->customVarAllowAdd,
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
@@ -123,6 +132,8 @@ class SectionFormObject extends Form
                 'show_author' => $this->show_author,
                 'show_thumbnail' => $this->show_thumbnail,
                 'items_per_page' => $this->items_per_page,
+                'custom_var' => $this->customVars,
+                'custom_var_allow_add' => $this->customVarAllowAdd,
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,

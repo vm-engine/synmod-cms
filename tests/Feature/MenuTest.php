@@ -94,6 +94,18 @@ describe('Create Menu', function () {
     });
 });
 
+describe('ACL', function () {
+    it('denies access to menu list without permission', function () {
+        $noPermRole = Role::factory()->create(['name' => 'No Perm', 'slug' => 'no-perm', 'level' => 9]);
+        $noPermUser = User::factory()->create();
+        $noPermUser->roles()->attach($noPermRole);
+
+        $this->actingAs($noPermUser)
+            ->get(backend_route('cms.menu.index'))
+            ->assertStatus(302);
+    });
+});
+
 describe('Delete Menu', function () {
     it('can delete a menu via Livewire component', function () {
         $menu = CmsMenu::factory()->create(['name' => 'To Delete']);

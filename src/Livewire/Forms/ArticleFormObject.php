@@ -44,6 +44,11 @@ class ArticleFormObject extends Form
 
     public array $tag_ids = [];
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $customVars = [];
+
+    public bool $customVarAllowAdd = false;
+
     public function setArticle(CmsArticle $article): void
     {
         $this->article = $article;
@@ -63,6 +68,8 @@ class ArticleFormObject extends Form
         $this->meta_description = $article->meta_description ?? '';
         $this->og_image = $article->og_image ?? '';
         $this->tag_ids = $article->tags()->pluck('cms_tags.id')->toArray();
+        $this->customVars = ($article->config ?? [])['custom_var'] ?? [];
+        $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
     }
 
     public function rules(): array
@@ -129,6 +136,7 @@ class ArticleFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'created_by' => $createdBy,
             'updated_by' => $createdBy,
         ]);
@@ -161,6 +169,7 @@ class ArticleFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'updated_by' => $updatedBy,
         ]);
 

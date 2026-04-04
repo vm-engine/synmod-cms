@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\PageFormObject;
@@ -58,6 +59,12 @@ new class extends Component
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.page_created'));
         }
         $this->redirect(backend_route('cms.page.index'), navigate: true);
+    }
+
+    #[On('custom-var-allow-add-changed')]
+    public function onCustomVarAllowAddChanged(bool $value): void
+    {
+        $this->form->customVarAllowAdd = $value;
     }
 
     #[Computed()]

@@ -43,6 +43,11 @@ class PageFormObject extends Form
 
     public string $og_image = '';
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $customVars = [];
+
+    public bool $customVarAllowAdd = false;
+
     public function setPage(CmsPage $page): void
     {
         $this->page = $page;
@@ -63,6 +68,8 @@ class PageFormObject extends Form
         $this->meta_title = $page->meta_title ?? '';
         $this->meta_description = $page->meta_description ?? '';
         $this->og_image = $page->og_image ?? '';
+        $this->customVars = $config['custom_var'] ?? [];
+        $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
     }
 
     public function rules(): array
@@ -100,6 +107,8 @@ class PageFormObject extends Form
                 'show_breadcrumb' => $this->show_breadcrumb,
                 'show_children' => $this->show_children,
                 'children_layout' => $this->children_layout,
+                'custom_var' => $this->customVars,
+                'custom_var_allow_add' => $this->customVarAllowAdd,
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
@@ -134,6 +143,8 @@ class PageFormObject extends Form
                 'show_breadcrumb' => $this->show_breadcrumb,
                 'show_children' => $this->show_children,
                 'children_layout' => $this->children_layout,
+                'custom_var' => $this->customVars,
+                'custom_var_allow_add' => $this->customVarAllowAdd,
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,

@@ -29,6 +29,11 @@ class AlbumFormObject extends Form
 
     public string $meta_description = '';
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $customVars = [];
+
+    public bool $customVarAllowAdd = false;
+
     public function setAlbum(CmsAlbum $album): void
     {
         $this->album = $album;
@@ -41,6 +46,8 @@ class AlbumFormObject extends Form
         $this->sort_order = $album->sort_order;
         $this->meta_title = $album->meta_title ?? '';
         $this->meta_description = $album->meta_description ?? '';
+        $this->customVars = ($album->config ?? [])['custom_var'] ?? [];
+        $this->customVarAllowAdd = ($album->config ?? [])['custom_var_allow_add'] ?? false;
     }
 
     public function rules(): array
@@ -70,6 +77,7 @@ class AlbumFormObject extends Form
             'sort_order' => $this->sort_order,
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'created_by' => $createdBy,
         ]);
 
@@ -92,6 +100,7 @@ class AlbumFormObject extends Form
             'sort_order' => $this->sort_order,
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
         ]);
     }
 }

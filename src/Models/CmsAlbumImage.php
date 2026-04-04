@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsAlbumImageFactory;
 use VmEngine\Fm\Models\FmFile;
+use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
  * @property int $id
@@ -18,14 +19,17 @@ use VmEngine\Fm\Models\FmFile;
  * @property string|null $title
  * @property string|null $caption
  * @property int $sort_order
+ * @property array<string, mixed>|null $config
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read CmsAlbum $album
  * @property-read FmFile|null $file
+ * @property-read string $delete_token
  */
 class CmsAlbumImage extends Model
 {
     use HasFactory;
+    use WithDeleteToken;
 
     protected $table = 'cms_album_images';
 
@@ -35,10 +39,12 @@ class CmsAlbumImage extends Model
         'title',
         'caption',
         'sort_order',
+        'config',
     ];
 
     protected $casts = [
         'sort_order' => 'integer',
+        'config' => 'array',
     ];
 
     protected static function newFactory(): CmsAlbumImageFactory

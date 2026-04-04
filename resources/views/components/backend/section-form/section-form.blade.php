@@ -99,11 +99,14 @@
             </div>
         </div>
 
+        {{-- Custom Variables --}}
+        <livewire:cms::backend.custom-var-manager wire:model="form.customVars" :allow-add="$form->customVarAllowAdd" wire:key="cvm-section-{{ $sectionId ?? 'new' }}" />
+
         <div class="fixed bottom-0 left-0 right-0 z-9 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between items-center">
             <a class="btn secondary" href="{{ backend_route('cms.section.index') }}" wire:navigate>
                 <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
-            @canAccess('cms.section.create|cms.section.update')
+            @canAccess('cms.article.section.create|cms.article.section.update')
             <button class="btn primary" type="submit" wire:loading.attr="disabled">
                 <span class="fa-solid fa-floppy-disk" wire:loading.remove></span>
                 <span class="fa-solid fa-circle-notch fa-spin" wire:loading></span>

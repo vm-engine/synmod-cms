@@ -11,7 +11,7 @@ uses(RefreshDatabase::class);
 
 beforeEach(function () {
     $permission = RolePermission::factory()
-        ->forModule('cms', 'section')
+        ->forModule('cms', 'article', 'section')
         ->fullCrud();
     $this->adminRole = Role::factory()->has($permission)->create([
         'name' => 'Administrator',
@@ -119,6 +119,18 @@ describe('Delete Section', function () {
             ->assertDispatched('notify');
 
         $this->assertDatabaseMissing('cms_sections', ['id' => $section->id]);
+    });
+});
+
+describe('ACL', function () {
+    it('denies access to section list without permission', function () {
+        $noPermRole = Role::factory()->create(['name' => 'No Perm', 'slug' => 'no-perm', 'level' => 9]);
+        $noPermUser = User::factory()->create();
+        $noPermUser->roles()->attach($noPermRole);
+
+        $this->actingAs($noPermUser)
+            ->get(backend_route('cms.section.index'))
+            ->assertStatus(302);
     });
 });
 

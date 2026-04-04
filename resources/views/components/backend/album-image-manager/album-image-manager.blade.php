@@ -5,6 +5,7 @@
     <div class="space-y-5 sm:space-y-6">
 
         {{-- Add image --}}
+        @canAccess('cms.gallery.image.create')
         <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
             <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
                 <h3 class="text-base font-medium">{{ __('cms::labels.add_image') }}</h3>
@@ -59,6 +60,7 @@
                 </div>
             </div>
         </div>
+        @endcanAccess
 
         {{-- Image grid --}}
         <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
@@ -103,7 +105,7 @@
                             <div class="truncate px-2 py-1 text-xs">{{ $image->title }}</div>
                         @endif
                         <div class="absolute right-1 top-1 hidden gap-1 group-hover:flex">
-                            @canAccess('cms.gallery.delete')
+                            @canAccess('cms.gallery.image.delete')
                             <button
                                 class="btn xs danger"
                                 type="button"
@@ -125,6 +127,16 @@
                             >
                                 <span class="fa-solid fa-trash"></span>
                             </button>
+                            @endcanAccess
+                            @canAccess('cms.gallery.image.update')
+                            <a
+                                class="btn xs secondary"
+                                href="{{ backend_route('cms.album.image.form', ['albumId' => $albumId, 'id' => $image->id]) }}"
+                                title="{{ __('cms::labels.edit') }}"
+                                wire:navigate
+                            >
+                                <span class="fa-solid fa-pen"></span>
+                            </a>
                             @endcanAccess
                             <span
                                 class="btn xs secondary cursor-grab"

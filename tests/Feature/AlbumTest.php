@@ -11,14 +11,14 @@ use VmEngine\SynAuth\Models\User;
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
-    $permission = RolePermission::factory()
-        ->forModule('cms', 'gallery')
-        ->fullCrud();
-    $this->adminRole = Role::factory()->has($permission)->create([
-        'name' => 'Administrator',
-        'slug' => 'admin',
-        'level' => 5,
-    ]);
+    $albumPermission = RolePermission::factory()->forModule('cms', 'gallery', 'album')->fullCrud();
+    $bannerPermission = RolePermission::factory()->forModule('cms', 'gallery', 'banner')->fullCrud();
+    $imagePermission = RolePermission::factory()->forModule('cms', 'gallery', 'image')->fullCrud();
+    $this->adminRole = Role::factory()
+        ->has($albumPermission)
+        ->has($bannerPermission)
+        ->has($imagePermission)
+        ->create(['name' => 'Administrator', 'slug' => 'admin', 'level' => 5]);
     $this->user = User::factory()->create();
     $this->user->roles()->attach($this->adminRole);
 });
@@ -119,6 +119,18 @@ describe('Delete Album', function () {
             ->assertDispatched('notify');
 
         $this->assertDatabaseMissing('cms_albums', ['id' => $album->id]);
+    });
+});
+
+describe('ACL', function () {
+    it('denies access to album list without permission', function () {
+        $noPermRole = Role::factory()->create(['name' => 'No Perm', 'slug' => 'no-perm', 'level' => 9]);
+        $noPermUser = User::factory()->create();
+        $noPermUser->roles()->attach($noPermRole);
+
+        $this->actingAs($noPermUser)
+            ->get(backend_route('cms.album.index'))
+            ->assertStatus(302);
     });
 });
 

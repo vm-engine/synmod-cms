@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\CategoryFormObject;
 use VmEngine\Cms\Models\CmsCategory;
@@ -47,6 +48,12 @@ new class extends Component
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.category_created'));
         }
         $this->redirect(backend_route('cms.category.index', ['sectionId' => $this->sectionId]), navigate: true);
+    }
+
+    #[On('custom-var-allow-add-changed')]
+    public function onCustomVarAllowAddChanged(bool $value): void
+    {
+        $this->form->customVarAllowAdd = $value;
     }
 
     #[Computed()]

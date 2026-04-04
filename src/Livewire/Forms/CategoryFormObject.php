@@ -33,6 +33,11 @@ class CategoryFormObject extends Form
 
     public string $og_image = '';
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $customVars = [];
+
+    public bool $customVarAllowAdd = false;
+
     public function setCategory(CmsCategory $category): void
     {
         $this->category = $category;
@@ -47,6 +52,9 @@ class CategoryFormObject extends Form
         $this->meta_title = $category->meta_title ?? '';
         $this->meta_description = $category->meta_description ?? '';
         $this->og_image = $category->og_image ?? '';
+        $config = $category->config ?? [];
+        $this->customVars = $config['custom_var'] ?? [];
+        $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
     }
 
     public function rules(): array
@@ -75,6 +83,7 @@ class CategoryFormObject extends Form
             'status' => $this->status,
             'sort_order' => $this->sort_order,
             'inherit_config' => $this->inherit_config,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
@@ -99,6 +108,7 @@ class CategoryFormObject extends Form
             'status' => $this->status,
             'sort_order' => $this->sort_order,
             'inherit_config' => $this->inherit_config,
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,

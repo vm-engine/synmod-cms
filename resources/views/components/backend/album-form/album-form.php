@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Livewire\Forms\AlbumFormObject;
@@ -42,6 +43,12 @@ new class extends Component
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.album_created'));
         }
         $this->redirect(backend_route('cms.album.index'), navigate: true);
+    }
+
+    #[On('custom-var-allow-add-changed')]
+    public function onCustomVarAllowAddChanged(bool $value): void
+    {
+        $this->form->customVarAllowAdd = $value;
     }
 
     #[Computed()]

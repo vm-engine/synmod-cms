@@ -12,17 +12,17 @@ Route::group([], function () {
 
     // Sections
     Route::livewire('/section', 'cms::backend.section-list')->name('section.index')
-        ->middleware('can-access:cms.section.read');
+        ->middleware('can-access:cms.article.section.read');
     Route::livewire('/section/form/{id?}', 'cms::backend.section-form')->name('section.form')
-        ->middleware('can-access:cms.section.create|cms.section.update');
+        ->middleware('can-access:cms.article.section.create|cms.article.section.update');
 
     // Categories (always section-scoped)
     Route::livewire('/section/{sectionId}/category', 'cms::backend.category-list')->name('category.index')
-        ->middleware('can-access:cms.section.read');
+        ->middleware('can-access:cms.article.category.read');
     Route::livewire('/section/{sectionId}/category/form', 'cms::backend.category-form')->name('category.form')
-        ->middleware('can-access:cms.section.create|cms.section.update');
+        ->middleware('can-access:cms.article.category.create|cms.article.category.update');
     Route::livewire('/section/{sectionId}/category/{id}/form', 'cms::backend.category-form')->name('category.edit')
-        ->middleware('can-access:cms.section.create|cms.section.update');
+        ->middleware('can-access:cms.article.category.create|cms.article.category.update');
 
     // Articles - global list (for nav menu, overview)
     Route::livewire('/article', 'cms::backend.article-list')->name('article.index')
@@ -37,11 +37,13 @@ Route::group([], function () {
 
     // Albums
     Route::livewire('/album', 'cms::backend.album-list')->name('album.index')
-        ->middleware('can-access:cms.gallery.read');
+        ->middleware('can-access:cms.gallery.album.read|cms.gallery.banner.read');
     Route::livewire('/album/form/{id?}', 'cms::backend.album-form')->name('album.form')
-        ->middleware('can-access:cms.gallery.create|cms.gallery.update');
+        ->middleware('can-access:cms.gallery.album.create|cms.gallery.album.update|cms.gallery.banner.create|cms.gallery.banner.update');
     Route::livewire('/album/{albumId}/images', 'cms::backend.album-image-manager')->name('album.images')
-        ->middleware('can-access:cms.gallery.update');
+        ->middleware('can-access:cms.gallery.image.read|cms.gallery.image.update');
+    Route::livewire('/album/{albumId}/image/{id}/form', 'cms::backend.album-image-form')->name('album.image.form')
+        ->middleware('can-access:cms.gallery.image.update');
 
     // Menus
     Route::livewire('/menu', 'cms::backend.menu-list')->name('menu.index')

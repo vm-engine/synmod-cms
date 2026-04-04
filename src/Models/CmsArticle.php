@@ -34,6 +34,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
+ * @property array<string, mixed>|null $config
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property Carbon $created_at
@@ -66,12 +67,14 @@ class CmsArticle extends Model
         'meta_title',
         'meta_description',
         'og_image',
+        'config',
         'created_by',
         'updated_by',
     ];
 
     protected $casts = [
         'status' => ArticleStatus::class,
+        'config' => 'array',
         'published_at' => 'datetime',
         'expires_at' => 'datetime',
         'is_featured' => 'boolean',

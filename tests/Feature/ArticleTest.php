@@ -68,7 +68,7 @@ describe('Page Rendering', function () {
 
     it('renders the add article form', function () {
         $this->actingAs($this->user)
-            ->get(backend_route('cms.article.form'))
+            ->get(backend_route('cms.section.article.form', ['sectionId' => $this->section->id]))
             ->assertStatus(200);
     });
 
@@ -76,7 +76,7 @@ describe('Page Rendering', function () {
         $article = CmsArticle::factory()->create(['section_id' => $this->section->id]);
 
         $this->actingAs($this->user)
-            ->get(backend_route('cms.article.form', ['id' => $article->id]))
+            ->get(backend_route('cms.section.article.edit', ['sectionId' => $this->section->id, 'id' => $article->id]))
             ->assertStatus(200);
     });
 });
@@ -84,13 +84,13 @@ describe('Page Rendering', function () {
 describe('Create Article', function () {
     it('can create an article via Livewire component', function () {
         Livewire::actingAs($this->user)
-            ->test('cms::backend.article-form')
+            ->test('cms::backend.article-form', ['sectionId' => $this->section->id])
             ->set('form.section_id', $this->section->id)
             ->set('form.title', 'First Post')
             ->set('form.slug', 'first-post')
             ->set('form.status', 'published')
             ->call('save')
-            ->assertRedirect(backend_route('cms.article.index'));
+            ->assertRedirect(backend_route('cms.section.article.index', ['sectionId' => $this->section->id]));
 
         $this->assertDatabaseHas('cms_articles', [
             'title' => 'First Post',
@@ -101,20 +101,19 @@ describe('Create Article', function () {
 
     it('validates required fields', function () {
         Livewire::actingAs($this->user)
-            ->test('cms::backend.article-form')
+            ->test('cms::backend.article-form', ['sectionId' => $this->section->id])
             ->set('form.title', '')
             ->set('form.slug', '')
             ->call('save')
             ->assertHasErrors([
                 'form.title' => 'required',
                 'form.slug' => 'required',
-                'form.section_id' => 'required',
             ]);
     });
 
     it('validates section_id exists', function () {
         Livewire::actingAs($this->user)
-            ->test('cms::backend.article-form')
+            ->test('cms::backend.article-form', ['sectionId' => $this->section->id])
             ->set('form.section_id', 99999)
             ->set('form.title', 'Test')
             ->set('form.slug', 'test')
@@ -128,7 +127,7 @@ describe('Create Article', function () {
         $tag2 = CmsTag::factory()->create(['name' => 'Laravel', 'slug' => 'laravel']);
 
         Livewire::actingAs($this->user)
-            ->test('cms::backend.article-form')
+            ->test('cms::backend.article-form', ['sectionId' => $this->section->id])
             ->set('form.section_id', $this->section->id)
             ->set('form.title', 'Tagged Post')
             ->set('form.slug', 'tagged-post')
@@ -151,12 +150,12 @@ describe('Update Article', function () {
         ]);
 
         Livewire::actingAs($this->user)
-            ->test('cms::backend.article-form', ['id' => $article->id])
+            ->test('cms::backend.article-form', ['sectionId' => $this->section->id, 'id' => $article->id])
             ->assertSet('form.title', 'Old Title')
             ->set('form.title', 'Updated Title')
             ->set('form.slug', 'updated-title')
             ->call('save')
-            ->assertRedirect(backend_route('cms.article.index'));
+            ->assertRedirect(backend_route('cms.section.article.index', ['sectionId' => $this->section->id]));
 
         $this->assertDatabaseHas('cms_articles', [
             'id' => $article->id,
@@ -177,6 +176,18 @@ describe('Delete Article', function () {
             ->assertDispatched('notify');
 
         $this->assertDatabaseMissing('cms_articles', ['id' => $article->id]);
+    });
+});
+
+describe('ACL', function () {
+    it('denies access to article list without permission', function () {
+        $noPermRole = Role::factory()->create(['name' => 'No Perm', 'slug' => 'no-perm', 'level' => 9]);
+        $noPermUser = User::factory()->create();
+        $noPermUser->roles()->attach($noPermRole);
+
+        $this->actingAs($noPermUser)
+            ->get(backend_route('cms.article.index'))
+            ->assertStatus(302);
     });
 });
 

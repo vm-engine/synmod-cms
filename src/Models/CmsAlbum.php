@@ -27,6 +27,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property int $sort_order
  * @property string|null $meta_title
  * @property string|null $meta_description
+ * @property array<string, mixed>|null $config
  * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -49,12 +50,14 @@ class CmsAlbum extends Model
         'sort_order',
         'meta_title',
         'meta_description',
+        'config',
         'created_by',
     ];
 
     protected $casts = [
         'type' => AlbumType::class,
         'sort_order' => 'integer',
+        'config' => 'array',
     ];
 
     protected static function newFactory(): CmsAlbumFactory

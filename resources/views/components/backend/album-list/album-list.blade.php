@@ -10,7 +10,7 @@
                     <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('cms::labels.album_list') }}</h3>
                 </div>
                 <div class="my-auto flex gap-3 px-5">
-                    @canAccess('cms.gallery.create')
+                    @canAccess('cms.gallery.album.create|cms.gallery.banner.create')
                     <a class="btn primary" href="{{ backend_route('cms.album.form') }}" wire:navigate>
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </a>
@@ -54,17 +54,19 @@
                             </td>
                             <td>
                                 <div class="text-center">
-                                    @canAccess('cms.gallery.update')
+                                    @if(($album->type->value === 'normal' && can_access('cms.gallery.album.update')) || ($album->type->value === 'banner' && can_access('cms.gallery.banner.update')))
                                     <a class="btn-icon warning has-tooltip group" href="{{ backend_route('cms.album.form', ['id' => $album->id]) }}" wire:navigate>
                                         <span class="fa-solid fa-edit"></span>
                                         <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                     </a>
+                                    @endif
+                                    @canAccess('cms.gallery.image.read|cms.gallery.image.update')
                                     <a class="btn-icon info has-tooltip group" href="{{ backend_route('cms.album.images', ['albumId' => $album->id]) }}" wire:navigate>
                                         <span class="fa-solid fa-images"></span>
                                         <span class="tooltip">{{ __('cms::labels.manage_images') }}</span>
                                     </a>
                                     @endcanAccess
-                                    @canAccess('cms.gallery.delete')
+                                    @if(($album->type->value === 'normal' && can_access('cms.gallery.album.delete')) || ($album->type->value === 'banner' && can_access('cms.gallery.banner.delete')))
                                     <button
                                         class="btn-icon danger has-tooltip group"
                                         data-token="{{ $album->delete_token }}"
@@ -83,7 +85,7 @@
                                         <span class="fa-solid fa-trash"></span>
                                         <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                     </button>
-                                    @endcanAccess
+                                    @endif
                                 </div>
                             </td>
                         </tr>

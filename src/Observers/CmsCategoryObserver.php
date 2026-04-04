@@ -18,7 +18,22 @@ class CmsCategoryObserver
 
     public function updated(CmsCategory $category): void
     {
+        if ($category->wasChanged('slug')) {
+            $category->loadMissing(['section', 'articles']);
+            $this->fallback->forgetCategoryByOldSlug(
+                $category->section->slug,
+                $category->getOriginal('slug'),
+                $category,
+            );
+        }
+
         $this->fallback->syncCategory($category);
+
+        // Re-sync articles so their routes reflect the new category slug
+        $category->loadMissing('articles');
+        foreach ($category->articles as $article) {
+            $this->fallback->syncArticle($article);
+        }
     }
 
     public function deleted(CmsCategory $category): void

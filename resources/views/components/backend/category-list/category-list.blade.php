@@ -10,7 +10,7 @@
                     <h3 class="text-base font-medium text-gray-800 dark:text-white/90">{{ __('cms::labels.category_list') }}</h3>
                 </div>
                 <div class="my-auto flex gap-3 px-5">
-                    @canAccess('cms.section.create')
+                    @canAccess('cms.article.category.create')
                     <a class="btn primary"
                        href="{{ backend_route('cms.category.form', ['sectionId' => $sectionId]) }}"
                        wire:navigate>
@@ -52,13 +52,13 @@
                             </td>
                             <td>
                                 <div class="text-center">
-                                    @canAccess('cms.section.update')
+                                    @canAccess('cms.article.category.update')
                                     <a class="btn-icon warning has-tooltip group" href="{{ backend_route('cms.category.edit', ['sectionId' => $sectionId, 'id' => $category->id]) }}" wire:navigate>
                                         <span class="fa-solid fa-edit"></span>
                                         <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                     </a>
                                     @endcanAccess
-                                    @canAccess('cms.section.delete')
+                                    @canAccess('cms.article.category.delete')
                                     <button
                                         class="btn-icon danger has-tooltip group"
                                         data-token="{{ $category->delete_token }}"

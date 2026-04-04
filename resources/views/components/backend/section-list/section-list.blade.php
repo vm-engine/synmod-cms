@@ -12,7 +12,7 @@
                     </h3>
                 </div>
                 <div class="my-auto flex gap-3 px-5">
-                    @canAccess('cms.section.create')
+                    @canAccess('cms.article.section.create')
                     <a class="btn primary" href="{{ backend_route('cms.section.form') }}" wire:navigate>
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </a>
@@ -55,13 +55,13 @@
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        @canAccess('cms.section.update')
+                                        @canAccess('cms.article.section.update')
                                         <a class="btn-icon warning has-tooltip group" href="{{ backend_route('cms.section.form', ['id' => $section->id]) }}" wire:navigate>
                                             <span class="fa-solid fa-edit"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
                                         @endcanAccess
-                                        @canAccess('cms.section.read')
+                                        @canAccess('cms.article.section.read')
                                         <a class="btn-icon secondary has-tooltip group" href="{{ backend_route('cms.category.index', ['sectionId' => $section->id]) }}" wire:navigate>
                                             <span class="fa-solid fa-folder"></span>
                                             <span class="tooltip">{{ __('cms::labels.manage_categories') }}</span>
@@ -73,7 +73,7 @@
                                             <span class="tooltip">{{ __('cms::labels.view_articles') }}</span>
                                         </a>
                                         @endcanAccess
-                                        @canAccess('cms.section.delete')
+                                        @canAccess('cms.article.section.delete')
                                         <button
                                             class="btn-icon danger has-tooltip group"
                                             data-token="{{ $section->delete_token }}"

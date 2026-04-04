@@ -123,6 +123,7 @@ return [
     'caption' => 'Caption',
     'gallery' => 'Gallery',
     'photos' => 'photos',
+    'featured' => 'Featured',
     'no_albums' => 'No albums available.',
     'no_images' => 'No images in this album.',
     'image_added' => 'Image added successfully.',
@@ -177,4 +178,23 @@ return [
     'tag_deleted' => 'Tag deleted successfully.',
     'delete_tag_title' => 'Delete Tag',
     'delete_tag_message' => 'Are you sure you want to delete tag ":name"?',
+
+    // Custom Variables
+    'custom_vars' => 'Custom Variables',
+    'add_var' => 'Add Variable',
+    'no_custom_vars' => 'No custom variables defined.',
+    'var_key' => 'Key',
+    'var_label' => 'Label',
+    'var_value' => 'Value',
+    'var_editable' => 'Editable',
+    'var_label_placeholder' => 'Display label',
+    'var_editable_hint' => 'Allow non-admin users to edit this value',
+    'remove_var' => 'Remove',
+    'custom_var_allow_add' => 'Allow users to add',
+
+    // Album image form
+    'edit_image' => 'Edit Image',
+    'image_updated' => 'Image updated successfully.',
+    'file' => 'File',
+    'file_size' => 'Size',
 ];

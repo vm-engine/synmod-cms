@@ -248,6 +248,9 @@
 
         </div>
 
+        {{-- Custom Variables --}}
+        <livewire:cms::backend.custom-var-manager wire:model="form.customVars" :allow-add="$form->customVarAllowAdd" wire:key="cvm-page-{{ $pageId ?? 'new' }}" />
+
         {{-- Fixed Action Bar --}}
         <div
             class="z-9 fixed bottom-0 left-0 right-0 flex items-center justify-between border-t border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">

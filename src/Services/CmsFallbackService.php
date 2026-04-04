@@ -9,6 +9,7 @@ use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\SynFallback\Facades\Fallback;
@@ -85,6 +86,18 @@ class CmsFallbackService
     {
         $category->loadMissing('section');
         Fallback::forget($category->section->slug.'/'.$category->slug);
+    }
+
+    /**
+     * Forget a category's old slug (before rename) and all article routes under it.
+     */
+    public function forgetCategoryByOldSlug(string $sectionSlug, string $oldCategorySlug, CmsCategory $category): void
+    {
+        Fallback::forget($sectionSlug.'/'.$oldCategorySlug);
+
+        foreach ($category->articles as $article) {
+            Fallback::forget($sectionSlug.'/'.$oldCategorySlug.'/'.$article->slug);
+        }
     }
 
     public function syncArticle(CmsArticle $article): void
@@ -164,7 +177,7 @@ class CmsFallbackService
         // Only remove the fallback if no other album_list item resolves to this slug.
         $effectiveSlug = $slug ?: 'gallery';
 
-        $stillUsed = \VmEngine\Cms\Models\CmsMenuItem::where('target_type', 'album_list')
+        $stillUsed = CmsMenuItem::where('target_type', 'album_list')
             ->get()
             ->contains(fn ($item) => ($item->target_url ?: 'gallery') === $effectiveSlug);
 

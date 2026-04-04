@@ -66,17 +66,30 @@
             </div>
         </div>
 
+        {{-- Custom Variables --}}
+        <livewire:cms::backend.custom-var-manager wire:model="form.customVars" :allow-add="$form->customVarAllowAdd" wire:key="cvm-album-{{ $albumId ?? 'new' }}" />
+
         <div class="fixed bottom-0 left-0 right-0 z-9 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between items-center">
             <a class="btn secondary" href="{{ backend_route('cms.album.index') }}" wire:navigate>
                 <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
-            @canAccess('cms.gallery.create|cms.gallery.update')
-            <button class="btn primary" type="submit" wire:loading.attr="disabled">
-                <span class="fa-solid fa-floppy-disk" wire:loading.remove></span>
-                <span class="fa-solid fa-circle-notch fa-spin" wire:loading></span>
-                {{ __('cms::labels.save') }}
-            </button>
-            @endcanAccess
+            @if($form->type === 'banner')
+                @canAccess('cms.gallery.banner.create|cms.gallery.banner.update')
+                <button class="btn primary" type="submit" wire:loading.attr="disabled">
+                    <span class="fa-solid fa-floppy-disk" wire:loading.remove></span>
+                    <span class="fa-solid fa-circle-notch fa-spin" wire:loading></span>
+                    {{ __('cms::labels.save') }}
+                </button>
+                @endcanAccess
+            @else
+                @canAccess('cms.gallery.album.create|cms.gallery.album.update')
+                <button class="btn primary" type="submit" wire:loading.attr="disabled">
+                    <span class="fa-solid fa-floppy-disk" wire:loading.remove></span>
+                    <span class="fa-solid fa-circle-notch fa-spin" wire:loading></span>
+                    {{ __('cms::labels.save') }}
+                </button>
+                @endcanAccess
+            @endif
         </div>
         <div class="h-16"></div>
     </form>
