@@ -8,7 +8,7 @@
     },
     "name": "CMS",
     "description": "Content Management System — static pages, dynamic articles, gallery, and frontend menu management",
-    "version": "1.0.1",
+    "version": "1.0.2",
     "author": "Adods",
     "email": "theadods@gmail.com",
     "url_prefix": "cms",

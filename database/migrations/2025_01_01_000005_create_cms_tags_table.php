@@ -8,20 +8,24 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('cms_tags', function (Blueprint $table) {
-            $table->id();
-            $table->string('name');
-            $table->string('slug')->unique();
-            $table->timestamps();
-        });
+        if (! Schema::hasTable('cms_tags')) {
+            Schema::create('cms_tags', function (Blueprint $table) {
+                $table->id();
+                $table->string('name');
+                $table->string('slug')->unique();
+                $table->timestamps();
+            });
+        }
 
-        Schema::create('cms_article_tag', function (Blueprint $table) {
-            $table->unsignedBigInteger('article_id');
-            $table->unsignedBigInteger('tag_id');
-            $table->primary(['article_id', 'tag_id']);
-            $table->foreign('article_id')->references('id')->on('cms_articles')->cascadeOnDelete();
-            $table->foreign('tag_id')->references('id')->on('cms_tags')->cascadeOnDelete();
-        });
+        if (! Schema::hasTable('cms_article_tag')) {
+            Schema::create('cms_article_tag', function (Blueprint $table) {
+                $table->unsignedBigInteger('article_id');
+                $table->unsignedBigInteger('tag_id');
+                $table->primary(['article_id', 'tag_id']);
+                $table->foreign('article_id')->references('id')->on('cms_articles')->cascadeOnDelete();
+                $table->foreign('tag_id')->references('id')->on('cms_tags')->cascadeOnDelete();
+            });
+        }
     }
 
     public function down(): void

@@ -5,6 +5,13 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.2] - 2026-04-06
+
+### Fixed
+- All `create` migrations now guard with `Schema::hasTable()` to prevent errors on fresh installs where tables were previously created outside Laravel migrations
+- `update_cms_menu_items_target_type` migration is now idempotent — checks column existence before each step to safely re-run on existing databases
+- `add_config_to_cms_content_tables` migration guards against adding duplicate columns when the migration has already been partially applied
+
 ## [1.0.1] - 2026-04-06
 
 ### Fixed
