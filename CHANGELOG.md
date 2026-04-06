@@ -5,6 +5,11 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.0.1] - 2026-04-06
+
+### Fixed
+- Migration order: renamed `cms_albums`, `cms_menus`, and subsequent migrations to timestamps after `fm_files` migration (`2026_03_14_000001`) to prevent foreign key constraint error (errno: 150) when `cms_album_images.file_id` references `fm_files.id`
+
 ## [1.0.0] - 2026-04-04
 
 ### Added
