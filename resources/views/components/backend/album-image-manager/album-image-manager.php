@@ -21,6 +21,11 @@ new class extends Component
 
     public string $newImageCaption = '';
 
+    /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
+    public array $newImageCustomVars = [];
+
+    public bool $newImageCustomVarAllowAdd = false;
+
     public function mount(int $albumId): void
     {
         $this->albumId = $albumId;
@@ -41,6 +46,12 @@ new class extends Component
         }
     }
 
+    #[On('custom-var-allow-add-changed')]
+    public function onCustomVarAllowAddChanged(bool $value): void
+    {
+        $this->newImageCustomVarAllowAdd = $value;
+    }
+
     public function addImage(): void
     {
         $this->validate([
@@ -56,9 +67,10 @@ new class extends Component
             'title' => $this->newImageTitle ?: null,
             'caption' => $this->newImageCaption ?: null,
             'sort_order' => $maxOrder + 1,
+            'config' => ['custom_var' => $this->newImageCustomVars, 'custom_var_allow_add' => $this->newImageCustomVarAllowAdd],
         ]);
 
-        $this->reset('newImageUrl', 'newImageTitle', 'newImageCaption');
+        $this->reset('newImageUrl', 'newImageTitle', 'newImageCaption', 'newImageCustomVars', 'newImageCustomVarAllowAdd');
         $this->newFileId = null;
         unset($this->images);
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_added'));

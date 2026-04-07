@@ -8,6 +8,7 @@ use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenu;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
@@ -85,8 +86,8 @@ new class extends Component
 
     public function addItem(): void
     {
-        $validTypes = 'url,page,section,category,article,album,album_image,album_list';
-        $noIdTypes = ['url', 'album_list'];
+        $validTypes = 'url,page,section,category,article,album,album_image,album_list,download,download_list';
+        $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'newLabel' => 'required|string|max:255',
             'newTargetType' => "required|in:{$validTypes}",
@@ -105,7 +106,7 @@ new class extends Component
             'label' => $this->newLabel,
             'target_type' => $this->newTargetType,
             'target_id' => ! in_array($this->newTargetType, $noIdTypes) ? $this->newTargetId : null,
-            'target_url' => $this->newTargetType === 'url' ? $this->newTargetUrl : null,
+            'target_url' => in_array($this->newTargetType, ['url', 'album_list', 'download_list']) ? ($this->newTargetUrl ?: null) : null,
             'open_new_tab' => $this->newOpenNewTab,
             'sort_order' => $maxOrder + 1,
             'is_active' => true,
@@ -132,8 +133,8 @@ new class extends Component
 
     public function saveEdit(): void
     {
-        $validTypes = 'url,page,section,category,article,album,album_image,album_list';
-        $noIdTypes = ['url', 'album_list'];
+        $validTypes = 'url,page,section,category,article,album,album_image,album_list,download,download_list';
+        $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'editLabel' => 'required|string|max:255',
             'editTargetType' => "required|in:{$validTypes}",
@@ -145,7 +146,7 @@ new class extends Component
             'label' => $this->editLabel,
             'target_type' => $this->editTargetType,
             'target_id' => ! in_array($this->editTargetType, $noIdTypes) ? $this->editTargetId : null,
-            'target_url' => $this->editTargetType === 'url' ? $this->editTargetUrl : null,
+            'target_url' => in_array($this->editTargetType, ['url', 'album_list', 'download_list']) ? ($this->editTargetUrl ?: null) : null,
             'open_new_tab' => $this->editOpenNewTab,
             'parent_id' => $this->editParentId,
         ]);
@@ -303,6 +304,23 @@ new class extends Component
             ->toArray();
     }
 
+    public function searchDownloads(string $query): array
+    {
+        return CmsDownload::where('title', 'like', "%{$query}%")
+            ->limit(20)
+            ->get(['id', 'title'])
+            ->map(fn ($d) => ['value' => $d->id, 'label' => $d->title])
+            ->toArray();
+    }
+
+    public function loadDownloads(int|array $ids): array
+    {
+        return CmsDownload::whereIn('id', (array) $ids)
+            ->get(['id', 'title'])
+            ->map(fn ($d) => ['value' => $d->id, 'label' => $d->title])
+            ->toArray();
+    }
+
     // ── Computed ─────────────────────────────────────────────────────────────
 
     #[Computed()]
@@ -339,6 +357,8 @@ new class extends Component
             'album' => __('cms::labels.type_album'),
             'album_image' => __('cms::labels.type_album_image'),
             'album_list' => __('cms::labels.type_album_list'),
+            'download' => __('cms::labels.type_download'),
+            'download_list' => __('cms::labels.type_download_list'),
         ];
     }
 

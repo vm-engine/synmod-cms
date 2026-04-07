@@ -11,6 +11,18 @@
     @error($wireModelUrl)
         <p class="form-error">{{ $message }}</p>
     @enderror
+@elseif ($targetType === 'download_list')
+    <label class="form-label">{{ __('cms::labels.download_slug') }}</label>
+    <input
+        class="form-input"
+        type="text"
+        wire:model="{{ $wireModelUrl }}"
+        placeholder="downloads"
+    />
+    <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.download_slug_hint') }}</p>
+    @error($wireModelUrl)
+        <p class="form-error">{{ $message }}</p>
+    @enderror
 @elseif ($targetType === 'url')
     <label class="form-label">{{ __('cms::labels.url') }}</label>
     <input
@@ -59,6 +71,12 @@
             wire-model="{{ $wireModelTargetId }}"
             search-method="searchAlbumImages"
             load-method="loadAlbumImages"
+        />
+    @elseif ($targetType === 'download')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchDownloads"
+            load-method="loadDownloads"
         />
     @endif
     @error($wireModelTargetId)

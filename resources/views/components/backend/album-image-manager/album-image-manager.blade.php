@@ -58,6 +58,12 @@
                         </button>
                     </div>
                 </div>
+
+                <livewire:cms::backend.custom-var-manager
+                    wire:model="newImageCustomVars"
+                    :allow-add="$newImageCustomVarAllowAdd"
+                    wire:key="cvm-new-image-{{ $albumId }}"
+                />
             </div>
         </div>
         @endcanAccess

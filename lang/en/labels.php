@@ -110,6 +110,12 @@ return [
     'delete_article_message' => 'Are you sure you want to delete ":title"?',
     'no_articles' => 'No articles found.',
 
+    // Menu target selectors
+    'gallery_slug' => 'Gallery URL Slug',
+    'gallery_slug_hint' => 'The URL path for the gallery index (e.g. "gallery" → /gallery). Leave blank for default.',
+    'download_slug' => 'Download URL Slug',
+    'download_slug_hint' => 'The URL path for the download index (e.g. "downloads" → /downloads). Leave blank for default.',
+
     // Albums
     'album_list' => 'Albums',
     'add_album' => 'Add Album',
@@ -168,6 +174,35 @@ return [
     'menu_deleted' => 'Menu deleted successfully.',
     'delete_menu_title' => 'Delete Menu',
     'delete_menu_message' => 'Are you sure you want to delete ":name"?',
+
+    // Downloads
+    'download_list' => 'Downloads',
+    'downloads' => 'Downloads',
+    'add_download' => 'Add Download',
+    'edit_download' => 'Edit Download',
+    'download_info' => 'Download Info',
+    'manage_files' => 'Manage Files',
+    'add_file' => 'Add File',
+    'edit_file' => 'Edit File',
+    'files' => 'Files',
+    'access' => 'Access',
+    'access_public' => 'Public',
+    'access_private' => 'Private (Login Required)',
+    'download' => 'Download',
+    'unavailable' => 'Unavailable',
+    'download_created' => 'Download category created successfully.',
+    'download_updated' => 'Download category updated successfully.',
+    'download_deleted' => 'Download category deleted successfully.',
+    'delete_download_title' => 'Delete Download Category',
+    'delete_download_message' => 'Are you sure you want to delete ":title"? All files in this category will also be removed.',
+    'file_added' => 'File added successfully.',
+    'file_deleted' => 'File deleted.',
+    'file_updated' => 'File updated successfully.',
+    'delete_file_confirm' => 'Remove this file from the download category?',
+    'no_downloads' => 'No download categories found.',
+    'no_files' => 'No files in this category.',
+    'type_download_list' => 'Download List',
+    'type_download' => 'Download Category',
 
     // Tags
     'tag_list' => 'Tags',

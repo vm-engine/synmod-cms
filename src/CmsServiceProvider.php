@@ -10,6 +10,7 @@ use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
@@ -17,6 +18,7 @@ use VmEngine\Cms\Observers\CmsAlbumImageObserver;
 use VmEngine\Cms\Observers\CmsAlbumObserver;
 use VmEngine\Cms\Observers\CmsArticleObserver;
 use VmEngine\Cms\Observers\CmsCategoryObserver;
+use VmEngine\Cms\Observers\CmsDownloadObserver;
 use VmEngine\Cms\Observers\CmsMenuItemObserver;
 use VmEngine\Cms\Observers\CmsPageObserver;
 use VmEngine\Cms\Observers\CmsSectionObserver;
@@ -45,6 +47,7 @@ class CmsServiceProvider extends ServiceProvider
         CmsArticle::observe(CmsArticleObserver::class);
         CmsAlbum::observe(CmsAlbumObserver::class);
         CmsAlbumImage::observe(CmsAlbumImageObserver::class);
+        CmsDownload::observe(CmsDownloadObserver::class);
         CmsMenuItem::observe(CmsMenuItemObserver::class);
     }
 }

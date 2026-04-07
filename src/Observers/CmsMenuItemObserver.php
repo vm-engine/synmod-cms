@@ -13,39 +13,56 @@ class CmsMenuItemObserver
 
     public function created(CmsMenuItem $item): void
     {
-        if ($item->target_type !== 'album_list') {
-            return;
+        if ($item->target_type === 'album_list') {
+            $this->fallback->syncGalleryIndex($item->target_url ?: 'gallery');
         }
 
-        $this->fallback->syncGalleryIndex($item->target_url ?: 'gallery');
+        if ($item->target_type === 'download_list') {
+            $this->fallback->syncDownloadIndex($item->target_url ?: 'downloads');
+        }
     }
 
     public function updated(CmsMenuItem $item): void
     {
-        if ($item->target_type !== 'album_list' && $item->getOriginal('target_type') !== 'album_list') {
-            return;
+        $oldType = $item->getOriginal('target_type');
+
+        // Handle album_list changes
+        if ($item->target_type === 'album_list' || $oldType === 'album_list') {
+            $oldSlug = $item->getOriginal('target_url') ?: 'gallery';
+            $newSlug = $item->target_url ?: 'gallery';
+
+            if ($oldSlug !== $newSlug) {
+                $this->fallback->forgetGalleryIndex($oldSlug);
+            }
+
+            if ($item->target_type === 'album_list') {
+                $this->fallback->syncGalleryIndex($newSlug);
+            }
         }
 
-        $oldSlug = $item->getOriginal('target_url') ?: 'gallery';
-        $newSlug = $item->target_url ?: 'gallery';
+        // Handle download_list changes
+        if ($item->target_type === 'download_list' || $oldType === 'download_list') {
+            $oldSlug = $item->getOriginal('target_url') ?: 'downloads';
+            $newSlug = $item->target_url ?: 'downloads';
 
-        // If slug changed, forget the old one (if no other item still uses it)
-        if ($oldSlug !== $newSlug) {
-            $this->fallback->forgetGalleryIndex($oldSlug);
-        }
+            if ($oldSlug !== $newSlug) {
+                $this->fallback->forgetDownloadIndex($oldSlug);
+            }
 
-        // If this is now an album_list item, register the new slug
-        if ($item->target_type === 'album_list') {
-            $this->fallback->syncGalleryIndex($newSlug);
+            if ($item->target_type === 'download_list') {
+                $this->fallback->syncDownloadIndex($newSlug);
+            }
         }
     }
 
     public function deleted(CmsMenuItem $item): void
     {
-        if ($item->target_type !== 'album_list') {
-            return;
+        if ($item->target_type === 'album_list') {
+            $this->fallback->forgetGalleryIndex($item->target_url ?: 'gallery');
         }
 
-        $this->fallback->forgetGalleryIndex($item->target_url ?: 'gallery');
+        if ($item->target_type === 'download_list') {
+            $this->fallback->forgetDownloadIndex($item->target_url ?: 'downloads');
+        }
     }
 }

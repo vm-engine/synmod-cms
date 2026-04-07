@@ -85,6 +85,10 @@ class CmsMenuItem extends Model
             return '/'.($this->target_url ?: 'gallery');
         }
 
+        if ($this->target_type === 'download_list') {
+            return '/'.($this->target_url ?: 'downloads');
+        }
+
         if ($this->target_id === null) {
             return '#';
         }
@@ -129,6 +133,18 @@ class CmsMenuItem extends Model
                 }
 
                 return '/gallery/'.$image->album->slug.'#image-'.$image->id;
+            })(),
+            'download' => (function () {
+                $download = CmsDownload::find($this->target_id);
+                if (! $download) {
+                    return '#';
+                }
+                $prefix = CmsMenuItem::where('target_type', 'download_list')
+                    ->whereNotNull('target_url')
+                    ->where('target_url', '!=', '')
+                    ->value('target_url') ?? 'downloads';
+
+                return '/'.$prefix.'/'.$download->slug;
             })(),
             default => '#',
         };

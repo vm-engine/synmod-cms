@@ -1,0 +1,69 @@
+<?php
+
+declare(strict_types=1);
+
+use Livewire\Attributes\Computed;
+use Livewire\Attributes\On;
+use Livewire\Component;
+use VmEngine\Cms\Livewire\Forms\DownloadFileFormObject;
+use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Models\CmsDownloadFile;
+use VmEngine\Synapse\Services\Helper\Breadcrumbs;
+
+new class extends Component
+{
+    public DownloadFileFormObject $form;
+
+    public int $downloadId;
+
+    public int $fileId;
+
+    public function mount(int $downloadId, int $id): void
+    {
+        $this->downloadId = $downloadId;
+        $this->fileId = $id;
+
+        $file = CmsDownloadFile::where('download_id', $downloadId)->findOrFail($id);
+        $this->form->setFile($file);
+
+        synav()->setActiveMenu('cms.download');
+    }
+
+    public function title(): string
+    {
+        return __('cms::labels.edit_file');
+    }
+
+    public function save(): void
+    {
+        $this->form->update();
+        $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_updated'));
+        $this->redirect(backend_route('cms.download.files', ['downloadId' => $this->downloadId]), navigate: true);
+    }
+
+    #[On('custom-var-allow-add-changed')]
+    public function onCustomVarAllowAddChanged(bool $value): void
+    {
+        $this->form->customVarAllowAdd = $value;
+    }
+
+    #[Computed()]
+    public function download(): CmsDownload
+    {
+        return CmsDownload::findOrFail($this->downloadId);
+    }
+
+    #[Computed()]
+    public function breadcrumbs(): Breadcrumbs
+    {
+        return Breadcrumbs::make(label: __('cms::labels.download_list'), icon: 'fa-solid fa-download', url: backend_route('cms.download.index'))
+            ->add(label: $this->download->title, url: backend_route('cms.download.form', ['id' => $this->downloadId]))
+            ->add(label: __('cms::labels.manage_files'), url: backend_route('cms.download.files', ['downloadId' => $this->downloadId]))
+            ->add(label: $this->title());
+    }
+
+    public function render()
+    {
+        return $this->view()->title(page_title($this->title()));
+    }
+};

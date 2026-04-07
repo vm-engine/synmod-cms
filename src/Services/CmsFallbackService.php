@@ -9,6 +9,7 @@ use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
@@ -184,6 +185,73 @@ class CmsFallbackService
         if (! $stillUsed) {
             Fallback::forget($effectiveSlug);
         }
+    }
+
+    public function getDownloadPrefix(): string
+    {
+        $item = CmsMenuItem::where('target_type', 'download_list')
+            ->whereNotNull('target_url')
+            ->where('target_url', '!=', '')
+            ->first();
+
+        return $item ? ($item->target_url ?: 'downloads') : 'downloads';
+    }
+
+    public function syncDownload(CmsDownload $download): void
+    {
+        if ($download->status !== 'active') {
+            $this->forgetDownload($download);
+
+            return;
+        }
+
+        $prefix = $this->getDownloadPrefix();
+
+        Fallback::register(
+            slug: $prefix.'/'.$download->slug,
+            handler: 'cms::frontend.download-viewer',
+            module: 'cms',
+            params: ['download_id' => $download->id],
+            handlerType: 'livewire',
+        );
+    }
+
+    public function forgetDownload(CmsDownload $download): void
+    {
+        $prefix = $this->getDownloadPrefix();
+        Fallback::forget($prefix.'/'.$download->slug);
+    }
+
+    public function syncDownloadIndex(string $slug): void
+    {
+        $effectiveSlug = $slug ?: 'downloads';
+
+        Fallback::register(
+            slug: $effectiveSlug,
+            handler: 'cms::frontend.download-index',
+            module: 'cms',
+            params: [],
+            handlerType: 'livewire',
+        );
+
+        // Re-sync all active downloads so their routes use the new prefix
+        CmsDownload::active()->get()->each(fn ($d) => $this->syncDownload($d));
+    }
+
+    public function forgetDownloadIndex(string $slug): void
+    {
+        $effectiveSlug = $slug ?: 'downloads';
+
+        $stillUsed = CmsMenuItem::where('target_type', 'download_list')
+            ->get()
+            ->contains(fn ($item) => ($item->target_url ?: 'downloads') === $effectiveSlug);
+
+        if (! $stillUsed) {
+            Fallback::forget($effectiveSlug);
+        }
+
+        // Re-sync all active downloads so their routes reflect the new effective prefix
+        CmsDownload::active()->get()->each(fn ($d) => $this->syncDownload($d));
     }
 
     /**

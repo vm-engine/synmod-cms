@@ -45,6 +45,16 @@ Route::group([], function () {
     Route::livewire('/album/{albumId}/image/{id}/form', 'cms::backend.album-image-form')->name('album.image.form')
         ->middleware('can-access:cms.gallery.image.update');
 
+    // Downloads
+    Route::livewire('/download', 'cms::backend.download-list')->name('download.index')
+        ->middleware('can-access:cms.download.category.read');
+    Route::livewire('/download/form/{id?}', 'cms::backend.download-form')->name('download.form')
+        ->middleware('can-access:cms.download.category.create|cms.download.category.update');
+    Route::livewire('/download/{downloadId}/files', 'cms::backend.download-file-manager')->name('download.files')
+        ->middleware('can-access:cms.download.file.read|cms.download.file.update');
+    Route::livewire('/download/{downloadId}/file/{id}/form', 'cms::backend.download-file-form')->name('download.file.form')
+        ->middleware('can-access:cms.download.file.update');
+
     // Menus
     Route::livewire('/menu', 'cms::backend.menu-list')->name('menu.index')
         ->middleware('can-access:cms.menu.read');
