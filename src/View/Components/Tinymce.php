@@ -19,7 +19,6 @@ class Tinymce extends Component
 
     public function render(): View
     {
-        // @phpstan-ignore argument.type
         return view('cms::components.tinymce');
     }
 }

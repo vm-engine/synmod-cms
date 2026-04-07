@@ -21,6 +21,7 @@ beforeEach(function () {
         'name' => 'Administrator',
         'slug' => 'admin',
         'level' => 5,
+        'can_access_backend' => true,
     ]);
     $this->user = User::factory()->create();
     $this->user->roles()->attach($this->adminRole);

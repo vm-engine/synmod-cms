@@ -17,7 +17,7 @@ beforeEach(function () {
     $this->adminRole = Role::factory()
         ->has($albumPerm)
         ->has($imagePerm)
-        ->create(['name' => 'Administrator', 'slug' => 'admin', 'level' => 5]);
+        ->create(['name' => 'Administrator', 'slug' => 'admin', 'level' => 5, 'can_access_backend' => true]);
     $this->user = User::factory()->create();
     $this->user->roles()->attach($this->adminRole);
 

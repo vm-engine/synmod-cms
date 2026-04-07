@@ -5,6 +5,17 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.1] - 2026-04-07
+
+### Added
+- Indonesian (`id`) translations for all language files: `lang/id/acl.php`, `lang/id/labels.php`, `lang/id/menu.php`
+- `CLAUDE.md` with architecture documentation and development commands for this package
+
+### Fixed
+- Removed stale `@phpstan-ignore argument.type` comments from `Menu.php` and `Tinymce.php` view components (errors no longer present)
+- Removed redundant `php` and `laravel/framework` entries from `composer.json` `require` (already required by the host application)
+- Test roles now set `can_access_backend: true` to correctly pass backend access middleware in all `Page Rendering` tests
+
 ## [1.0.2] - 2026-04-06
 
 ### Fixed

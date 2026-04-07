@@ -19,7 +19,6 @@ class Menu extends Component
         $service = app(CmsMenuService::class);
         $items = $service->buildTree($this->position);
 
-        // @phpstan-ignore argument.type
         return view('cms::components.frontend.menu.menu', ['items' => $items, 'position' => $this->position]);
     }
 }
