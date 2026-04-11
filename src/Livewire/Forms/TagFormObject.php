@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsTag;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class TagFormObject extends Form
 {
@@ -39,6 +40,8 @@ class TagFormObject extends Form
             'slug' => $this->slug,
         ]);
 
+        app(CmsActivityLogger::class)->logCreate('tag', $tag, $tag->toArray());
+
         $this->reset();
 
         return $tag;
@@ -48,9 +51,13 @@ class TagFormObject extends Form
     {
         $this->validate();
 
+        $oldData = $this->tag->toArray();
+
         $this->tag->update([
             'name' => $this->name,
             'slug' => $this->slug,
         ]);
+
+        app(CmsActivityLogger::class)->logUpdate('tag', $this->tag, $oldData);
     }
 }

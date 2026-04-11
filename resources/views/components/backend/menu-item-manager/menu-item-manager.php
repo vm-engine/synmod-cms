@@ -13,6 +13,7 @@ use VmEngine\Cms\Models\CmsMenu;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -100,7 +101,7 @@ new class extends Component
             ->where('parent_id', $parentId)
             ->max('sort_order') ?? -1;
 
-        CmsMenuItem::create([
+        $item = CmsMenuItem::create([
             'menu_id' => $this->menuId,
             'parent_id' => $parentId,
             'label' => $this->newLabel,
@@ -111,6 +112,7 @@ new class extends Component
             'sort_order' => $maxOrder + 1,
             'is_active' => true,
         ]);
+        app(CmsActivityLogger::class)->logCreate('menu_item', $item, $item->toArray());
 
         $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab');
         $this->newTargetType = 'url';
@@ -142,7 +144,9 @@ new class extends Component
             'editTargetUrl' => $this->editTargetType === 'url' ? 'nullable|string|max:2048' : 'nullable',
         ]);
 
-        CmsMenuItem::findOrFail($this->editingId)->update([
+        $item = CmsMenuItem::findOrFail($this->editingId);
+        $oldData = $item->toArray();
+        $item->update([
             'label' => $this->editLabel,
             'target_type' => $this->editTargetType,
             'target_id' => ! in_array($this->editTargetType, $noIdTypes) ? $this->editTargetId : null,
@@ -150,6 +154,7 @@ new class extends Component
             'open_new_tab' => $this->editOpenNewTab,
             'parent_id' => $this->editParentId,
         ]);
+        app(CmsActivityLogger::class)->logUpdate('menu_item', $item, $oldData);
 
         $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId');
         unset($this->items);
@@ -163,7 +168,9 @@ new class extends Component
 
     public function deleteItem(int $id): void
     {
-        CmsMenuItem::where('menu_id', $this->menuId)->findOrFail($id)->delete();
+        $item = CmsMenuItem::where('menu_id', $this->menuId)->findOrFail($id);
+        app(CmsActivityLogger::class)->logDelete('menu_item', $item);
+        $item->delete();
         unset($this->items);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.item_deleted'));

@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Livewire\Forms\MenuFormObject;
 use VmEngine\Cms\Models\CmsMenu;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -71,7 +72,9 @@ new class extends Component
             if (! $id) {
                 throw new Exception(__('cms::labels.invalid_delete_token'));
             }
-            CmsMenu::findOrFail($id)->delete();
+            $menu = CmsMenu::findOrFail($id);
+            app(CmsActivityLogger::class)->logDelete('menu', $menu);
+            $menu->delete();
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 

@@ -7,6 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsDownloadFile;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -62,7 +63,7 @@ new class extends Component
 
         $maxOrder = CmsDownloadFile::where('download_id', $this->downloadId)->max('sort_order') ?? -1;
 
-        CmsDownloadFile::create([
+        $file = CmsDownloadFile::create([
             'download_id' => $this->downloadId,
             'file_id' => $this->newFileId,
             'title' => $this->newFileTitle ?: null,
@@ -70,6 +71,7 @@ new class extends Component
             'sort_order' => $maxOrder + 1,
             'config' => ['custom_var' => $this->newFileCustomVars, 'custom_var_allow_add' => $this->newFileCustomVarAllowAdd],
         ]);
+        app(CmsActivityLogger::class)->logCreate('download_file', $file, $file->toArray());
 
         $this->reset('newFileUrl', 'newFileTitle', 'newFileDescription', 'newFileCustomVars', 'newFileCustomVarAllowAdd');
         $this->newFileId = null;
@@ -79,7 +81,9 @@ new class extends Component
 
     public function deleteFile(int $id): void
     {
-        CmsDownloadFile::where('download_id', $this->downloadId)->findOrFail($id)->delete();
+        $file = CmsDownloadFile::where('download_id', $this->downloadId)->findOrFail($id);
+        app(CmsActivityLogger::class)->logDelete('download_file', $file);
+        $file->delete();
         unset($this->files);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_deleted'));

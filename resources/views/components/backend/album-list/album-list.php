@@ -7,6 +7,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
@@ -74,6 +75,7 @@ new class extends Component
                 throw new Exception(__('cms::labels.invalid_delete_token'));
             }
             $album = CmsAlbum::findOrFail($id);
+            app(CmsActivityLogger::class)->logDelete('album', $album);
             $album->delete();
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());

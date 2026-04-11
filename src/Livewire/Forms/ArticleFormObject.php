@@ -7,6 +7,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsTag;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class ArticleFormObject extends Form
 {
@@ -143,6 +144,8 @@ class ArticleFormObject extends Form
 
         $article->tags()->sync($this->resolveTagIds());
 
+        app(CmsActivityLogger::class)->logCreate('article', $article, $article->toArray());
+
         $this->reset();
 
         return $article;
@@ -151,6 +154,8 @@ class ArticleFormObject extends Form
     public function update(int $updatedBy): void
     {
         $this->validate();
+
+        $oldData = $this->article->toArray();
 
         $this->article->update([
             'section_id' => $this->section_id,
@@ -174,5 +179,7 @@ class ArticleFormObject extends Form
         ]);
 
         $this->article->tags()->sync($this->resolveTagIds());
+
+        app(CmsActivityLogger::class)->logUpdate('article', $this->article, $oldData);
     }
 }

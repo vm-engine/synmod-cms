@@ -5,6 +5,17 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.2] - 2026-04-11
+
+### Added
+- `CmsActivityLogger` service (`src/Services/CmsActivityLogger.php`) — lightweight audit helper wrapping `SynAuth::logActivity()` with `logCreate()`, `logUpdate()`, and `logDelete()` methods
+- Update logs only record the diff of changed fields (old → new), ignoring `created_at`/`updated_at`
+- Activity logging wired into every backend mutation path:
+  - Create/update logging inside all form objects: `PageFormObject`, `ArticleFormObject`, `SectionFormObject`, `CategoryFormObject`, `AlbumFormObject`, `AlbumImageFormObject`, `MenuFormObject`, `TagFormObject`, `DownloadFormObject`, `DownloadFileFormObject`
+  - Delete logging inside list components: `page-list`, `article-list`, `section-list`, `category-list`, `album-list`, `menu-list`, `tag-list`, `download-list`
+  - Full create/update/delete logging inside in-page managers: `menu-item-manager`, `album-image-manager`, `download-file-manager`
+- Action keys follow the convention `cms.{entity}.{id}.{action}` with feature `{entity}.{id}` and module `cms`, matching the logging pattern used by other Synapse modules
+
 ## [1.1.1] - 2026-04-07
 
 ### Added

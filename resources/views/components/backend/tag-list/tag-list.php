@@ -9,6 +9,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Livewire\Forms\TagFormObject;
 use VmEngine\Cms\Models\CmsTag;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -71,7 +72,9 @@ new class extends Component
             if (! $id) {
                 throw new Exception(__('cms::labels.invalid_delete_token'));
             }
-            CmsTag::findOrFail($id)->delete();
+            $tag = CmsTag::findOrFail($id);
+            app(CmsActivityLogger::class)->logDelete('tag', $tag);
+            $tag->delete();
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 

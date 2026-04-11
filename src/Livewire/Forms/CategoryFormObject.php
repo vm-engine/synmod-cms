@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class CategoryFormObject extends Form
 {
@@ -90,6 +91,8 @@ class CategoryFormObject extends Form
             'created_by' => $createdBy,
         ]);
 
+        app(CmsActivityLogger::class)->logCreate('category', $category, $category->toArray());
+
         $this->reset();
 
         return $category;
@@ -98,6 +101,8 @@ class CategoryFormObject extends Form
     public function update(): void
     {
         $this->validate();
+
+        $oldData = $this->category->toArray();
 
         $this->category->update([
             'section_id' => $this->section_id,
@@ -113,5 +118,7 @@ class CategoryFormObject extends Form
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
         ]);
+
+        app(CmsActivityLogger::class)->logUpdate('category', $this->category, $oldData);
     }
 }

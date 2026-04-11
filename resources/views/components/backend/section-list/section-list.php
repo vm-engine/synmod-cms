@@ -7,6 +7,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
@@ -71,6 +72,7 @@ new class extends Component
                 throw new Exception(__('cms::labels.invalid_delete_token'));
             }
             $section = CmsSection::findOrFail($id);
+            app(CmsActivityLogger::class)->logDelete('section', $section);
             $section->delete();
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());

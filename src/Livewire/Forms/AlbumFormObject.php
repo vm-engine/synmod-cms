@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class AlbumFormObject extends Form
 {
@@ -81,6 +82,8 @@ class AlbumFormObject extends Form
             'created_by' => $createdBy,
         ]);
 
+        app(CmsActivityLogger::class)->logCreate('album', $album, $album->toArray());
+
         $this->reset();
 
         return $album;
@@ -89,6 +92,8 @@ class AlbumFormObject extends Form
     public function update(): void
     {
         $this->validate();
+
+        $oldData = $this->album->toArray();
 
         $this->album->update([
             'title' => $this->title,
@@ -102,5 +107,7 @@ class AlbumFormObject extends Form
             'meta_description' => $this->meta_description ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
         ]);
+
+        app(CmsActivityLogger::class)->logUpdate('album', $this->album, $oldData);
     }
 }

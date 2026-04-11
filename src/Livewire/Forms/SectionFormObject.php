@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class SectionFormObject extends Form
 {
@@ -109,6 +110,8 @@ class SectionFormObject extends Form
             'created_by' => $createdBy,
         ]);
 
+        app(CmsActivityLogger::class)->logCreate('section', $section, $section->toArray());
+
         $this->reset();
 
         return $section;
@@ -117,6 +120,8 @@ class SectionFormObject extends Form
     public function update(): void
     {
         $this->validate();
+
+        $oldData = $this->section->toArray();
 
         $this->section->update([
             'title' => $this->title,
@@ -139,5 +144,7 @@ class SectionFormObject extends Form
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
         ]);
+
+        app(CmsActivityLogger::class)->logUpdate('section', $this->section, $oldData);
     }
 }

@@ -7,6 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
+use VmEngine\Cms\Services\CmsActivityLogger;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -61,7 +62,7 @@ new class extends Component
 
         $maxOrder = CmsAlbumImage::where('album_id', $this->albumId)->max('sort_order') ?? -1;
 
-        CmsAlbumImage::create([
+        $image = CmsAlbumImage::create([
             'album_id' => $this->albumId,
             'file_id' => $this->newFileId,
             'title' => $this->newImageTitle ?: null,
@@ -69,6 +70,7 @@ new class extends Component
             'sort_order' => $maxOrder + 1,
             'config' => ['custom_var' => $this->newImageCustomVars, 'custom_var_allow_add' => $this->newImageCustomVarAllowAdd],
         ]);
+        app(CmsActivityLogger::class)->logCreate('album_image', $image, $image->toArray());
 
         $this->reset('newImageUrl', 'newImageTitle', 'newImageCaption', 'newImageCustomVars', 'newImageCustomVarAllowAdd');
         $this->newFileId = null;
@@ -78,7 +80,9 @@ new class extends Component
 
     public function deleteImage(int $id): void
     {
-        CmsAlbumImage::where('album_id', $this->albumId)->findOrFail($id)->delete();
+        $image = CmsAlbumImage::where('album_id', $this->albumId)->findOrFail($id);
+        app(CmsActivityLogger::class)->logDelete('album_image', $image);
+        $image->delete();
         unset($this->images);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_deleted'));

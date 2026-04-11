@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsActivityLogger;
 
 class PageFormObject extends Form
 {
@@ -116,6 +117,8 @@ class PageFormObject extends Form
             'created_by' => $createdBy,
         ]);
 
+        app(CmsActivityLogger::class)->logCreate('page', $page, $page->toArray());
+
         $this->reset();
 
         return $page;
@@ -126,6 +129,8 @@ class PageFormObject extends Form
         $this->validate();
 
         $fullSlug = $this->computeFullSlug();
+
+        $oldData = $this->page->toArray();
 
         $this->page->update([
             'parent_id' => $this->parent_id,
@@ -150,6 +155,8 @@ class PageFormObject extends Form
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
         ]);
+
+        app(CmsActivityLogger::class)->logUpdate('page', $this->page, $oldData);
     }
 
     private function computeFullSlug(): string
