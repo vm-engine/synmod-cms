@@ -1,4 +1,8 @@
-@if(!empty($slides))
+@if ($template)
+    @if ($albumRecord)
+        @include($template, ['slides' => $slides, 'album' => $albumRecord, 'images' => $images] + $with)
+    @endif
+@elseif(!empty($slides))
 <div
     class="cms-banner-slider"
     style="--slider-height: {{ $height }}"

@@ -5,7 +5,18 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [1.1.3] - 2026-04-14
+## [1.1.4] - 2026-04-15
+
+### Added
+- `<x-cms::widget.page>` — new `template`, `bare`, `wrapperClass`, and `with` props to render a custom Blade template receiving the `$page` + forwarded vars
+- `<x-cms::widget.banner-slider>` — new `template` and `with` props plus a public `$images` collection so custom templates can render the album without re-querying; each slide now exposes a `link` value sourced from `config.link`
+- `<x-cms::widget.section-articles>` — new `card`, `bare`, `wrapperClass`, and `gridClass` props for per-article template overrides; extracted default card into `_default-card.blade.php`
+- `<x-cms::widget.gallery>` component (initial scaffolding for gallery rendering)
+
+### Changed
+- Renamed the old `$view` prop on widget components to `$template` to avoid collision with Blade's reserved `$view` variable, which previously broke rendering inside class components
+
+
 
 ### Changed
 - Tightened dependency version constraints: `vm-engine/synapps-fallback` from `*` to `^1.0`, `vm-engine/synmod-fm` from `*` to `^1.0`

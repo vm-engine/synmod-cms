@@ -26,6 +26,14 @@ class SectionArticles extends Component
         public bool $showExcerpt = true,
         public bool $showCover = true,
         public bool $showDate = true,
+        /** Custom Blade view rendered per article (receives $article + $section). Fallback to default card when empty. */
+        public string $card = '',
+        /** Extra classes applied to the outer <div>. Pass '' (default) to keep built-in classes. */
+        public string $wrapperClass = '',
+        /** Extra classes applied to the grid <div>. */
+        public string $gridClass = '',
+        /** Skip the default <div> wrappers entirely — caller provides its own container. */
+        public bool $bare = false,
     ) {
         $this->sectionModel = CmsSection::where('slug', $this->section)
             ->published()

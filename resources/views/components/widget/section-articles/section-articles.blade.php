@@ -1,43 +1,23 @@
-@if($sectionModel && $articles->isNotEmpty())
-<div class="cms-widget-articles cms-widget-articles--{{ $layout }}">
-    <div class="cms-article-grid cms-article-grid--{{ $layout }}">
-        @foreach($articles as $article)
-        @php
-            $url = '/' . $sectionModel->slug . ($article->category_id ? '/' . $article->category->slug : '') . '/' . $article->slug;
-        @endphp
-        <article class="cms-article-card">
-            @if($showCover && $article->cover_image)
-            <div class="cms-article-card__image">
-                <a href="{{ $url }}">
-                    <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" loading="lazy" />
-                </a>
-            </div>
+@if ($sectionModel && $articles->isNotEmpty())
+    @if ($bare)
+        @foreach ($articles as $article)
+            @if ($card)
+                @include($card, ['article' => $article, 'section' => $sectionModel])
+            @else
+                @include('cms::components.widget.section-articles._default-card', ['article' => $article, 'section' => $sectionModel])
             @endif
-            <div class="cms-article-card__body">
-                @if($showCategory && $article->category)
-                <div class="cms-article-card__section">
-                    <a href="/{{ $sectionModel->slug }}/{{ $article->category->slug }}" class="cms-article-card__section-link">{{ $article->category->title }}</a>
-                </div>
-                @endif
-                <h3 class="cms-article-card__title">
-                    <a href="{{ $url }}" class="cms-article-card__link">{{ $article->title }}</a>
-                </h3>
-                @if($showDate && $article->published_at)
-                <div class="cms-article-card__meta">
-                    <time datetime="{{ $article->published_at->toDateString() }}">
-                        {{ $article->published_at->format('d F Y') }}
-                    </time>
-                    @if($article->read_time > 0)
-                    <span class="cms-article-card__read-time">· {{ $article->read_time }} min read</span>
-                    @endif
-                </div>
-                @endif
-                @if($showExcerpt && $article->excerpt)
-                <p class="cms-article-card__excerpt">{{ $article->excerpt }}</p>
-                @endif
-            </div>
-        </article>
         @endforeach
-    </div>
-</div>
+    @else
+        <div class="cms-widget-articles cms-widget-articles--{{ $layout }} {{ $wrapperClass }}">
+            <div class="cms-article-grid cms-article-grid--{{ $layout }} {{ $gridClass }}">
+                @foreach ($articles as $article)
+                    @if ($card)
+                        @include($card, ['article' => $article, 'section' => $sectionModel])
+                    @else
+                        @include('cms::components.widget.section-articles._default-card', ['article' => $article, 'section' => $sectionModel])
+                    @endif
+                @endforeach
+            </div>
+        </div>
+    @endif
 @endif
