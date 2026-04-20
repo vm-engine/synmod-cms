@@ -27,6 +27,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
+ * @property string|null $custom_view
+ * @property string|null $custom_layout
+ * @property string|null $custom_category_view
+ * @property string|null $custom_article_view
  * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -51,6 +55,10 @@ class CmsSection extends Model
         'meta_title',
         'meta_description',
         'og_image',
+        'custom_view',
+        'custom_layout',
+        'custom_category_view',
+        'custom_article_view',
         'created_by',
     ];
 
@@ -89,5 +97,25 @@ class CmsSection extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+    }
+
+    public function resolveCustomView(): ?string
+    {
+        return $this->custom_view;
+    }
+
+    public function resolveCustomLayout(): ?string
+    {
+        return $this->custom_layout;
+    }
+
+    public function resolveCategoryView(): ?string
+    {
+        return $this->custom_category_view;
+    }
+
+    public function resolveArticleView(): ?string
+    {
+        return $this->custom_article_view;
     }
 }

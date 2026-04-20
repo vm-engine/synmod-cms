@@ -97,6 +97,15 @@
                     </div>
                 </div>
             </div>
+
+            @include('cms::components.backend.partials._custom-rendering-card', [
+                'fields' => [
+                    ['id' => 'custom_view', 'model' => 'form.custom_view', 'label' => 'custom_view', 'help' => 'custom_view_section_help', 'placeholder' => 'home::templates.faq-accordion'],
+                    ['id' => 'custom_layout', 'model' => 'form.custom_layout', 'label' => 'custom_layout', 'help' => 'custom_layout_section_help', 'placeholder' => 'home::layouts.my-layout'],
+                    ['id' => 'custom_category_view', 'model' => 'form.custom_category_view', 'label' => 'custom_category_view', 'help' => 'custom_category_view_help', 'placeholder' => 'home::templates.my-category'],
+                    ['id' => 'custom_article_view', 'model' => 'form.custom_article_view', 'label' => 'custom_article_view', 'help' => 'custom_article_view_help', 'placeholder' => 'home::templates.my-article'],
+                ],
+            ])
         </div>
 
         {{-- Custom Variables --}}

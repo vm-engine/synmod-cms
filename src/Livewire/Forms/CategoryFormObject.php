@@ -34,6 +34,12 @@ class CategoryFormObject extends Form
 
     public string $og_image = '';
 
+    public string $custom_view = '';
+
+    public string $custom_layout = '';
+
+    public string $custom_article_view = '';
+
     /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
     public array $customVars = [];
 
@@ -53,6 +59,9 @@ class CategoryFormObject extends Form
         $this->meta_title = $category->meta_title ?? '';
         $this->meta_description = $category->meta_description ?? '';
         $this->og_image = $category->og_image ?? '';
+        $this->custom_view = $category->custom_view ?? '';
+        $this->custom_layout = $category->custom_layout ?? '';
+        $this->custom_article_view = $category->custom_article_view ?? '';
         $config = $category->config ?? [];
         $this->customVars = $config['custom_var'] ?? [];
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
@@ -68,6 +77,9 @@ class CategoryFormObject extends Form
             'sort_order' => 'integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
+            'custom_view' => 'nullable|string|max:255',
+            'custom_layout' => 'nullable|string|max:255',
+            'custom_article_view' => 'nullable|string|max:255',
         ];
     }
 
@@ -88,6 +100,9 @@ class CategoryFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
+            'custom_article_view' => $this->custom_article_view ?: null,
             'created_by' => $createdBy,
         ]);
 
@@ -117,6 +132,9 @@ class CategoryFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
+            'custom_article_view' => $this->custom_article_view ?: null,
         ]);
 
         app(CmsActivityLogger::class)->logUpdate('category', $this->category, $oldData);

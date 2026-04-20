@@ -27,6 +27,8 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property array<string, mixed>|null $config
+ * @property string|null $custom_view
+ * @property string|null $custom_layout
  * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -50,6 +52,8 @@ class CmsDownload extends Model
         'meta_title',
         'meta_description',
         'config',
+        'custom_view',
+        'custom_layout',
         'created_by',
     ];
 
@@ -85,5 +89,15 @@ class CmsDownload extends Model
     public function creator(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+    }
+
+    public function resolveCustomView(): ?string
+    {
+        return $this->custom_view;
+    }
+
+    public function resolveCustomLayout(): ?string
+    {
+        return $this->custom_layout;
     }
 }

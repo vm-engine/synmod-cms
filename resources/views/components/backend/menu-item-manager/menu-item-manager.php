@@ -31,6 +31,10 @@ new class extends Component
 
     public bool $newOpenNewTab = false;
 
+    public string $newCustomView = '';
+
+    public string $newCustomLayout = '';
+
     /** When set, addItem() will create a child of this parent ID */
     public ?int $addingChildFor = null;
 
@@ -48,6 +52,10 @@ new class extends Component
     public bool $editOpenNewTab = false;
 
     public ?int $editParentId = null;
+
+    public string $editCustomView = '';
+
+    public string $editCustomLayout = '';
 
     public function mount(int $menuId): void
     {
@@ -73,14 +81,14 @@ new class extends Component
 
     public function startAddChild(int $parentId): void
     {
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab');
+        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = $parentId;
     }
 
     public function cancelAddChild(): void
     {
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab');
+        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = null;
     }
@@ -94,12 +102,16 @@ new class extends Component
             'newTargetType' => "required|in:{$validTypes}",
             'newTargetId' => ! in_array($this->newTargetType, $noIdTypes) ? 'required|integer' : 'nullable',
             'newTargetUrl' => $this->newTargetType === 'url' ? 'nullable|string|max:2048' : 'nullable',
+            'newCustomView' => 'nullable|string|max:255',
+            'newCustomLayout' => 'nullable|string|max:255',
         ]);
 
         $parentId = $this->addingChildFor;
         $maxOrder = CmsMenuItem::where('menu_id', $this->menuId)
             ->where('parent_id', $parentId)
             ->max('sort_order') ?? -1;
+
+        $supportsCustomView = in_array($this->newTargetType, ['album', 'album_list', 'download', 'download_list']);
 
         $item = CmsMenuItem::create([
             'menu_id' => $this->menuId,
@@ -109,12 +121,14 @@ new class extends Component
             'target_id' => ! in_array($this->newTargetType, $noIdTypes) ? $this->newTargetId : null,
             'target_url' => in_array($this->newTargetType, ['url', 'album_list', 'download_list']) ? ($this->newTargetUrl ?: null) : null,
             'open_new_tab' => $this->newOpenNewTab,
+            'custom_view' => $supportsCustomView ? ($this->newCustomView ?: null) : null,
+            'custom_layout' => $supportsCustomView ? ($this->newCustomLayout ?: null) : null,
             'sort_order' => $maxOrder + 1,
             'is_active' => true,
         ]);
         app(CmsActivityLogger::class)->logCreate('menu_item', $item, $item->toArray());
 
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab');
+        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = null;
         unset($this->items);
@@ -131,6 +145,8 @@ new class extends Component
         $this->editTargetUrl = $item->target_url ?? '';
         $this->editOpenNewTab = $item->open_new_tab;
         $this->editParentId = $item->parent_id;
+        $this->editCustomView = $item->custom_view ?? '';
+        $this->editCustomLayout = $item->custom_layout ?? '';
     }
 
     public function saveEdit(): void
@@ -142,7 +158,11 @@ new class extends Component
             'editTargetType' => "required|in:{$validTypes}",
             'editTargetId' => ! in_array($this->editTargetType, $noIdTypes) ? 'required|integer' : 'nullable',
             'editTargetUrl' => $this->editTargetType === 'url' ? 'nullable|string|max:2048' : 'nullable',
+            'editCustomView' => 'nullable|string|max:255',
+            'editCustomLayout' => 'nullable|string|max:255',
         ]);
+
+        $supportsCustomView = in_array($this->editTargetType, ['album', 'album_list', 'download', 'download_list']);
 
         $item = CmsMenuItem::findOrFail($this->editingId);
         $oldData = $item->toArray();
@@ -153,17 +173,19 @@ new class extends Component
             'target_url' => in_array($this->editTargetType, ['url', 'album_list', 'download_list']) ? ($this->editTargetUrl ?: null) : null,
             'open_new_tab' => $this->editOpenNewTab,
             'parent_id' => $this->editParentId,
+            'custom_view' => $supportsCustomView ? ($this->editCustomView ?: null) : null,
+            'custom_layout' => $supportsCustomView ? ($this->editCustomLayout ?: null) : null,
         ]);
         app(CmsActivityLogger::class)->logUpdate('menu_item', $item, $oldData);
 
-        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId');
+        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
         unset($this->items);
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.item_updated'));
     }
 
     public function cancelEdit(): void
     {
-        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId');
+        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
     }
 
     public function deleteItem(int $id): void

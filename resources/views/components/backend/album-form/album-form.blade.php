@@ -64,6 +64,13 @@
                     </div>
                 </div>
             </div>
+
+            @include('cms::components.backend.partials._custom-rendering-card', [
+                'fields' => [
+                    ['id' => 'custom_view', 'model' => 'form.custom_view', 'label' => 'custom_view', 'help' => 'custom_view_album_help', 'placeholder' => 'home::templates.my-album'],
+                    ['id' => 'custom_layout', 'model' => 'form.custom_layout', 'label' => 'custom_layout', 'help' => 'custom_layout_album_help', 'placeholder' => 'home::layouts.my-layout'],
+                ],
+            ])
         </div>
 
         {{-- Custom Variables --}}

@@ -6,6 +6,7 @@ use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
 {
@@ -40,14 +41,13 @@ new class extends Component
             ->paginate($perPage)
             ->onEachSide(1);
 
-        $layout = theme_service()->resolveThemeLayout('frontend');
+        $template = FrontendViewResolver::view(
+            $this->section?->resolveCustomView(),
+            'cms::components.frontend.section-index.section-index',
+        );
 
-        if (! view()->exists($layout)) {
-            $layout = 'synapps::components.layouts.layout';
-        }
-
-        return view('cms::components.frontend.section-index.section-index', ['articles' => $articles])
+        return view($template, ['section' => $this->section, 'articles' => $articles])
             ->title($this->title())
-            ->layout($layout);
+            ->layout(FrontendViewResolver::layout($this->section?->resolveCustomLayout()));
     }
 };

@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Livewire\Component;
 use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
 {
@@ -39,14 +40,13 @@ new class extends Component
 
     public function render()
     {
-        $layout = theme_service()->resolveThemeLayout('frontend');
+        $template = FrontendViewResolver::view(
+            $this->download?->resolveCustomView(),
+            'cms::components.frontend.download-viewer.download-viewer',
+        );
 
-        if (! view()->exists($layout)) {
-            $layout = 'synapps::components.layouts.layout';
-        }
-
-        return view('cms::components.frontend.download-viewer.download-viewer')
+        return view($template, ['download' => $this->download])
             ->title($this->title())
-            ->layout($layout);
+            ->layout(FrontendViewResolver::layout($this->download?->resolveCustomLayout()));
     }
 };

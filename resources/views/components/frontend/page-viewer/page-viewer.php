@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
 {
@@ -26,14 +27,13 @@ new class extends Component
 
     public function render()
     {
-        $layout = theme_service()->resolveThemeLayout('frontend');
+        $template = FrontendViewResolver::view(
+            $this->page?->resolveCustomView(),
+            'cms::components.frontend.page-viewer.page-viewer',
+        );
 
-        if (! view()->exists($layout)) {
-            $layout = 'synapps::components.layouts.layout';
-        }
-
-        return view('cms::components.frontend.page-viewer.page-viewer')
+        return view($template, ['page' => $this->page])
             ->title($this->title())
-            ->layout($layout);
+            ->layout(FrontendViewResolver::layout($this->page?->resolveCustomLayout()));
     }
 };

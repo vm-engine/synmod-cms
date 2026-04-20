@@ -41,6 +41,12 @@
         />
         <span class="text-sm">{{ __('cms::labels.open_new_tab') }}</span>
     </label>
+    @if (in_array($editTargetType, ['album_list', 'download_list']))
+        @include('cms::components.backend.partials._custom-rendering-fields', [
+            'viewModel' => 'editCustomView',
+            'layoutModel' => 'editCustomLayout',
+        ])
+    @endif
     <div class="flex gap-2">
         <button
             class="btn sm primary"

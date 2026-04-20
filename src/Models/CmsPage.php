@@ -31,6 +31,8 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
+ * @property string|null $custom_view
+ * @property string|null $custom_layout
  * @property int|null $created_by
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -59,6 +61,8 @@ class CmsPage extends Model
         'meta_title',
         'meta_description',
         'og_image',
+        'custom_view',
+        'custom_layout',
         'created_by',
     ];
 
@@ -120,6 +124,18 @@ class CmsPage extends Model
         }
 
         return $depth;
+    }
+
+    public function resolveCustomView(): ?string
+    {
+        return $this->custom_view
+            ?: optional($this->parent)->resolveCustomView();
+    }
+
+    public function resolveCustomLayout(): ?string
+    {
+        return $this->custom_layout
+            ?: optional($this->parent)->resolveCustomLayout();
     }
 
     public function computeFullSlug(): string

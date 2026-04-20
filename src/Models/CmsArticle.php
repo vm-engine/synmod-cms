@@ -35,6 +35,8 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $meta_description
  * @property string|null $og_image
  * @property array<string, mixed>|null $config
+ * @property string|null $custom_view
+ * @property string|null $custom_layout
  * @property int|null $created_by
  * @property int|null $updated_by
  * @property Carbon $created_at
@@ -68,6 +70,8 @@ class CmsArticle extends Model
         'meta_description',
         'og_image',
         'config',
+        'custom_view',
+        'custom_layout',
         'created_by',
         'updated_by',
     ];
@@ -136,6 +140,20 @@ class CmsArticle extends Model
     public function updater(): BelongsTo
     {
         return $this->belongsTo(config('auth.providers.users.model'), 'updated_by');
+    }
+
+    public function resolveCustomView(): ?string
+    {
+        return $this->custom_view
+            ?: optional($this->category)->resolveArticleView()
+            ?: optional($this->section)->resolveArticleView();
+    }
+
+    public function resolveCustomLayout(): ?string
+    {
+        return $this->custom_layout
+            ?: optional($this->category)->resolveCustomLayout()
+            ?: optional($this->section)->resolveCustomLayout();
     }
 
     public static function computeReadTime(?string $body): int

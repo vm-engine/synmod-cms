@@ -44,6 +44,10 @@ class PageFormObject extends Form
 
     public string $og_image = '';
 
+    public string $custom_view = '';
+
+    public string $custom_layout = '';
+
     /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
     public array $customVars = [];
 
@@ -69,6 +73,8 @@ class PageFormObject extends Form
         $this->meta_title = $page->meta_title ?? '';
         $this->meta_description = $page->meta_description ?? '';
         $this->og_image = $page->og_image ?? '';
+        $this->custom_view = $page->custom_view ?? '';
+        $this->custom_layout = $page->custom_layout ?? '';
         $this->customVars = $config['custom_var'] ?? [];
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
     }
@@ -83,6 +89,8 @@ class PageFormObject extends Form
             'sort_order' => 'integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
+            'custom_view' => 'nullable|string|max:255',
+            'custom_layout' => 'nullable|string|max:255',
         ];
     }
 
@@ -114,6 +122,8 @@ class PageFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
             'created_by' => $createdBy,
         ]);
 
@@ -154,6 +164,8 @@ class PageFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
         ]);
 
         app(CmsActivityLogger::class)->logUpdate('page', $this->page, $oldData);

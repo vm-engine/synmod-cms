@@ -82,6 +82,14 @@
                     </div>
                 </div>
             </div>
+
+            @include('cms::components.backend.partials._custom-rendering-card', [
+                'fields' => [
+                    ['id' => 'custom_view', 'model' => 'form.custom_view', 'label' => 'custom_view', 'help' => 'custom_view_category_help', 'placeholder' => 'home::templates.my-view'],
+                    ['id' => 'custom_layout', 'model' => 'form.custom_layout', 'label' => 'custom_layout', 'help' => 'custom_layout_category_help', 'placeholder' => 'home::layouts.my-layout'],
+                    ['id' => 'custom_article_view', 'model' => 'form.custom_article_view', 'label' => 'custom_article_view', 'help' => 'custom_article_view_category_help', 'placeholder' => 'home::templates.my-article', 'wide' => true],
+                ],
+            ])
         </div>
 
         {{-- Custom Variables --}}

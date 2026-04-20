@@ -30,6 +30,10 @@ class AlbumFormObject extends Form
 
     public string $meta_description = '';
 
+    public string $custom_view = '';
+
+    public string $custom_layout = '';
+
     /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
     public array $customVars = [];
 
@@ -47,6 +51,8 @@ class AlbumFormObject extends Form
         $this->sort_order = $album->sort_order;
         $this->meta_title = $album->meta_title ?? '';
         $this->meta_description = $album->meta_description ?? '';
+        $this->custom_view = $album->custom_view ?? '';
+        $this->custom_layout = $album->custom_layout ?? '';
         $this->customVars = ($album->config ?? [])['custom_var'] ?? [];
         $this->customVarAllowAdd = ($album->config ?? [])['custom_var_allow_add'] ?? false;
     }
@@ -61,6 +67,8 @@ class AlbumFormObject extends Form
             'sort_order' => 'integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
+            'custom_view' => 'nullable|string|max:255',
+            'custom_layout' => 'nullable|string|max:255',
         ];
     }
 
@@ -78,6 +86,8 @@ class AlbumFormObject extends Form
             'sort_order' => $this->sort_order,
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'created_by' => $createdBy,
         ]);
@@ -105,6 +115,8 @@ class AlbumFormObject extends Form
             'sort_order' => $this->sort_order,
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
         ]);
 

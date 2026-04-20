@@ -24,6 +24,8 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property bool $open_new_tab
  * @property int $sort_order
  * @property bool $is_active
+ * @property string|null $custom_view
+ * @property string|null $custom_layout
  * @property Carbon $created_at
  * @property Carbon $updated_at
  * @property-read CmsMenu $menu
@@ -47,6 +49,8 @@ class CmsMenuItem extends Model
         'open_new_tab',
         'sort_order',
         'is_active',
+        'custom_view',
+        'custom_layout',
     ];
 
     protected $casts = [
@@ -73,6 +77,16 @@ class CmsMenuItem extends Model
     public function children(): HasMany
     {
         return $this->hasMany(CmsMenuItem::class, 'parent_id')->orderBy('sort_order');
+    }
+
+    public function resolveCustomView(): ?string
+    {
+        return $this->custom_view;
+    }
+
+    public function resolveCustomLayout(): ?string
+    {
+        return $this->custom_layout;
     }
 
     public function resolveUrl(): string

@@ -5,6 +5,23 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.5] - 2026-04-20
+
+### Added
+- **Custom view / layout overrides on every content type** — new `custom_view` + `custom_layout` columns on `cms_pages`, `cms_sections`, `cms_categories`, `cms_articles`, `cms_albums`, `cms_downloads`, and `cms_menu_items`; plus `custom_category_view` + `custom_article_view` on sections and `custom_article_view` on categories for scoped inheritance
+- **Runtime cascade resolvers** (`resolveCustomView()` / `resolveCustomLayout()` on each model) — articles inherit from category → section, categories inherit from section, child pages inherit from parent pages; menu items + albums + downloads resolve locally
+- **Admin form UI** — new Custom Rendering card exposes the override fields on every page / section / category / article / album / download form; menu form shows the override inputs only for `album_list` and `download_list` target types
+- **Dedicated cascade tests** — `tests/Feature/CustomView/ResolverCascadeTest.php` covers article → category → section, child page → parent, and category `custom_article_view` inheritance
+- **`FrontendViewResolver` helper** (`src/Support/FrontendViewResolver.php`) centralises view + layout resolution used by every frontend viewer MFC (page, section, category, article, album, gallery, download category, download file)
+
+### Changed
+- Every frontend viewer MFC now dispatches through `FrontendViewResolver`, eliminating ~80 lines of duplicated `view()->exists()` / theme-layout fallback logic
+- Extracted the Custom Rendering card into two reusable partials (`_custom-rendering-card.blade.php`, `_custom-rendering-fields.blade.php`) consumed by all six content forms plus the three menu-item sub-forms (add, edit, inline add)
+- `CmsMenuItemObserver` trimmed of redundant narration comments
+
+### Translations
+- Added `custom_view`, `custom_layout`, `custom_category_view`, `custom_article_view`, and per-entity `*_help` strings to both `lang/en/labels.php` and `lang/id/labels.php`
+
 ## [1.1.4] - 2026-04-15
 
 ### Added

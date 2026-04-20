@@ -43,6 +43,10 @@ class ArticleFormObject extends Form
 
     public string $og_image = '';
 
+    public string $custom_view = '';
+
+    public string $custom_layout = '';
+
     public array $tag_ids = [];
 
     /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
@@ -68,6 +72,8 @@ class ArticleFormObject extends Form
         $this->meta_title = $article->meta_title ?? '';
         $this->meta_description = $article->meta_description ?? '';
         $this->og_image = $article->og_image ?? '';
+        $this->custom_view = $article->custom_view ?? '';
+        $this->custom_layout = $article->custom_layout ?? '';
         $this->tag_ids = $article->tags()->pluck('cms_tags.id')->toArray();
         $this->customVars = ($article->config ?? [])['custom_var'] ?? [];
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
@@ -88,6 +94,8 @@ class ArticleFormObject extends Form
             'tag_ids.*' => 'required',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
+            'custom_view' => 'nullable|string|max:255',
+            'custom_layout' => 'nullable|string|max:255',
         ];
     }
 
@@ -137,6 +145,8 @@ class ArticleFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'created_by' => $createdBy,
             'updated_by' => $createdBy,
@@ -174,6 +184,8 @@ class ArticleFormObject extends Form
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
+            'custom_view' => $this->custom_view ?: null,
+            'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
             'updated_by' => $updatedBy,
         ]);

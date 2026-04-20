@@ -39,6 +39,13 @@
                 <span class="text-sm">{{ __('cms::labels.open_new_tab') }}</span>
             </label>
         </div>
+        @if (in_array($newTargetType, ['album_list', 'download_list']))
+            @include('cms::components.backend.partials._custom-rendering-fields', [
+                'viewModel' => 'newCustomView',
+                'layoutModel' => 'newCustomLayout',
+                'wrapperClass' => 'sm:col-span-3',
+            ])
+        @endif
         <div class="flex items-end gap-2 sm:col-start-3">
             <button
                 class="btn primary w-full"

@@ -11,14 +11,30 @@ class CmsMenuItemObserver
 {
     public function __construct(private readonly CmsFallbackService $fallback) {}
 
+    /**
+     * @return array<string, mixed>
+     */
+    private function overrideParams(CmsMenuItem $item): array
+    {
+        $params = [];
+        if (! empty($item->custom_view)) {
+            $params['custom_view'] = $item->custom_view;
+        }
+        if (! empty($item->custom_layout)) {
+            $params['custom_layout'] = $item->custom_layout;
+        }
+
+        return $params;
+    }
+
     public function created(CmsMenuItem $item): void
     {
         if ($item->target_type === 'album_list') {
-            $this->fallback->syncGalleryIndex($item->target_url ?: 'gallery');
+            $this->fallback->syncGalleryIndex($item->target_url ?: 'gallery', $this->overrideParams($item));
         }
 
         if ($item->target_type === 'download_list') {
-            $this->fallback->syncDownloadIndex($item->target_url ?: 'downloads');
+            $this->fallback->syncDownloadIndex($item->target_url ?: 'downloads', $this->overrideParams($item));
         }
     }
 
@@ -26,7 +42,6 @@ class CmsMenuItemObserver
     {
         $oldType = $item->getOriginal('target_type');
 
-        // Handle album_list changes
         if ($item->target_type === 'album_list' || $oldType === 'album_list') {
             $oldSlug = $item->getOriginal('target_url') ?: 'gallery';
             $newSlug = $item->target_url ?: 'gallery';
@@ -36,11 +51,10 @@ class CmsMenuItemObserver
             }
 
             if ($item->target_type === 'album_list') {
-                $this->fallback->syncGalleryIndex($newSlug);
+                $this->fallback->syncGalleryIndex($newSlug, $this->overrideParams($item));
             }
         }
 
-        // Handle download_list changes
         if ($item->target_type === 'download_list' || $oldType === 'download_list') {
             $oldSlug = $item->getOriginal('target_url') ?: 'downloads';
             $newSlug = $item->target_url ?: 'downloads';
@@ -50,7 +64,7 @@ class CmsMenuItemObserver
             }
 
             if ($item->target_type === 'download_list') {
-                $this->fallback->syncDownloadIndex($newSlug);
+                $this->fallback->syncDownloadIndex($newSlug, $this->overrideParams($item));
             }
         }
     }

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
 {
@@ -33,14 +34,13 @@ new class extends Component
 
     public function render()
     {
-        $layout = theme_service()->resolveThemeLayout('frontend');
+        $template = FrontendViewResolver::view(
+            $this->album?->resolveCustomView(),
+            'cms::components.frontend.album-viewer.album-viewer',
+        );
 
-        if (! view()->exists($layout)) {
-            $layout = 'synapps::components.layouts.layout';
-        }
-
-        return view('cms::components.frontend.album-viewer.album-viewer')
+        return view($template, ['album' => $this->album])
             ->title($this->title())
-            ->layout($layout);
+            ->layout(FrontendViewResolver::layout($this->album?->resolveCustomLayout()));
     }
 };

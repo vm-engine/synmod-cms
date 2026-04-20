@@ -162,13 +162,16 @@ class CmsFallbackService
         Fallback::forget('gallery/'.$album->slug);
     }
 
-    public function syncGalleryIndex(string $slug): void
+    /**
+     * @param  array<string, mixed>  $extraParams
+     */
+    public function syncGalleryIndex(string $slug, array $extraParams = []): void
     {
         Fallback::register(
             slug: $slug,
             handler: 'cms::frontend.gallery-index',
             module: 'cms',
-            params: [],
+            params: $extraParams,
             handlerType: 'livewire',
         );
     }
@@ -222,7 +225,10 @@ class CmsFallbackService
         Fallback::forget($prefix.'/'.$download->slug);
     }
 
-    public function syncDownloadIndex(string $slug): void
+    /**
+     * @param  array<string, mixed>  $extraParams
+     */
+    public function syncDownloadIndex(string $slug, array $extraParams = []): void
     {
         $effectiveSlug = $slug ?: 'downloads';
 
@@ -230,7 +236,7 @@ class CmsFallbackService
             slug: $effectiveSlug,
             handler: 'cms::frontend.download-index',
             module: 'cms',
-            params: [],
+            params: $extraParams,
             handlerType: 'livewire',
         );
 
