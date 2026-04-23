@@ -5,6 +5,15 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.6] - 2026-04-23
+
+### Added
+- **`<x-cms::menu>`** — new `template` and `with` props so callers can pass a custom Blade view that receives `$items`, `$position`, and any forwarded vars. Default `<nav class="cms-menu">` markup remains the fallback when no template is passed, so existing callers are unaffected.
+- **`<x-cms::widget.section-articles>`** — new `template` and `with` props that render a caller-provided view with `$section`, `$articles`, `$card`, plus forwarded vars. Enables wrapping the section header + article grid in custom layouts without re-querying the section.
+
+### Changed
+- **`composer.json`** — dropped the static `version` field so the package version is derived from git tags (avoids drift between composer.json and tags).
+
 ## [1.1.5] - 2026-04-20
 
 ### Added

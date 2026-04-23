@@ -17,6 +17,9 @@ class SectionArticles extends Component
     /** @var Collection<int, CmsArticle> */
     public Collection $articles;
 
+    /**
+     * @param  array<string, mixed>  $with  Extra vars forwarded into the custom $template.
+     */
     public function __construct(
         public string $section = '',
         public int $limit = 6,
@@ -28,12 +31,15 @@ class SectionArticles extends Component
         public bool $showDate = true,
         /** Custom Blade view rendered per article (receives $article + $section). Fallback to default card when empty. */
         public string $card = '',
+        /** Custom Blade view rendered instead of the default section markup (receives $section, $articles, $card + $with). */
+        public string $template = '',
         /** Extra classes applied to the outer <div>. Pass '' (default) to keep built-in classes. */
         public string $wrapperClass = '',
         /** Extra classes applied to the grid <div>. */
         public string $gridClass = '',
         /** Skip the default <div> wrappers entirely — caller provides its own container. */
         public bool $bare = false,
+        public array $with = [],
     ) {
         $this->sectionModel = CmsSection::where('slug', $this->section)
             ->published()
