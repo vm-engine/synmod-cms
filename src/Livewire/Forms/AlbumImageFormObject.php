@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsAlbumImage;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsGalleryService;
 
 class AlbumImageFormObject extends Form
 {
@@ -51,14 +51,10 @@ class AlbumImageFormObject extends Form
         $config['custom_var'] = $this->customVars;
         $config['custom_var_allow_add'] = $this->customVarAllowAdd;
 
-        $oldData = $this->image->toArray();
-
-        $this->image->update([
+        app(CmsGalleryService::class)->updateImage($this->image, [
             'title' => $this->title ?: null,
             'caption' => $this->caption ?: null,
             'config' => $config,
         ]);
-
-        app(CmsActivityLogger::class)->logUpdate('album_image', $this->image, $oldData);
     }
 }

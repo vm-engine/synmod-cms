@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\PageFormObject;
-use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -28,7 +28,7 @@ new class extends Component
         $this->pageId = $id;
 
         if ($id) {
-            $page = CmsPage::findOrFail($id);
+            $page = app(CmsPageService::class)->findOrFailById($id);
             $this->form->setPage($page);
         } else {
             // New page: lock parent to whatever was pre-selected (or null for root pages)
@@ -70,21 +70,7 @@ new class extends Component
     #[Computed()]
     public function parentOptions(): array
     {
-        $options = ['' => '-- No Parent --'];
-
-        $pages = CmsPage::whereNull('parent_id')
-            ->when($this->pageId, fn ($q) => $q->where('id', '!=', $this->pageId))
-            ->orderBy('title')
-            ->get();
-
-        foreach ($pages as $page) {
-            $options[$page->id] = $page->title;
-            foreach ($page->children->where('id', '!=', $this->pageId) as $child) {
-                $options[$child->id] = '— '.$child->title;
-            }
-        }
-
-        return $options;
+        return app(CmsPageService::class)->getParentOptions($this->pageId);
     }
 
     #[Computed()]

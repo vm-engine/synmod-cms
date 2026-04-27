@@ -10,6 +10,7 @@ use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class CategoryArticles extends Component
 {
@@ -21,6 +22,7 @@ class CategoryArticles extends Component
     public Collection $articles;
 
     public function __construct(
+        CmsArticleService $articleService,
         public string $section = '',
         public string $category = '',
         public int $limit = 6,
@@ -30,36 +32,18 @@ class CategoryArticles extends Component
         public bool $showCover = true,
         public bool $showDate = true,
     ) {
-        $this->sectionModel = CmsSection::where('slug', $this->section)
-            ->published()
-            ->first();
+        $this->sectionModel = $articleService->findPublishedSectionBySlug($this->section);
 
         $this->categoryModel = $this->sectionModel
-            ? CmsCategory::where('slug', $this->category)
-                ->where('section_id', $this->sectionModel->id)
-                ->published()
-                ->first()
+            ? $articleService->findPublishedCategoryBySlugInSection($this->category, $this->sectionModel->id)
             : null;
 
-        $query = CmsArticle::published();
-
-        if ($this->sectionModel) {
-            $query->where('section_id', $this->sectionModel->id);
-        }
-
-        if ($this->categoryModel) {
-            $query->where('category_id', $this->categoryModel->id);
-        }
-
-        match ($this->sort) {
-            'featured' => $query->featured()->orderBy('published_at', 'desc'),
-            'oldest' => $query->orderBy('published_at', 'asc'),
-            'az' => $query->orderBy('title', 'asc'),
-            'za' => $query->orderBy('title', 'desc'),
-            default => $query->orderBy('published_at', 'desc'),
-        };
-
-        $this->articles = $query->limit($this->limit)->get();
+        $this->articles = $articleService->getPublishedArticlesInCategoryForWidget(
+            sectionId: $this->sectionModel?->id,
+            categoryId: $this->categoryModel?->id,
+            sort: $this->sort,
+            limit: $this->limit,
+        );
     }
 
     public function render(): View

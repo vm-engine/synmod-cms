@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\DownloadFileFormObject;
 use VmEngine\Cms\Models\CmsDownload;
-use VmEngine\Cms\Models\CmsDownloadFile;
+use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -23,7 +23,7 @@ new class extends Component
         $this->downloadId = $downloadId;
         $this->fileId = $id;
 
-        $file = CmsDownloadFile::where('download_id', $downloadId)->findOrFail($id);
+        $file = app(CmsDownloadService::class)->findFileOrFailInDownload($downloadId, $id);
         $this->form->setFile($file);
 
         synav()->setActiveMenu('cms.download');
@@ -50,7 +50,7 @@ new class extends Component
     #[Computed()]
     public function download(): CmsDownload
     {
-        return CmsDownload::findOrFail($this->downloadId);
+        return app(CmsDownloadService::class)->findOrFailById($this->downloadId);
     }
 
     #[Computed()]

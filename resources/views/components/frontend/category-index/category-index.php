@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use Livewire\WithPagination;
-use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
@@ -19,7 +19,10 @@ new class extends Component
     public function mount(int $category_id): void
     {
         $this->category_id = $category_id;
-        $this->category = CmsCategory::with('section')->published()->findOrFail($category_id);
+        $this->category = app(CmsArticleService::class)->findPublishedCategoryOrFailById(
+            $category_id,
+            ['section'],
+        );
     }
 
     public function title(): string
@@ -34,12 +37,12 @@ new class extends Component
         $orderBy = $config['order_by'] ?? 'published_at';
         $orderDir = $config['order_dir'] ?? 'desc';
 
-        $articles = CmsArticle::published()
-            ->where('category_id', $this->category_id)
-            ->with(['section', 'tags'])
-            ->orderBy($orderBy, $orderDir)
-            ->paginate($perPage)
-            ->onEachSide(1);
+        $articles = app(CmsArticleService::class)->paginatePublishedArticlesInCategory(
+            categoryId: $this->category_id,
+            orderBy: $orderBy,
+            orderDir: $orderDir,
+            perPage: $perPage,
+        );
 
         $template = FrontendViewResolver::view(
             $this->category?->resolveCustomView(),

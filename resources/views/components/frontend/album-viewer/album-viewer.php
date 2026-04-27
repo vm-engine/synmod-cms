@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
@@ -17,7 +18,10 @@ new class extends Component
     public function mount(int $album_id): void
     {
         $this->album_id = $album_id;
-        $this->album = CmsAlbum::with('images.file')->active()->normal()->findOrFail($album_id);
+        $this->album = app(CmsGalleryService::class)->findActiveNormalAlbumOrFailById(
+            $album_id,
+            ['images.file'],
+        );
 
         // Derive the gallery index URL by stripping /{album-slug} from the current path
         $path = ltrim(request()->getPathInfo(), '/');

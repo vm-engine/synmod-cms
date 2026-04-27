@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Livewire\Component;
 use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
@@ -18,7 +19,7 @@ new class extends Component
     public function mount(int $download_id): void
     {
         $this->download_id = $download_id;
-        $this->download = CmsDownload::with('files.file')->active()->findOrFail($download_id);
+        $this->download = app(CmsDownloadService::class)->findActiveOrFailById($download_id, ['files.file']);
 
         // Enforce private access
         if ($this->download->access === DownloadAccess::Private && ! auth()->check()) {

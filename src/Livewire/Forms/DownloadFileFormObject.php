@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsDownloadFile;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsDownloadService;
 
 class DownloadFileFormObject extends Form
 {
@@ -51,14 +51,10 @@ class DownloadFileFormObject extends Form
         $config['custom_var'] = $this->customVars;
         $config['custom_var_allow_add'] = $this->customVarAllowAdd;
 
-        $oldData = $this->file->toArray();
-
-        $this->file->update([
+        app(CmsDownloadService::class)->updateFile($this->file, [
             'title' => $this->title ?: null,
             'description' => $this->description ?: null,
             'config' => $config,
         ]);
-
-        app(CmsActivityLogger::class)->logUpdate('download_file', $this->file, $oldData);
     }
 }

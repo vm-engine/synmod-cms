@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\AlbumImageFormObject;
 use VmEngine\Cms\Models\CmsAlbum;
-use VmEngine\Cms\Models\CmsAlbumImage;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -23,7 +23,7 @@ new class extends Component
         $this->albumId = $albumId;
         $this->imageId = $id;
 
-        $image = CmsAlbumImage::where('album_id', $albumId)->findOrFail($id);
+        $image = app(CmsGalleryService::class)->findAlbumImageOrFailInAlbum($albumId, $id);
         $this->form->setImage($image);
 
         synav()->setActiveMenu('cms.gallery');
@@ -50,7 +50,7 @@ new class extends Component
     #[Computed()]
     public function album(): CmsAlbum
     {
-        return CmsAlbum::findOrFail($this->albumId);
+        return app(CmsGalleryService::class)->findAlbumOrFailById($this->albumId);
     }
 
     #[Computed()]

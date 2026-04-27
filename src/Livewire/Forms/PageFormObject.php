@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsPage;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsPageService;
 
 class PageFormObject extends Form
 {
@@ -98,36 +98,7 @@ class PageFormObject extends Form
     {
         $this->validate();
 
-        $fullSlug = $this->computeFullSlug();
-
-        $page = CmsPage::create([
-            'parent_id' => $this->parent_id,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'full_slug' => $fullSlug,
-            'body' => $this->body,
-            'excerpt' => $this->excerpt ?: null,
-            'cover_image' => $this->cover_image ?: null,
-            'status' => $this->status,
-            'published_at' => $this->published_at ?: null,
-            'sort_order' => $this->sort_order,
-            'config' => [
-                'show_title' => $this->show_title,
-                'show_breadcrumb' => $this->show_breadcrumb,
-                'show_children' => $this->show_children,
-                'children_layout' => $this->children_layout,
-                'custom_var' => $this->customVars,
-                'custom_var_allow_add' => $this->customVarAllowAdd,
-            ],
-            'meta_title' => $this->meta_title ?: null,
-            'meta_description' => $this->meta_description ?: null,
-            'og_image' => $this->og_image ?: null,
-            'custom_view' => $this->custom_view ?: null,
-            'custom_layout' => $this->custom_layout ?: null,
-            'created_by' => $createdBy,
-        ]);
-
-        app(CmsActivityLogger::class)->logCreate('page', $page, $page->toArray());
+        $page = app(CmsPageService::class)->create($this->toData(), $createdBy);
 
         $this->reset();
 
@@ -138,15 +109,18 @@ class PageFormObject extends Form
     {
         $this->validate();
 
-        $fullSlug = $this->computeFullSlug();
+        app(CmsPageService::class)->update($this->page, $this->toData());
+    }
 
-        $oldData = $this->page->toArray();
-
-        $this->page->update([
+    /**
+     * @return array<string, mixed>
+     */
+    private function toData(): array
+    {
+        return [
             'parent_id' => $this->parent_id,
             'title' => $this->title,
             'slug' => $this->slug,
-            'full_slug' => $fullSlug,
             'body' => $this->body,
             'excerpt' => $this->excerpt ?: null,
             'cover_image' => $this->cover_image ?: null,
@@ -166,22 +140,6 @@ class PageFormObject extends Form
             'og_image' => $this->og_image ?: null,
             'custom_view' => $this->custom_view ?: null,
             'custom_layout' => $this->custom_layout ?: null,
-        ]);
-
-        app(CmsActivityLogger::class)->logUpdate('page', $this->page, $oldData);
-    }
-
-    private function computeFullSlug(): string
-    {
-        if ($this->parent_id === null) {
-            return $this->slug;
-        }
-
-        $parent = CmsPage::find($this->parent_id);
-        if ($parent === null) {
-            return $this->slug;
-        }
-
-        return $parent->full_slug.'/'.$this->slug;
+        ];
     }
 }

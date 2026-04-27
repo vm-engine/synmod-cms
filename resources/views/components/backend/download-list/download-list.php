@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use VmEngine\Cms\Models\CmsDownload;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
@@ -70,13 +69,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsDownload::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $download = CmsDownload::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('download', $download);
-            $download->delete();
+            app(CmsDownloadService::class)->deleteDownloadByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -91,24 +84,12 @@ new class extends Component
     #[Computed()]
     public function downloadList()
     {
-        $model = CmsDownload::withCount('files');
-
-        if (! empty($this->q) && strlen($this->q) > 2) {
-            $model->search($this->q);
-        }
-
-        if (! empty($this->filterStatus)) {
-            $model->where('status', $this->filterStatus);
-        }
-
-        if (! empty($this->filterAccess)) {
-            $model->where('access', $this->filterAccess);
-        }
-
-        return $model
-            ->orderBy($this->sort, $this->sortDirection)
-            ->paginate($this->limit)
-            ->onEachSide(1);
+        return app(CmsDownloadService::class)->paginate(
+            filters: ['q' => $this->q, 'status' => $this->filterStatus, 'access' => $this->filterAccess],
+            sort: $this->sort,
+            direction: $this->sortDirection,
+            perPage: $this->limit,
+        );
     }
 
     #[Computed()]

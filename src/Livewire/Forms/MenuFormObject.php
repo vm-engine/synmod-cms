@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsMenu;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsMenuService;
 
 class MenuFormObject extends Form
 {
@@ -43,14 +43,7 @@ class MenuFormObject extends Form
     {
         $this->validate();
 
-        $menu = CmsMenu::create([
-            'name' => $this->name,
-            'position' => $this->position,
-            'description' => $this->description ?: null,
-            'is_active' => $this->is_active,
-        ]);
-
-        app(CmsActivityLogger::class)->logCreate('menu', $menu, $menu->toArray());
+        $menu = app(CmsMenuService::class)->createMenu($this->toData());
 
         $this->reset();
 
@@ -61,15 +54,19 @@ class MenuFormObject extends Form
     {
         $this->validate();
 
-        $oldData = $this->menu->toArray();
+        app(CmsMenuService::class)->updateMenu($this->menu, $this->toData());
+    }
 
-        $this->menu->update([
+    /**
+     * @return array<string, mixed>
+     */
+    private function toData(): array
+    {
+        return [
             'name' => $this->name,
             'position' => $this->position,
             'description' => $this->description ?: null,
             'is_active' => $this->is_active,
-        ]);
-
-        app(CmsActivityLogger::class)->logUpdate('menu', $this->menu, $oldData);
+        ];
     }
 }

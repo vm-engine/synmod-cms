@@ -6,8 +6,7 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
-use VmEngine\Cms\Models\CmsPage;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
@@ -39,13 +38,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsPage::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $page = CmsPage::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('page', $page);
-            $page->delete();
+            app(CmsPageService::class)->deleteByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -60,21 +53,10 @@ new class extends Component
     #[Computed()]
     public function pageList(): Collection
     {
-        if (! empty($this->q) && strlen($this->q) > 2) {
-            return CmsPage::search($this->q)
-                ->when(! empty($this->filterStatus), fn ($q) => $q->where('status', $this->filterStatus))
-                ->orderBy('full_slug')
-                ->get();
-        }
-
-        return CmsPage::roots()
-            ->when(! empty($this->filterStatus), fn ($q) => $q->where('status', $this->filterStatus))
-            ->with([
-                'children' => fn ($q) => $q->orderBy('sort_order'),
-                'children.children' => fn ($q) => $q->orderBy('sort_order'),
-            ])
-            ->orderBy('sort_order')
-            ->get();
+        return app(CmsPageService::class)->listForBackend(
+            q: $this->q,
+            status: $this->filterStatus !== '' ? $this->filterStatus : null,
+        );
     }
 
     #[Computed()]

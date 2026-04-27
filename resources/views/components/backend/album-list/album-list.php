@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use VmEngine\Cms\Models\CmsAlbum;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
@@ -70,13 +69,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsAlbum::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $album = CmsAlbum::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('album', $album);
-            $album->delete();
+            app(CmsGalleryService::class)->deleteAlbumByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -91,24 +84,12 @@ new class extends Component
     #[Computed()]
     public function albumList()
     {
-        $model = CmsAlbum::withCount('images');
-
-        if (! empty($this->q) && strlen($this->q) > 2) {
-            $model->search($this->q);
-        }
-
-        if (! empty($this->filterType)) {
-            $model->where('type', $this->filterType);
-        }
-
-        if (! empty($this->filterStatus)) {
-            $model->where('status', $this->filterStatus);
-        }
-
-        return $model
-            ->orderBy($this->sort, $this->sortDirection)
-            ->paginate($this->limit)
-            ->onEachSide(1);
+        return app(CmsGalleryService::class)->paginateAlbums(
+            filters: ['q' => $this->q, 'type' => $this->filterType, 'status' => $this->filterStatus],
+            sort: $this->sort,
+            direction: $this->sortDirection,
+            perPage: $this->limit,
+        );
     }
 
     #[Computed()]

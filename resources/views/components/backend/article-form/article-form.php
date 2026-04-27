@@ -6,10 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\ArticleFormObject;
-use VmEngine\Cms\Models\CmsArticle;
-use VmEngine\Cms\Models\CmsCategory;
-use VmEngine\Cms\Models\CmsSection;
-use VmEngine\Cms\Models\CmsTag;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -26,7 +23,7 @@ new class extends Component
         $this->articleId = $id;
 
         if ($id) {
-            $article = CmsArticle::with(['tags'])->findOrFail($id);
+            $article = app(CmsArticleService::class)->findArticleOrFailById($id, ['tags']);
             $this->form->setArticle($article);
         } else {
             $this->form->section_id = $sectionId;
@@ -62,45 +59,33 @@ new class extends Component
 
     public function searchTags(string $query): array
     {
-        return CmsTag::where('name', 'like', "%{$query}%")
-            ->orderBy('name')
-            ->limit(20)
-            ->get()
-            ->map(fn ($t) => ['value' => $t->id, 'label' => $t->name])
-            ->toArray();
+        return app(CmsArticleService::class)->searchTagOptions($query);
     }
 
     public function loadTags(array $ids): array
     {
-        $intIds = array_filter($ids, 'is_numeric');
-
-        return CmsTag::whereIn('id', $intIds)
-            ->get()
-            ->map(fn ($t) => ['value' => $t->id, 'label' => $t->name])
-            ->toArray();
+        return app(CmsArticleService::class)->loadTagOptions($ids);
     }
 
     #[Computed()]
     public function sectionName(): string
     {
-        return CmsSection::find($this->sectionId)?->title ?? '';
+        return app(CmsArticleService::class)->findSectionById($this->sectionId)?->title ?? '';
     }
 
     #[Computed()]
     public function categoryOptions(): array
     {
-        $options = ['' => '-- No Category --'];
-        foreach (CmsCategory::where('section_id', $this->sectionId)->orderBy('title')->get() as $c) {
-            $options[$c->id] = $c->title;
-        }
-
-        return $options;
+        return app(CmsArticleService::class)->getCategoryOptions(
+            sectionId: $this->sectionId,
+            emptyLabel: '-- No Category --',
+        );
     }
 
     #[Computed()]
     public function tagOptions(): array
     {
-        return CmsTag::orderBy('name')->pluck('name', 'id')->toArray();
+        return app(CmsArticleService::class)->getTagSuggestionMap();
     }
 
     #[Computed()]

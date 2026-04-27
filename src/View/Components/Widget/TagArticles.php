@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsTag;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class TagArticles extends Component
 {
@@ -19,6 +20,7 @@ class TagArticles extends Component
     public Collection $articles;
 
     public function __construct(
+        CmsArticleService $articleService,
         public string $tags = '',
         public string $match = 'any',
         public int $limit = 6,
@@ -30,30 +32,14 @@ class TagArticles extends Component
         public bool $showDate = true,
     ) {
         $slugs = array_filter(array_map('trim', explode(',', $this->tags)));
-        $this->tagModels = CmsTag::whereIn('slug', $slugs)->get();
-        $tagIds = $this->tagModels->pluck('id');
+        $this->tagModels = $articleService->getTagsBySlugs($slugs);
 
-        $query = CmsArticle::with(['section', 'category'])->published();
-
-        if ($tagIds->isNotEmpty()) {
-            if ($this->match === 'all') {
-                foreach ($tagIds as $tagId) {
-                    $query->whereHas('tags', fn ($q) => $q->where('cms_tags.id', $tagId));
-                }
-            } else {
-                $query->whereHas('tags', fn ($q) => $q->whereIn('cms_tags.id', $tagIds));
-            }
-        }
-
-        match ($this->sort) {
-            'featured' => $query->featured()->orderBy('published_at', 'desc'),
-            'oldest' => $query->orderBy('published_at', 'asc'),
-            'az' => $query->orderBy('title', 'asc'),
-            'za' => $query->orderBy('title', 'desc'),
-            default => $query->orderBy('published_at', 'desc'),
-        };
-
-        $this->articles = $query->limit($this->limit)->get();
+        $this->articles = $articleService->getPublishedArticlesByTagsForWidget(
+            tagIds: $this->tagModels->pluck('id')->all(),
+            match: $this->match,
+            sort: $this->sort,
+            limit: $this->limit,
+        );
     }
 
     public function render(): View

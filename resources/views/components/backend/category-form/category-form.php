@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\CategoryFormObject;
-use VmEngine\Cms\Models\CmsCategory;
-use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -24,7 +23,7 @@ new class extends Component
         $this->categoryId = $id;
 
         if ($id) {
-            $category = CmsCategory::findOrFail($id);
+            $category = app(CmsArticleService::class)->findCategoryOrFailById($id);
             $this->form->setCategory($category);
         } else {
             $this->form->section_id = $sectionId;
@@ -59,7 +58,7 @@ new class extends Component
     #[Computed()]
     public function sectionName(): string
     {
-        return CmsSection::find($this->sectionId)?->title ?? '';
+        return app(CmsArticleService::class)->findSectionById($this->sectionId)?->title ?? '';
     }
 
     #[Computed()]

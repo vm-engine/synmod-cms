@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class Articles extends Component
 {
@@ -15,6 +16,7 @@ class Articles extends Component
     public Collection $articles;
 
     public function __construct(
+        CmsArticleService $articleService,
         public int $limit = 6,
         public string $sort = 'latest',
         public string $layout = 'grid',
@@ -24,17 +26,7 @@ class Articles extends Component
         public bool $showDate = true,
         public bool $showFeaturedBadge = true,
     ) {
-        $query = CmsArticle::with(['section', 'category'])->published();
-
-        match ($this->sort) {
-            'featured' => $query->featured()->orderBy('published_at', 'desc'),
-            'oldest' => $query->orderBy('published_at', 'asc'),
-            'az' => $query->orderBy('title', 'asc'),
-            'za' => $query->orderBy('title', 'desc'),
-            default => $query->orderBy('published_at', 'desc'),
-        };
-
-        $this->articles = $query->limit($this->limit)->get();
+        $this->articles = $articleService->getPublishedArticlesForWidget($this->sort, $this->limit);
     }
 
     public function render(): View

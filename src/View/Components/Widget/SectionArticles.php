@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class SectionArticles extends Component
 {
@@ -21,6 +22,7 @@ class SectionArticles extends Component
      * @param  array<string, mixed>  $with  Extra vars forwarded into the custom $template.
      */
     public function __construct(
+        CmsArticleService $articleService,
         public string $section = '',
         public int $limit = 6,
         public string $sort = 'latest',
@@ -41,25 +43,13 @@ class SectionArticles extends Component
         public bool $bare = false,
         public array $with = [],
     ) {
-        $this->sectionModel = CmsSection::where('slug', $this->section)
-            ->published()
-            ->first();
+        $this->sectionModel = $articleService->findPublishedSectionBySlug($this->section);
 
-        $query = CmsArticle::with(['category'])->published();
-
-        if ($this->sectionModel) {
-            $query->where('section_id', $this->sectionModel->id);
-        }
-
-        match ($this->sort) {
-            'featured' => $query->featured()->orderBy('published_at', 'desc'),
-            'oldest' => $query->orderBy('published_at', 'asc'),
-            'az' => $query->orderBy('title', 'asc'),
-            'za' => $query->orderBy('title', 'desc'),
-            default => $query->orderBy('published_at', 'desc'),
-        };
-
-        $this->articles = $query->limit($this->limit)->get();
+        $this->articles = $articleService->getPublishedArticlesInSectionForWidget(
+            sectionId: $this->sectionModel?->id,
+            sort: $this->sort,
+            limit: $this->limit,
+        );
     }
 
     public function render(): View

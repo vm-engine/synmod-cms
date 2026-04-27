@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
+use VmEngine\Cms\Services\CmsGalleryService;
 
 class BannerSlider extends Component
 {
@@ -24,6 +25,7 @@ class BannerSlider extends Component
      * @param  array<string, mixed>  $with  Extra vars forwarded into the custom $template.
      */
     public function __construct(
+        CmsGalleryService $galleryService,
         public string $album = '',
         public bool $autoplay = true,
         public int $interval = 5000,
@@ -35,11 +37,7 @@ class BannerSlider extends Component
         public string $template = '',
         public array $with = [],
     ) {
-        $this->albumRecord = CmsAlbum::with('images.file')
-            ->where('slug', $this->album)
-            ->banner()
-            ->active()
-            ->first();
+        $this->albumRecord = $galleryService->findActiveBannerAlbumBySlug($this->album, ['images.file']);
 
         /** @var Collection<int, CmsAlbumImage> */
         $images = $this->albumRecord

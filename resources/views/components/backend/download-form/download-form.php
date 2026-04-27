@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Livewire\Forms\DownloadFormObject;
-use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -21,7 +21,7 @@ new class extends Component
         $this->downloadId = $id;
 
         if ($id) {
-            $download = CmsDownload::findOrFail($id);
+            $download = app(CmsDownloadService::class)->findOrFailById($id);
             $this->form->setDownload($download);
         }
 

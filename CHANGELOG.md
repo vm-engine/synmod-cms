@@ -5,6 +5,24 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.7] - 2026-04-27
+
+### Changed
+- **Domain service refactor** — extracted four new domain services (`CmsPageService`, `CmsArticleService`, `CmsGalleryService`, `CmsDownloadService`) and extended `CmsMenuService` so every read query and write operation outside the model itself flows through a service. Every backend list/form, frontend viewer/index, view-component widget, controller, and form object now calls service methods instead of static `Cms*::` queries.
+- **Form objects** (`PageFormObject`, `ArticleFormObject`, `SectionFormObject`, `CategoryFormObject`, `TagFormObject`, `AlbumFormObject`, `AlbumImageFormObject`, `DownloadFormObject`, `DownloadFileFormObject`, `MenuFormObject`) keep validation rules and `setX()` / `toData()` field state but delegate every `create` / `update` / `delete` / `sync` / activity-log call to the corresponding domain service.
+- **Article writes** (`CmsArticleService::createArticle` / `updateArticle`) now run inside `DB::transaction` so the article save, tag sync, and activity log either all commit or all roll back.
+- **Observer cleanup** — `CmsAlbumImageObserver` cover-image cascade logic moved into `CmsGalleryService::applyAutoCoverOnImageCreate` / `recomputeCoverOnImageDelete`; observer is now a thin dispatcher.
+- **Backend `menu-item-manager`** — adv-select search/load methods (`searchPages`, `searchSections`, `searchCategories`, `searchArticles`, `searchAlbums`, `searchAlbumImages`, `searchDownloads`, plus their `load*` counterparts) delegate to per-domain service methods. The edit flow now uses the menu-scoped lookup (`findMenuItemOrFailInMenu`), preventing edits to items that belong to a different menu.
+- **Page service** delegates `full_slug` computation back to the model's existing `CmsPage::computeFullSlug()` instead of duplicating the logic.
+
+### Fixed
+- N+1 in `CmsPageService::getParentOptions` — root pages now eager-load `children` so the parent dropdown no longer fires one query per root page.
+
+### Internal
+- `CmsArticleService::resolveTagIds` and `findOrCreateTagByName` made `private` (only used internally by `createArticle` / `updateArticle`).
+- `CmsPageService::getPublishedChildren` and `getPublishedDescendants` reuse the `published()` Eloquent scope instead of inlining its predicate.
+- `CmsFallbackService`, `CmsActivityLogger`, and `CmsSitemapService` remain unchanged — cross-cutting infrastructure that domain services compose with.
+
 ## [1.1.6] - 2026-04-23
 
 ### Added

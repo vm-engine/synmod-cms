@@ -4,16 +4,12 @@ declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
 use Livewire\Component;
-use VmEngine\Cms\Models\CmsAlbum;
-use VmEngine\Cms\Models\CmsAlbumImage;
-use VmEngine\Cms\Models\CmsArticle;
-use VmEngine\Cms\Models\CmsCategory;
-use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenu;
-use VmEngine\Cms\Models\CmsMenuItem;
-use VmEngine\Cms\Models\CmsPage;
-use VmEngine\Cms\Models\CmsSection;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Services\CmsMenuService;
+use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -60,7 +56,7 @@ new class extends Component
     public function mount(int $menuId): void
     {
         $this->menuId = $menuId;
-        CmsMenu::findOrFail($menuId);
+        app(CmsMenuService::class)->findMenuOrFailById($menuId);
         synav()->setActiveMenu('cms.menu');
     }
 
@@ -106,16 +102,9 @@ new class extends Component
             'newCustomLayout' => 'nullable|string|max:255',
         ]);
 
-        $parentId = $this->addingChildFor;
-        $maxOrder = CmsMenuItem::where('menu_id', $this->menuId)
-            ->where('parent_id', $parentId)
-            ->max('sort_order') ?? -1;
-
         $supportsCustomView = in_array($this->newTargetType, ['album', 'album_list', 'download', 'download_list']);
 
-        $item = CmsMenuItem::create([
-            'menu_id' => $this->menuId,
-            'parent_id' => $parentId,
+        app(CmsMenuService::class)->addItemToMenu($this->menuId, [
             'label' => $this->newLabel,
             'target_type' => $this->newTargetType,
             'target_id' => ! in_array($this->newTargetType, $noIdTypes) ? $this->newTargetId : null,
@@ -123,10 +112,7 @@ new class extends Component
             'open_new_tab' => $this->newOpenNewTab,
             'custom_view' => $supportsCustomView ? ($this->newCustomView ?: null) : null,
             'custom_layout' => $supportsCustomView ? ($this->newCustomLayout ?: null) : null,
-            'sort_order' => $maxOrder + 1,
-            'is_active' => true,
-        ]);
-        app(CmsActivityLogger::class)->logCreate('menu_item', $item, $item->toArray());
+        ], $this->addingChildFor);
 
         $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
@@ -136,7 +122,7 @@ new class extends Component
 
     public function startEdit(int $id): void
     {
-        $item = CmsMenuItem::findOrFail($id);
+        $item = app(CmsMenuService::class)->findMenuItemOrFailInMenu($this->menuId, $id);
         $this->addingChildFor = null;
         $this->editingId = $id;
         $this->editLabel = $item->label;
@@ -164,9 +150,8 @@ new class extends Component
 
         $supportsCustomView = in_array($this->editTargetType, ['album', 'album_list', 'download', 'download_list']);
 
-        $item = CmsMenuItem::findOrFail($this->editingId);
-        $oldData = $item->toArray();
-        $item->update([
+        $item = app(CmsMenuService::class)->findMenuItemOrFailInMenu($this->menuId, $this->editingId);
+        app(CmsMenuService::class)->updateMenuItem($item, [
             'label' => $this->editLabel,
             'target_type' => $this->editTargetType,
             'target_id' => ! in_array($this->editTargetType, $noIdTypes) ? $this->editTargetId : null,
@@ -176,7 +161,6 @@ new class extends Component
             'custom_view' => $supportsCustomView ? ($this->editCustomView ?: null) : null,
             'custom_layout' => $supportsCustomView ? ($this->editCustomLayout ?: null) : null,
         ]);
-        app(CmsActivityLogger::class)->logUpdate('menu_item', $item, $oldData);
 
         $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
         unset($this->items);
@@ -190,9 +174,7 @@ new class extends Component
 
     public function deleteItem(int $id): void
     {
-        $item = CmsMenuItem::where('menu_id', $this->menuId)->findOrFail($id);
-        app(CmsActivityLogger::class)->logDelete('menu_item', $item);
-        $item->delete();
+        app(CmsMenuService::class)->deleteMenuItemInMenu($this->menuId, $id);
         unset($this->items);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.item_deleted'));
@@ -200,11 +182,7 @@ new class extends Component
 
     public function updateOrder(array $ids): void
     {
-        foreach ($ids as $order => $id) {
-            CmsMenuItem::where('menu_id', $this->menuId)
-                ->where('id', $id)
-                ->update(['sort_order' => $order]);
-        }
+        app(CmsMenuService::class)->reorderItemsInMenu($this->menuId, $ids);
         unset($this->items);
     }
 
@@ -212,142 +190,72 @@ new class extends Component
 
     public function searchPages(string $query): array
     {
-        return CmsPage::where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get(['id', 'title', 'full_slug'])
-            ->map(fn ($p) => ['value' => $p->id, 'label' => $p->title.' (/'.$p->full_slug.')'])
-            ->toArray();
+        return app(CmsPageService::class)->searchOptions($query);
     }
 
     public function loadPages(int|array $ids): array
     {
-        return CmsPage::whereIn('id', (array) $ids)
-            ->get(['id', 'title'])
-            ->map(fn ($p) => ['value' => $p->id, 'label' => $p->title])
-            ->toArray();
+        return app(CmsPageService::class)->loadOptions($ids);
     }
 
     public function searchSections(string $query): array
     {
-        return CmsSection::where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get(['id', 'title'])
-            ->map(fn ($s) => ['value' => $s->id, 'label' => $s->title])
-            ->toArray();
+        return app(CmsArticleService::class)->searchSectionOptions($query);
     }
 
     public function loadSections(int|array $ids): array
     {
-        return CmsSection::whereIn('id', (array) $ids)
-            ->get(['id', 'title'])
-            ->map(fn ($s) => ['value' => $s->id, 'label' => $s->title])
-            ->toArray();
+        return app(CmsArticleService::class)->loadSectionOptions($ids);
     }
 
     public function searchCategories(string $query): array
     {
-        return CmsCategory::with('section')
-            ->where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get()
-            ->map(fn ($c) => ['value' => $c->id, 'label' => $c->section->title.' › '.$c->title])
-            ->toArray();
+        return app(CmsArticleService::class)->searchCategoryOptions($query);
     }
 
     public function loadCategories(int|array $ids): array
     {
-        return CmsCategory::with('section')
-            ->whereIn('id', (array) $ids)
-            ->get()
-            ->map(fn ($c) => ['value' => $c->id, 'label' => $c->section->title.' › '.$c->title])
-            ->toArray();
+        return app(CmsArticleService::class)->loadCategoryOptions($ids);
     }
 
     public function searchArticles(string $query): array
     {
-        return CmsArticle::with(['section', 'category'])
-            ->where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get()
-            ->map(fn ($a) => [
-                'value' => $a->id,
-                'label' => $a->section->title.($a->category ? ' › '.$a->category->title : '').' › '.$a->title,
-            ])
-            ->toArray();
+        return app(CmsArticleService::class)->searchArticleOptions($query);
     }
 
     public function loadArticles(int|array $ids): array
     {
-        return CmsArticle::with(['section', 'category'])
-            ->whereIn('id', (array) $ids)
-            ->get()
-            ->map(fn ($a) => [
-                'value' => $a->id,
-                'label' => $a->section->title.($a->category ? ' › '.$a->category->title : '').' › '.$a->title,
-            ])
-            ->toArray();
+        return app(CmsArticleService::class)->loadArticleOptions($ids);
     }
 
     public function searchAlbums(string $query): array
     {
-        return CmsAlbum::where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get(['id', 'title'])
-            ->map(fn ($a) => ['value' => $a->id, 'label' => $a->title])
-            ->toArray();
+        return app(CmsGalleryService::class)->searchAlbumOptions($query);
     }
 
     public function loadAlbums(int|array $ids): array
     {
-        return CmsAlbum::whereIn('id', (array) $ids)
-            ->get(['id', 'title'])
-            ->map(fn ($a) => ['value' => $a->id, 'label' => $a->title])
-            ->toArray();
+        return app(CmsGalleryService::class)->loadAlbumOptions($ids);
     }
 
     public function searchAlbumImages(string $query): array
     {
-        return CmsAlbumImage::with('album')
-            ->where(function ($q) use ($query) {
-                $q->where('title', 'like', "%{$query}%")
-                    ->orWhereHas('album', fn ($aq) => $aq->where('title', 'like', "%{$query}%"));
-            })
-            ->limit(20)
-            ->get()
-            ->map(fn ($i) => [
-                'value' => $i->id,
-                'label' => $i->album->title.' › '.($i->title ?: "Image #{$i->id}"),
-            ])
-            ->toArray();
+        return app(CmsGalleryService::class)->searchAlbumImageOptions($query);
     }
 
     public function loadAlbumImages(int|array $ids): array
     {
-        return CmsAlbumImage::with('album')
-            ->whereIn('id', (array) $ids)
-            ->get()
-            ->map(fn ($i) => [
-                'value' => $i->id,
-                'label' => $i->album->title.' › '.($i->title ?: "Image #{$i->id}"),
-            ])
-            ->toArray();
+        return app(CmsGalleryService::class)->loadAlbumImageOptions($ids);
     }
 
     public function searchDownloads(string $query): array
     {
-        return CmsDownload::where('title', 'like', "%{$query}%")
-            ->limit(20)
-            ->get(['id', 'title'])
-            ->map(fn ($d) => ['value' => $d->id, 'label' => $d->title])
-            ->toArray();
+        return app(CmsDownloadService::class)->searchOptions($query);
     }
 
     public function loadDownloads(int|array $ids): array
     {
-        return CmsDownload::whereIn('id', (array) $ids)
-            ->get(['id', 'title'])
-            ->map(fn ($d) => ['value' => $d->id, 'label' => $d->title])
-            ->toArray();
+        return app(CmsDownloadService::class)->loadOptions($ids);
     }
 
     // ── Computed ─────────────────────────────────────────────────────────────
@@ -355,23 +263,19 @@ new class extends Component
     #[Computed()]
     public function menu(): CmsMenu
     {
-        return CmsMenu::findOrFail($this->menuId);
+        return app(CmsMenuService::class)->findMenuOrFailById($this->menuId);
     }
 
     #[Computed()]
     public function items()
     {
-        return CmsMenuItem::where('menu_id', $this->menuId)
-            ->whereNull('parent_id')
-            ->with('children.children')
-            ->orderBy('sort_order')
-            ->get();
+        return app(CmsMenuService::class)->getRootItemsWithChildrenForMenu($this->menuId);
     }
 
     #[Computed()]
     public function allItems()
     {
-        return CmsMenuItem::where('menu_id', $this->menuId)->orderBy('sort_order')->get();
+        return app(CmsMenuService::class)->getAllItemsForMenu($this->menuId);
     }
 
     #[Computed()]

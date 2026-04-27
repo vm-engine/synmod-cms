@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Livewire\Component;
-use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
@@ -20,7 +20,7 @@ new class extends Component
 
     public function render()
     {
-        $albums = CmsAlbum::with('images')->active()->normal()->orderBy('sort_order')->get();
+        $albums = app(CmsGalleryService::class)->getActiveNormalAlbums(['images']);
 
         $template = FrontendViewResolver::view(
             $this->custom_view,

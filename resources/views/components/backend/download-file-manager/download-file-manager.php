@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsDownload;
-use VmEngine\Cms\Models\CmsDownloadFile;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -30,7 +29,7 @@ new class extends Component
     public function mount(int $downloadId): void
     {
         $this->downloadId = $downloadId;
-        CmsDownload::findOrFail($downloadId);
+        app(CmsDownloadService::class)->findOrFailById($downloadId);
         synav()->setActiveMenu('cms.download');
     }
 
@@ -61,17 +60,12 @@ new class extends Component
             'newFileId' => 'required|integer|exists:fm_files,id',
         ]);
 
-        $maxOrder = CmsDownloadFile::where('download_id', $this->downloadId)->max('sort_order') ?? -1;
-
-        $file = CmsDownloadFile::create([
-            'download_id' => $this->downloadId,
+        app(CmsDownloadService::class)->addFileToDownload($this->downloadId, [
             'file_id' => $this->newFileId,
             'title' => $this->newFileTitle ?: null,
             'description' => $this->newFileDescription ?: null,
-            'sort_order' => $maxOrder + 1,
             'config' => ['custom_var' => $this->newFileCustomVars, 'custom_var_allow_add' => $this->newFileCustomVarAllowAdd],
         ]);
-        app(CmsActivityLogger::class)->logCreate('download_file', $file, $file->toArray());
 
         $this->reset('newFileUrl', 'newFileTitle', 'newFileDescription', 'newFileCustomVars', 'newFileCustomVarAllowAdd');
         $this->newFileId = null;
@@ -81,9 +75,7 @@ new class extends Component
 
     public function deleteFile(int $id): void
     {
-        $file = CmsDownloadFile::where('download_id', $this->downloadId)->findOrFail($id);
-        app(CmsActivityLogger::class)->logDelete('download_file', $file);
-        $file->delete();
+        app(CmsDownloadService::class)->deleteFileInDownload($this->downloadId, $id);
         unset($this->files);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_deleted'));
@@ -91,27 +83,20 @@ new class extends Component
 
     public function updateOrder(array $ids): void
     {
-        foreach ($ids as $order => $id) {
-            CmsDownloadFile::where('download_id', $this->downloadId)
-                ->where('id', $id)
-                ->update(['sort_order' => $order]);
-        }
+        app(CmsDownloadService::class)->reorderFilesInDownload($this->downloadId, $ids);
         unset($this->files);
     }
 
     #[Computed()]
     public function download(): CmsDownload
     {
-        return CmsDownload::findOrFail($this->downloadId);
+        return app(CmsDownloadService::class)->findOrFailById($this->downloadId);
     }
 
     #[Computed()]
     public function files()
     {
-        return CmsDownloadFile::where('download_id', $this->downloadId)
-            ->with('file')
-            ->orderBy('sort_order')
-            ->get();
+        return app(CmsDownloadService::class)->getDownloadFiles($this->downloadId);
     }
 
     #[Computed()]

@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsCategory;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class CategoryFormObject extends Form
 {
@@ -87,26 +87,7 @@ class CategoryFormObject extends Form
     {
         $this->validate();
 
-        $category = CmsCategory::create([
-            'section_id' => $this->section_id,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'description' => $this->description ?: null,
-            'cover_image' => $this->cover_image ?: null,
-            'status' => $this->status,
-            'sort_order' => $this->sort_order,
-            'inherit_config' => $this->inherit_config,
-            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
-            'meta_title' => $this->meta_title ?: null,
-            'meta_description' => $this->meta_description ?: null,
-            'og_image' => $this->og_image ?: null,
-            'custom_view' => $this->custom_view ?: null,
-            'custom_layout' => $this->custom_layout ?: null,
-            'custom_article_view' => $this->custom_article_view ?: null,
-            'created_by' => $createdBy,
-        ]);
-
-        app(CmsActivityLogger::class)->logCreate('category', $category, $category->toArray());
+        $category = app(CmsArticleService::class)->createCategory($this->toData(), $createdBy);
 
         $this->reset();
 
@@ -117,9 +98,15 @@ class CategoryFormObject extends Form
     {
         $this->validate();
 
-        $oldData = $this->category->toArray();
+        app(CmsArticleService::class)->updateCategory($this->category, $this->toData());
+    }
 
-        $this->category->update([
+    /**
+     * @return array<string, mixed>
+     */
+    private function toData(): array
+    {
+        return [
             'section_id' => $this->section_id,
             'title' => $this->title,
             'slug' => $this->slug,
@@ -135,8 +122,6 @@ class CategoryFormObject extends Form
             'custom_view' => $this->custom_view ?: null,
             'custom_layout' => $this->custom_layout ?: null,
             'custom_article_view' => $this->custom_article_view ?: null,
-        ]);
-
-        app(CmsActivityLogger::class)->logUpdate('category', $this->category, $oldData);
+        ];
     }
 }

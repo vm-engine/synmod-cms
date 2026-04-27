@@ -7,6 +7,7 @@ namespace VmEngine\Cms\View\Components\Widget;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsPageService;
 
 class Page extends Component
 {
@@ -16,6 +17,7 @@ class Page extends Component
      * @param  array<string, mixed>  $with  Extra vars forwarded into the custom $template.
      */
     public function __construct(
+        CmsPageService $pageService,
         public string $slug = '',
         public bool $showTitle = true,
         public bool $showCover = true,
@@ -27,9 +29,7 @@ class Page extends Component
         public bool $bare = false,
         public array $with = [],
     ) {
-        $this->page = CmsPage::where('full_slug', $this->slug)
-            ->published()
-            ->first();
+        $this->page = $pageService->findPublishedByFullSlug($this->slug);
     }
 
     public function render(): View

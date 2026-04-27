@@ -6,8 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
-use VmEngine\Cms\Models\CmsAlbumImage;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -30,7 +29,7 @@ new class extends Component
     public function mount(int $albumId): void
     {
         $this->albumId = $albumId;
-        CmsAlbum::findOrFail($albumId);
+        app(CmsGalleryService::class)->findAlbumOrFailById($albumId);
         synav()->setActiveMenu('cms.gallery');
     }
 
@@ -60,17 +59,12 @@ new class extends Component
             'newFileId' => 'required|integer|exists:fm_files,id',
         ]);
 
-        $maxOrder = CmsAlbumImage::where('album_id', $this->albumId)->max('sort_order') ?? -1;
-
-        $image = CmsAlbumImage::create([
-            'album_id' => $this->albumId,
+        app(CmsGalleryService::class)->addImageToAlbum($this->albumId, [
             'file_id' => $this->newFileId,
             'title' => $this->newImageTitle ?: null,
             'caption' => $this->newImageCaption ?: null,
-            'sort_order' => $maxOrder + 1,
             'config' => ['custom_var' => $this->newImageCustomVars, 'custom_var_allow_add' => $this->newImageCustomVarAllowAdd],
         ]);
-        app(CmsActivityLogger::class)->logCreate('album_image', $image, $image->toArray());
 
         $this->reset('newImageUrl', 'newImageTitle', 'newImageCaption', 'newImageCustomVars', 'newImageCustomVarAllowAdd');
         $this->newFileId = null;
@@ -80,9 +74,7 @@ new class extends Component
 
     public function deleteImage(int $id): void
     {
-        $image = CmsAlbumImage::where('album_id', $this->albumId)->findOrFail($id);
-        app(CmsActivityLogger::class)->logDelete('album_image', $image);
-        $image->delete();
+        app(CmsGalleryService::class)->deleteImageInAlbum($this->albumId, $id);
         unset($this->images);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_deleted'));
@@ -90,27 +82,20 @@ new class extends Component
 
     public function updateOrder(array $ids): void
     {
-        foreach ($ids as $order => $id) {
-            CmsAlbumImage::where('album_id', $this->albumId)
-                ->where('id', $id)
-                ->update(['sort_order' => $order]);
-        }
+        app(CmsGalleryService::class)->reorderImagesInAlbum($this->albumId, $ids);
         unset($this->images);
     }
 
     #[Computed()]
     public function album(): CmsAlbum
     {
-        return CmsAlbum::findOrFail($this->albumId);
+        return app(CmsGalleryService::class)->findAlbumOrFailById($this->albumId);
     }
 
     #[Computed()]
     public function images()
     {
-        return CmsAlbumImage::where('album_id', $this->albumId)
-            ->with('file')
-            ->orderBy('sort_order')
-            ->get();
+        return app(CmsGalleryService::class)->getAlbumImages($this->albumId);
     }
 
     #[Computed()]

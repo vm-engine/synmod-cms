@@ -8,8 +8,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Livewire\Forms\MenuFormObject;
-use VmEngine\Cms\Models\CmsMenu;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsMenuService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -42,7 +41,7 @@ new class extends Component
     #[On('load-menu')]
     public function loadMenu(int $id): void
     {
-        $menu = CmsMenu::findOrFail($id);
+        $menu = app(CmsMenuService::class)->findMenuOrFailById($id);
         $this->form->setMenu($menu);
     }
 
@@ -68,13 +67,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsMenu::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $menu = CmsMenu::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('menu', $menu);
-            $menu->delete();
+            app(CmsMenuService::class)->deleteMenuByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -89,14 +82,10 @@ new class extends Component
     #[Computed()]
     public function menuList()
     {
-        $model = CmsMenu::withCount('items');
-
-        if (! empty($this->q) && strlen($this->q) > 2) {
-            $model->where('name', 'like', "%{$this->q}%")
-                ->orWhere('position', 'like', "%{$this->q}%");
-        }
-
-        return $model->paginate($this->limit)->onEachSide(1);
+        return app(CmsMenuService::class)->paginateMenus(
+            filters: ['q' => $this->q],
+            perPage: $this->limit,
+        );
     }
 
     #[Computed()]

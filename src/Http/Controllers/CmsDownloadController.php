@@ -9,13 +9,15 @@ use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
 use VmEngine\Cms\Enums\DownloadAccess;
-use VmEngine\Cms\Models\CmsDownloadFile;
+use VmEngine\Cms\Services\CmsDownloadService;
 
 class CmsDownloadController extends Controller
 {
+    public function __construct(private readonly CmsDownloadService $downloads) {}
+
     public function __invoke(int $id): StreamedResponse|RedirectResponse
     {
-        $downloadFile = CmsDownloadFile::with(['download', 'file'])->findOrFail($id);
+        $downloadFile = $this->downloads->findFileOrFailById($id, ['download', 'file']);
 
         // Ensure the parent download is active
         abort_if($downloadFile->download->status !== 'active', 404);

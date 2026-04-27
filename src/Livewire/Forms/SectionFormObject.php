@@ -6,7 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsSection;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class SectionFormObject extends Form
 {
@@ -103,34 +103,7 @@ class SectionFormObject extends Form
     {
         $this->validate();
 
-        $section = CmsSection::create([
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'description' => $this->description ?: null,
-            'cover_image' => $this->cover_image ?: null,
-            'status' => $this->status,
-            'sort_order' => $this->sort_order,
-            'config' => [
-                'order_by' => $this->order_by,
-                'order_dir' => $this->order_dir,
-                'show_date' => $this->show_date,
-                'show_author' => $this->show_author,
-                'show_thumbnail' => $this->show_thumbnail,
-                'items_per_page' => $this->items_per_page,
-                'custom_var' => $this->customVars,
-                'custom_var_allow_add' => $this->customVarAllowAdd,
-            ],
-            'meta_title' => $this->meta_title ?: null,
-            'meta_description' => $this->meta_description ?: null,
-            'og_image' => $this->og_image ?: null,
-            'custom_view' => $this->custom_view ?: null,
-            'custom_layout' => $this->custom_layout ?: null,
-            'custom_category_view' => $this->custom_category_view ?: null,
-            'custom_article_view' => $this->custom_article_view ?: null,
-            'created_by' => $createdBy,
-        ]);
-
-        app(CmsActivityLogger::class)->logCreate('section', $section, $section->toArray());
+        $section = app(CmsArticleService::class)->createSection($this->toData(), $createdBy);
 
         $this->reset();
 
@@ -141,9 +114,15 @@ class SectionFormObject extends Form
     {
         $this->validate();
 
-        $oldData = $this->section->toArray();
+        app(CmsArticleService::class)->updateSection($this->section, $this->toData());
+    }
 
-        $this->section->update([
+    /**
+     * @return array<string, mixed>
+     */
+    private function toData(): array
+    {
+        return [
             'title' => $this->title,
             'slug' => $this->slug,
             'description' => $this->description ?: null,
@@ -167,8 +146,6 @@ class SectionFormObject extends Form
             'custom_layout' => $this->custom_layout ?: null,
             'custom_category_view' => $this->custom_category_view ?: null,
             'custom_article_view' => $this->custom_article_view ?: null,
-        ]);
-
-        app(CmsActivityLogger::class)->logUpdate('section', $this->section, $oldData);
+        ];
     }
 }

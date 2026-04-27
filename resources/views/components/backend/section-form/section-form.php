@@ -6,7 +6,7 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\SectionFormObject;
-use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -20,7 +20,7 @@ new class extends Component
         $this->sectionId = $id;
 
         if ($id) {
-            $section = CmsSection::findOrFail($id);
+            $section = app(CmsArticleService::class)->findSectionOrFailById($id);
             $this->form->setSection($section);
         }
 

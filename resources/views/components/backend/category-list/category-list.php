@@ -6,9 +6,8 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
-use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsSection;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -65,13 +64,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsCategory::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $category = CmsCategory::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('category', $category);
-            $category->delete();
+            app(CmsArticleService::class)->deleteCategoryByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -86,27 +79,19 @@ new class extends Component
     #[Computed()]
     public function categoryList()
     {
-        $model = CmsCategory::with('section')->withCount('articles')
-            ->where('section_id', $this->sectionId);
-
-        if (! empty($this->q) && strlen($this->q) > 2) {
-            $model->search($this->q);
-        }
-
-        if (! empty($this->filterStatus)) {
-            $model->where('status', $this->filterStatus);
-        }
-
-        return $model
-            ->orderBy($this->sort, $this->sortDirection)
-            ->paginate($this->limit)
-            ->onEachSide(1);
+        return app(CmsArticleService::class)->paginateCategoriesInSection(
+            sectionId: $this->sectionId,
+            filters: ['q' => $this->q, 'status' => $this->filterStatus],
+            sort: $this->sort,
+            direction: $this->sortDirection,
+            perPage: $this->limit,
+        );
     }
 
     #[Computed()]
     public function section(): ?CmsSection
     {
-        return CmsSection::find($this->sectionId);
+        return app(CmsArticleService::class)->findSectionById($this->sectionId);
     }
 
     #[Computed()]

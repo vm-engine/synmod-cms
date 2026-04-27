@@ -8,8 +8,7 @@ use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Livewire\Forms\TagFormObject;
-use VmEngine\Cms\Models\CmsTag;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -42,7 +41,7 @@ new class extends Component
     #[On('load-tag')]
     public function loadTag(int $id): void
     {
-        $tag = CmsTag::findOrFail($id);
+        $tag = app(CmsArticleService::class)->findTagOrFailById($id);
         $this->form->setTag($tag);
     }
 
@@ -68,13 +67,7 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            $id = CmsTag::validateDeleteToken($token);
-            if (! $id) {
-                throw new Exception(__('cms::labels.invalid_delete_token'));
-            }
-            $tag = CmsTag::findOrFail($id);
-            app(CmsActivityLogger::class)->logDelete('tag', $tag);
-            $tag->delete();
+            app(CmsArticleService::class)->deleteTagByToken($token);
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -89,14 +82,10 @@ new class extends Component
     #[Computed()]
     public function tagList()
     {
-        $model = CmsTag::withCount('articles');
-
-        if (! empty($this->q) && strlen($this->q) > 1) {
-            $model->where('name', 'like', "%{$this->q}%")
-                ->orWhere('slug', 'like', "%{$this->q}%");
-        }
-
-        return $model->orderBy('name')->paginate($this->limit)->onEachSide(1);
+        return app(CmsArticleService::class)->paginateTags(
+            filters: ['q' => $this->q],
+            perPage: $this->limit,
+        );
     }
 
     #[Computed()]

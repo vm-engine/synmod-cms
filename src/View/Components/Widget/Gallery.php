@@ -9,6 +9,7 @@ use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
+use VmEngine\Cms\Services\CmsGalleryService;
 
 class Gallery extends Component
 {
@@ -21,6 +22,7 @@ class Gallery extends Component
      * @param  array<string, mixed>  $with  Extra vars forwarded into the custom $card/$view.
      */
     public function __construct(
+        CmsGalleryService $galleryService,
         public string $album = '',
         public int $limit = 0,
         public bool $showTitle = true,
@@ -37,10 +39,7 @@ class Gallery extends Component
         public bool $bare = false,
         public array $with = [],
     ) {
-        $this->albumRecord = CmsAlbum::with('images.file')
-            ->where('slug', $this->album)
-            ->active()
-            ->first();
+        $this->albumRecord = $galleryService->findActiveAlbumBySlug($this->album, ['images.file']);
 
         /** @var Collection<int, CmsAlbumImage> */
         $images = $this->albumRecord

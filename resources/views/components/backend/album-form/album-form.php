@@ -7,7 +7,7 @@ use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Livewire\Forms\AlbumFormObject;
-use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
@@ -21,7 +21,7 @@ new class extends Component
         $this->albumId = $id;
 
         if ($id) {
-            $album = CmsAlbum::findOrFail($id);
+            $album = app(CmsGalleryService::class)->findAlbumOrFailById($id);
             $this->form->setAlbum($album);
         }
 

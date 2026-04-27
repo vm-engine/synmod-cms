@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
 new class extends Component
@@ -15,9 +16,10 @@ new class extends Component
     public function mount(int $article_id): void
     {
         $this->article_id = $article_id;
-        $this->article = CmsArticle::with(['section', 'category', 'tags', 'creator'])
-            ->published()
-            ->findOrFail($article_id);
+        $this->article = app(CmsArticleService::class)->findPublishedArticleOrFailById(
+            $article_id,
+            ['section', 'category', 'tags', 'creator'],
+        );
     }
 
     public function title(): string

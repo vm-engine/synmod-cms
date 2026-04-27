@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\View\Component;
 use Illuminate\View\View;
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsPageService;
 
 class PageChildren extends Component
 {
@@ -17,6 +18,7 @@ class PageChildren extends Component
     public Collection $children;
 
     public function __construct(
+        CmsPageService $pageService,
         public string $slug = '',
         public string $layout = 'grid',
         public int $limit = 12,
@@ -25,32 +27,15 @@ class PageChildren extends Component
         public bool $showExcerpt = true,
         public bool $recursive = false,
     ) {
-        $this->page = CmsPage::where('full_slug', $this->slug)->published()->first();
+        $this->page = $pageService->findPublishedByFullSlug($this->slug);
 
         /** @var Collection<int, CmsPage> $children */
         $children = new Collection;
 
         if ($this->page) {
-            if ($this->recursive) {
-                $children = CmsPage::where('full_slug', 'like', $this->page->full_slug.'/%')
-                    ->where('status', 'published')
-                    ->where(function ($q): void {
-                        $q->whereNull('published_at')->orWhere('published_at', '<=', now());
-                    })
-                    ->orderBy('sort_order')
-                    ->limit($this->limit)
-                    ->get();
-            } else {
-                /** @var Collection<int, CmsPage> $children */
-                $children = $this->page->children()
-                    ->where('status', 'published')
-                    ->where(function ($q): void {
-                        $q->whereNull('published_at')->orWhere('published_at', '<=', now());
-                    })
-                    ->orderBy('sort_order')
-                    ->limit($this->limit)
-                    ->get();
-            }
+            $children = $this->recursive
+                ? $pageService->getPublishedDescendants($this->page, $this->limit)
+                : $pageService->getPublishedChildren($this->page, $this->limit);
         }
 
         $this->children = $children;

@@ -6,8 +6,7 @@ namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsArticle;
-use VmEngine\Cms\Models\CmsTag;
-use VmEngine\Cms\Services\CmsActivityLogger;
+use VmEngine\Cms\Services\CmsArticleService;
 
 class ArticleFormObject extends Form
 {
@@ -99,62 +98,11 @@ class ArticleFormObject extends Form
         ];
     }
 
-    /**
-     * Resolve tag IDs: numeric values are existing tag IDs, strings are new tag names to find-or-create.
-     *
-     * @return array<int>
-     */
-    private function resolveTagIds(): array
-    {
-        $ids = [];
-        foreach ($this->tag_ids as $value) {
-            if (is_numeric($value)) {
-                $ids[] = (int) $value;
-            } else {
-                $name = trim((string) $value);
-                if ($name === '') {
-                    continue;
-                }
-                $slug = str($name)->lower()->slug()->toString();
-                $tag = CmsTag::firstOrCreate(['slug' => $slug], ['name' => $name]);
-                $ids[] = $tag->id;
-            }
-        }
-
-        return $ids;
-    }
-
     public function store(int $createdBy): CmsArticle
     {
         $this->validate();
 
-        $article = CmsArticle::create([
-            'section_id' => $this->section_id,
-            'category_id' => $this->category_id ?: null,
-            'title' => $this->title,
-            'slug' => $this->slug,
-            'body' => $this->body,
-            'excerpt' => $this->excerpt ?: null,
-            'cover_image' => $this->cover_image ?: null,
-            'status' => $this->status,
-            'published_at' => $this->published_at ?: null,
-            'expires_at' => $this->expires_at ?: null,
-            'is_featured' => $this->is_featured,
-            'sort_order' => $this->sort_order,
-            'read_time' => CmsArticle::computeReadTime($this->body),
-            'meta_title' => $this->meta_title ?: null,
-            'meta_description' => $this->meta_description ?: null,
-            'og_image' => $this->og_image ?: null,
-            'custom_view' => $this->custom_view ?: null,
-            'custom_layout' => $this->custom_layout ?: null,
-            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
-            'created_by' => $createdBy,
-            'updated_by' => $createdBy,
-        ]);
-
-        $article->tags()->sync($this->resolveTagIds());
-
-        app(CmsActivityLogger::class)->logCreate('article', $article, $article->toArray());
+        $article = app(CmsArticleService::class)->createArticle($this->toData(), $this->tag_ids, $createdBy);
 
         $this->reset();
 
@@ -165,9 +113,15 @@ class ArticleFormObject extends Form
     {
         $this->validate();
 
-        $oldData = $this->article->toArray();
+        app(CmsArticleService::class)->updateArticle($this->article, $this->toData(), $this->tag_ids, $updatedBy);
+    }
 
-        $this->article->update([
+    /**
+     * @return array<string, mixed>
+     */
+    private function toData(): array
+    {
+        return [
             'section_id' => $this->section_id,
             'category_id' => $this->category_id ?: null,
             'title' => $this->title,
@@ -180,18 +134,12 @@ class ArticleFormObject extends Form
             'expires_at' => $this->expires_at ?: null,
             'is_featured' => $this->is_featured,
             'sort_order' => $this->sort_order,
-            'read_time' => CmsArticle::computeReadTime($this->body),
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,
             'og_image' => $this->og_image ?: null,
             'custom_view' => $this->custom_view ?: null,
             'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
-            'updated_by' => $updatedBy,
-        ]);
-
-        $this->article->tags()->sync($this->resolveTagIds());
-
-        app(CmsActivityLogger::class)->logUpdate('article', $this->article, $oldData);
+        ];
     }
 }
