@@ -220,6 +220,8 @@ class CmsDownloadService
      */
     public function reorderFilesInDownload(int $downloadId, array $ids): void
     {
+        $download = CmsDownload::findOrFail($downloadId);
+
         DB::transaction(function () use ($downloadId, $ids): void {
             foreach ($ids as $order => $id) {
                 CmsDownloadFile::where('download_id', $downloadId)
@@ -227,5 +229,7 @@ class CmsDownloadService
                     ->update(['sort_order' => $order]);
             }
         });
+
+        $this->logger->logReorder('download', 'files', $download, $ids);
     }
 }

@@ -231,6 +231,8 @@ class CmsMenuService
      */
     public function reorderItemsInMenu(int $menuId, array $ids): void
     {
+        $menu = CmsMenu::findOrFail($menuId);
+
         DB::transaction(function () use ($menuId, $ids): void {
             foreach ($ids as $order => $id) {
                 CmsMenuItem::where('menu_id', $menuId)
@@ -238,5 +240,7 @@ class CmsMenuService
                     ->update(['sort_order' => $order]);
             }
         });
+
+        $this->logger->logReorder('menu', 'items', $menu, $ids);
     }
 }

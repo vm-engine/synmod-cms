@@ -5,6 +5,18 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.8] - 2026-04-28
+
+### Added
+- **`CmsActivityLogger::logReorder()`** — generic helper that logs a reorder action against a parent entity with the new ordered child-ID list. Action key follows `cms.{parent}.{id}.reorder_{collection}` (e.g. `cms.download.5.reorder_files`).
+
+### Changed
+- **`CmsDownloadService::reorderFilesInDownload`** now logs `cms.download.{id}.reorder_files` after the transaction commits.
+- **`CmsGalleryService::reorderImagesInAlbum`** now logs `cms.album.{id}.reorder_images` after the transaction commits.
+- **`CmsMenuService::reorderItemsInMenu`** now logs `cms.menu.{id}.reorder_items` after the transaction commits.
+
+Each reorder method now resolves the parent model via `findOrFail` before mutating, so a stale parent id surfaces as a 404 before any sort-order writes happen.
+
 ## [1.1.7] - 2026-04-27
 
 ### Changed

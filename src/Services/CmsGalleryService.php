@@ -210,6 +210,8 @@ class CmsGalleryService
      */
     public function reorderImagesInAlbum(int $albumId, array $ids): void
     {
+        $album = CmsAlbum::findOrFail($albumId);
+
         DB::transaction(function () use ($albumId, $ids): void {
             foreach ($ids as $order => $id) {
                 CmsAlbumImage::where('album_id', $albumId)
@@ -217,6 +219,8 @@ class CmsGalleryService
                     ->update(['sort_order' => $order]);
             }
         });
+
+        $this->logger->logReorder('album', 'images', $album, $ids);
     }
 
     // ----------------------------------------------- Menu-item picker helpers

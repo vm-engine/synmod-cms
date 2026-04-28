@@ -39,6 +39,24 @@ class CmsActivityLogger
         $this->write('delete', $entity, $model, 'User '.$this->userName().' deleted '.$entity.'. Data: '.json_encode($model->toArray()));
     }
 
+    /**
+     * Log a reorder action for a child collection within a parent entity.
+     *
+     * @param  array<int|string, mixed>  $orderedIds
+     */
+    public function logReorder(string $parentEntity, string $childCollection, Model $parent, array $orderedIds): void
+    {
+        $id = (string) ($parent->getKey() ?? '0');
+
+        SynAuth::logActivity(
+            Auth::id(),
+            'cms.'.$parentEntity.'.'.$id.'.reorder_'.$childCollection,
+            'User '.$this->userName().' reordered '.$childCollection.' in '.$parentEntity.'. New order: '.json_encode($orderedIds),
+            $parentEntity.'.'.$id,
+            'cms',
+        );
+    }
+
     private function write(string $action, string $entity, Model $model, string $message): void
     {
         $id = (string) ($model->getKey() ?? '0');
