@@ -13,7 +13,7 @@ class Tinymce extends Component
         public string $name,
         public string $value = '',
         public int $height = 400,
-        public string $toolbar = 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image | code',
+        public string $toolbar = 'undo redo | formatselect | bold italic | alignleft aligncenter alignright | bullist numlist | link image media | code',
         public string $plugins = 'link image code lists table media',
     ) {}
 

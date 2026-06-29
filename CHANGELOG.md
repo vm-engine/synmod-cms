@@ -5,6 +5,16 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.9] - 2026-06-29
+
+### Added
+- `is_package: true` flag added to `module.json`
+- TinyMCE toolbar now includes `media` button (video embeds) by default
+
+### Changed
+- TinyMCE FM picker hidden via targeted CSS (hides label/input-row but preserves the modal) instead of `hidden` class, so the picker overlay still opens correctly
+- `module.json` ACL entries reformatted to one-key-per-line style for readability
+
 ## [1.1.8] - 2026-04-28
 
 ### Added

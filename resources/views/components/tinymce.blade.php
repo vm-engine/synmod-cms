@@ -1,5 +1,9 @@
 @pushOnce('styles')
-<script src="/build/tinymce/tinymce/tinymce.min.js" referrerpolicy="origin" data-navigate-track></script>
+    <script
+        src="/build/tinymce/tinymce/tinymce.min.js"
+        referrerpolicy="origin"
+        data-navigate-track
+    ></script>
 @endPushOnce
 
 <div
@@ -46,16 +50,30 @@
             }
         }
     }"
-    x-init="
-        $nextTick(() => doInit());
-        const onNavigate = () => { destroy(); document.removeEventListener('livewire:navigate', onNavigate); };
-        document.addEventListener('livewire:navigate', onNavigate);
-    "
+    x-init="$nextTick(() => doInit());
+    const onNavigate = () => { destroy();
+        document.removeEventListener('livewire:navigate', onNavigate); };
+    document.addEventListener('livewire:navigate', onNavigate);"
 >
-    <textarea id="tinymce-{{ str_replace(['.', '[', ']'], '-', $name) }}" x-ref="textarea" name="{{ $name }}">{{ $value }}</textarea>
+    <textarea
+        id="tinymce-{{ str_replace(['.', '[', ']'], '-', $name) }}"
+        x-ref="textarea"
+        name="{{ $name }}"
+    >{{ $value }}</textarea>
 </div>
 
-{{-- Dedicated FM picker for TinyMCE insert-image/insert-link dialogs (hidden UI, modal-only) --}}
-<div class="hidden">
-    <livewire:fm::file-picker pickerKey="tinymce-{{ $name }}" wire:key="tinymce-fm-picker-{{ $name }}" />
+{{-- Dedicated FM picker for TinyMCE insert-image/insert-link dialogs (modal only, input row hidden) --}}
+@php $tinymceFmClass = 'cms-tinymce-fm-' . str_replace(['.', '[', ']'], '-', $name); @endphp
+<div class="{{ $tinymceFmClass }}">
+    <livewire:fm::file-picker
+        pickerKey="tinymce-{{ $name }}"
+        wire:key="tinymce-fm-picker-{{ $name }}"
+    />
 </div>
+<style>
+    .{{ $tinymceFmClass }}>div>label,
+    .{{ $tinymceFmClass }}>div>div.input-group,
+    .{{ $tinymceFmClass }}>div>div.mt-2 {
+        display: none !important;
+    }
+</style>
