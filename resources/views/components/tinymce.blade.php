@@ -25,6 +25,8 @@
                 toolbar: '{{ $toolbar }}',
                 license_key: 'gpl',
                 promotion: false,
+                relative_urls: false,
+                remove_script_host: false,
                 content_style: 'body { font-family: system-ui, sans-serif; font-size: 14px; }',
                 file_picker_callback: function(callback, value, meta) {
                     const key = 'tinymce-{{ $name }}';
@@ -51,8 +53,10 @@
         }
     }"
     x-init="$nextTick(() => doInit());
-    const onNavigate = () => { destroy();
-        document.removeEventListener('livewire:navigate', onNavigate); };
+    const onNavigate = () => {
+        destroy();
+        document.removeEventListener('livewire:navigate', onNavigate);
+    };
     document.addEventListener('livewire:navigate', onNavigate);"
 >
     <textarea
