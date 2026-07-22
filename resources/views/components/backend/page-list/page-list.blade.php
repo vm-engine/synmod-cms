@@ -5,25 +5,25 @@
 
     <div class="space-y-5 sm:space-y-6">
         <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="flex justify-between">
+            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <div class="px-5 py-4 sm:px-6 sm:py-5">
                     <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
                         {{ __('cms::labels.page_list') }}
                     </h3>
                 </div>
-                <div class="my-auto flex gap-3 px-5">
+                <div class="flex flex-col gap-3 px-5 pb-4 sm:my-auto sm:flex-row sm:items-center sm:pb-0">
                     @canAccess('cms.page.create')
                     <a
-                        class="btn primary"
+                        class="btn primary w-full justify-center sm:w-auto"
                         href="{{ backend_route('cms.page.form') }}"
                         wire:navigate
                     >
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </a>
                     @endcanAccess
-                    <div class="input-group">
+                    <div class="input-group w-full sm:w-auto">
                         <input
-                            class="form-input grow p-2"
+                            class="form-input w-full grow p-2"
                             type="text"
                             placeholder="{{ __('cms::labels.search') }}"
                             wire:model.live.debounce="q"

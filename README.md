@@ -4,7 +4,6 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 
 **Package:** `vm-engine/synmod-cms`  
 **Module ID:** `cms`  
-**Version:** 1.0.0  
 **Requires:** PHP 8.2+, Laravel 12, Livewire 4, `vm-engine/synapse`, `vm-engine/synapps-auth`, `vm-engine/synapps-fallback`, `vm-engine/synmod-fm`
 
 ---
@@ -16,24 +15,33 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 - **Gallery** — albums of type `normal` (public, routed at `/gallery/{slug}`) or `banner` (display-only, no public route); drag-and-drop image ordering; auto-sets album cover from first image uploaded; FM file picker integration
 - **Menus** — user-defined positions (`header`, `footer`, `sidebar`, or any string), infinitely nested items linking to pages, sections, categories, articles, albums, or custom URLs, drag-and-drop reordering
 - **Tags** — shared across articles with unique slug, managed via inline modal
+- **Downloads** — categorised file downloads with `public`/`private` (login-required) access via the `DownloadAccess` enum, drag-and-drop file ordering, FM file picker integration
 - **Custom Variables** — configurable key/value pairs on all content types (pages, sections, categories, articles, albums, album images), accessible in frontend components and templates
+- **Custom View & Layout Overrides** — every content type can override its rendered Blade view and/or layout per-record, with a cascading fallback (article → category → section, page → parent page); see [Custom View & Layout Overrides](#custom-view--layout-overrides)
 - **Automatic Fallback Routing** — all published content registers its public slug in `fallback_routes` on save and removes it on delete/unpublish; slug renames cascade to children automatically; no route cache clearing needed
-- **TinyMCE** — self-hosted rich text editor bundled via Vite, integrated with FM file picker for inline image insertion
+- **TinyMCE** — self-hosted rich text editor bundled via Vite, integrated with FM file picker for inline image insertion and video embeds
 - **Sitemap** — `/sitemap.xml` served by `SitemapController`, includes all published pages, sections, categories, articles, and active normal albums with priority and change frequency metadata
+- **Activity Logging** — every backend create/update/delete/reorder is logged via `CmsActivityLogger`, recording only the diff of changed fields on updates
 - **Frontend Livewire Components** — semantic BEM-style components for page, section, category, article, gallery index, album, and menu rendering; all resolved automatically via the fallback routing system
-- **Widget Blade Components** — 7 embeddable `<x-cms::widget.*>` components for use anywhere in your layout (see [Widget Components](#widget-components))
+- **Widget Blade Components** — 8 embeddable `<x-cms::widget.*>` components for use anywhere in your layout, most supporting `template`/`card` overrides for full custom markup (see [Widget Components](#widget-components))
 - **Granular ACL** — CRUD permissions per resource and sub-resource (`cms.article.section`, `cms.gallery.album`, etc.)
 
 ---
 
 ## Installation
 
-This module is managed via the Synapse discovery system. Add it to your project's `composer.json`:
+This is a private package, not published on Packagist — add its VCS repository to your project's `composer.json` **before** requiring it, so Composer knows where to fetch it from:
 
 ```json
 {
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "ssh://git@repo.4visionmedia.com:40288/vm-engine/synmod-cms.git"
+        }
+    ],
     "require": {
-        "vm-engine/synmod-cms": "^1.0"
+        "vm-engine/synmod-cms": "^1.1"
     }
 }
 ```
@@ -41,7 +49,7 @@ This module is managed via the Synapse discovery system. Add it to your project'
 Then install and discover:
 
 ```bash
-composer require vm-engine/synmod-cms
+composer update vm-engine/synmod-cms
 php artisan synapps:discover
 php artisan migrate
 ```
@@ -119,6 +127,12 @@ Livewire full-page components for public content rendering. All are resolved aut
 
 {{-- Gallery index (all normal albums) --}}
 <livewire:cms::frontend.gallery-index />
+
+{{-- Download category (file listing) --}}
+<livewire:cms::frontend.download-index />
+
+{{-- Single download category's files --}}
+<livewire:cms::frontend.download-viewer />
 ```
 
 ### Menu Component
@@ -133,13 +147,21 @@ Render a menu by its position string anywhere in your layout:
 <x-cms::menu :position="'header'" />
 ```
 
-Positions are arbitrary strings set by the admin when creating a menu (e.g. `header`, `footer`, `sidebar`). The component renders up to 3 levels of nesting with BEM-style CSS classes.
+Positions are arbitrary strings set by the admin when creating a menu (e.g. `header`, `footer`, `sidebar`). The component renders up to 3 levels of nesting with BEM-style CSS classes by default.
+
+Pass `template` (a Blade view name) to render your own markup instead — it receives `$items`, `$position`, plus any vars forwarded via `with`:
+
+```blade
+<x-cms::menu :position="'header'" template="theme::partials.main-nav" :with="['activeClass' => 'is-active']" />
+```
 
 ---
 
 ## Widget Components
 
-Seven embeddable Blade view components for use anywhere in layouts, other modules, or theme files. All data is fetched server-side on render.
+Eight embeddable Blade view components for use anywhere in layouts, other modules, or theme files. All data is fetched server-side on render.
+
+Several widgets accept a common set of customization props — pass `template` to fully replace the default markup with your own Blade view (receives the widget's resolved data plus `with`), `card` to override just the per-item markup within the default layout, `wrapperClass`/`gridClass` to add classes to the built-in containers, and `bare` to skip the built-in wrapper `<div>`s entirely. Props not listed below are unsupported on that widget.
 
 ### `<x-cms::widget.page>`
 
@@ -150,6 +172,10 @@ Renders a single page's title, cover image, and body.
     slug="about"
     :showTitle="true"
     :showCover="true"
+    template="theme::widgets.page"   {{-- receives $page + $with; falls back to default markup if empty --}}
+    wrapperClass="my-page-widget"
+    :bare="false"
+    :with="['extra' => 'value']"
 />
 ```
 
@@ -200,6 +226,12 @@ Renders published articles filtered by section slug.
     :showExcerpt="true"
     :showCover="true"
     :showDate="true"
+    card="theme::widgets.article-card"      {{-- per-article override; receives $article + $section --}}
+    template="theme::widgets.news-section"  {{-- full override; receives $section, $articles, $card + $with --}}
+    wrapperClass="my-section"
+    gridClass="my-grid"
+    :bare="false"
+    :with="[]"
 />
 ```
 
@@ -251,6 +283,27 @@ Renders a banner-type album as an Alpine.js carousel.
     :showControls="true"
     :showIndicators="true"
     height="480px"
+    template="theme::widgets.hero-slider"  {{-- full override; receives $slides, the album record, $images collection + $with --}}
+    :with="[]"
+/>
+```
+
+### `<x-cms::widget.gallery>`
+
+Renders an active album's images in a grid (not restricted to `banner`-type albums — use `banner-slider` for the carousel presentation).
+
+```blade
+<x-cms::widget.gallery
+    album="team-photos"
+    :limit="0"              {{-- 0 = no limit --}}
+    :showTitle="true"
+    :showCaption="true"
+    card="theme::widgets.gallery-card"   {{-- per-image override; receives $image + $album + $with --}}
+    template="theme::widgets.gallery"    {{-- full override; receives $images, $album + $with --}}
+    wrapperClass="my-gallery"
+    gridClass="my-grid"
+    :bare="false"
+    :with="[]"
 />
 ```
 
@@ -268,19 +321,54 @@ Custom variables are accessible in frontend components and widgets via `$model->
 
 ---
 
+## Custom View & Layout Overrides
+
+Every content type can override its rendered Blade view and/or layout on a per-record basis via `custom_view` / `custom_layout` columns, editable from a "Custom Rendering" card on each admin form. Sections and categories additionally expose a scoped override for the content they contain (`custom_category_view`, `custom_article_view`).
+
+### Resolution cascade
+
+Each model exposes `resolveCustomView()` / `resolveCustomLayout()`, called by the frontend viewers instead of reading the raw column directly — this is what implements the fallback chain:
+
+| Model | `resolveCustomView()` falls back through | `resolveCustomLayout()` falls back through |
+|---|---|---|
+| `CmsPage` | own → parent page (recursive up the tree) | own → parent page (recursive) |
+| `CmsSection` | own only | own only |
+| `CmsCategory` | own → section's `custom_category_view` | own → section's `custom_layout` |
+| `CmsArticle` | own → category's `custom_article_view` → section's `custom_article_view` | own → category's `custom_layout` → section's `custom_layout` |
+| `CmsAlbum`, `CmsDownload`, `CmsMenuItem` | own only (no cascade) | own only (no cascade) |
+
+A resolved value is only used if the view actually exists (`view()->exists()`) — an invalid/typo'd view name silently falls through to the next level in the cascade, then to the theme's default frontend layout.
+
+### `FrontendViewResolver`
+
+Every bundled frontend viewer MFC (page, section, category, article, album, gallery, download category, download file) calls this helper instead of duplicating the `view()->exists()` / theme-fallback logic:
+
+```php
+use VmEngine\Cms\Support\FrontendViewResolver;
+
+$view = FrontendViewResolver::view($page->resolveCustomView(), 'cms::frontend.page-viewer.default');
+$layout = FrontendViewResolver::layout($page->resolveCustomLayout()); // falls back to active theme's frontend layout, then synapps::components.layouts.layout
+```
+
+Use the same pattern if you add your own frontend viewer for a CMS content type.
+
+---
+
 ## Models
 
 | Model | Table | Key fields |
 |---|---|---|
-| `CmsPage` | `cms_pages` | `parent_id`, `slug`, `full_slug`, `status`, `sort_order`, `config` (JSON) |
-| `CmsSection` | `cms_sections` | `slug`, `status`, `config` (JSON: display options, items_per_page) |
-| `CmsCategory` | `cms_categories` | `section_id`, `slug`, `status`, `inherit_config`, `config` (JSON, overrides section when `inherit_config=false`) |
-| `CmsArticle` | `cms_articles` | `section_id`, `category_id` (nullable), `slug`, `status`, `published_at`, `expires_at`, `is_featured`, `read_time`, `config` (JSON) |
+| `CmsPage` | `cms_pages` | `parent_id`, `slug`, `full_slug`, `status`, `sort_order`, `config` (JSON), `custom_view`, `custom_layout` |
+| `CmsSection` | `cms_sections` | `slug`, `status`, `config` (JSON: display options, items_per_page), `custom_view`, `custom_layout`, `custom_category_view`, `custom_article_view` |
+| `CmsCategory` | `cms_categories` | `section_id`, `slug`, `status`, `inherit_config`, `config` (JSON, overrides section when `inherit_config=false`), `custom_view`, `custom_layout`, `custom_article_view` |
+| `CmsArticle` | `cms_articles` | `section_id`, `category_id` (nullable), `slug`, `status`, `published_at`, `expires_at`, `is_featured`, `read_time`, `config` (JSON), `custom_view`, `custom_layout` |
 | `CmsTag` | `cms_tags` | `slug` (unique) |
-| `CmsAlbum` | `cms_albums` | `slug`, `type` (`normal`\|`banner`), `status` (`active`\|`inactive`), `cover_image`, `config` (JSON) |
+| `CmsAlbum` | `cms_albums` | `slug`, `type` (`normal`\|`banner`), `status` (`active`\|`inactive`), `cover_image`, `config` (JSON), `custom_view`, `custom_layout` |
 | `CmsAlbumImage` | `cms_album_images` | `album_id`, `file_id` (nullable FK to `fm_files`), `title`, `caption`, `sort_order`, `config` (JSON) |
 | `CmsMenu` | `cms_menus` | `position`, `is_active` |
-| `CmsMenuItem` | `cms_menu_items` | `menu_id`, `parent_id`, `target_type`, `target_id`, `target_url`, `sort_order`, `is_active` |
+| `CmsMenuItem` | `cms_menu_items` | `menu_id`, `parent_id`, `target_type`, `target_id`, `target_url`, `sort_order`, `is_active`, `custom_view`, `custom_layout` |
+| `CmsDownload` | `cms_downloads` | `slug`, `status` (`active`\|`inactive`), `config` (JSON), `custom_view`, `custom_layout` |
+| `CmsDownloadFile` | `cms_download_files` | `download_id`, `file_id` (nullable FK to `fm_files`), `title`, `sort_order` |
 
 All models with delete operations use `WithDeleteToken` for secure, CSRF-safe deletion.
 
@@ -317,6 +405,7 @@ All models with delete operations use `WithDeleteToken` for secure, CSRF-safe de
 |---|---|---|
 | `ArticleStatus` | `Draft`, `Published`, `Scheduled` | `CmsArticle::status` |
 | `AlbumType` | `Normal`, `Banner` | `CmsAlbum::type` |
+| `DownloadAccess` | `Public`, `Private` (login required) | `CmsDownload::access` |
 
 ---
 
@@ -337,6 +426,43 @@ Every content model has a dedicated Eloquent observer that syncs fallback routes
 ---
 
 ## Services
+
+Since v1.1.7, every read query and write operation outside the model itself flows through one of these domain services — backend lists/forms, frontend viewers, widgets, and form objects all call service methods instead of static `Cms*::` queries. If you're extending the module, add new queries here rather than querying models directly from Livewire/forms.
+
+### `CmsPageService`, `CmsArticleService`, `CmsGalleryService`, `CmsDownloadService`
+
+One service per content family, each covering finders (`find*ById`, `find*BySlug`, `findPublished*`), backend pagination/filtering (`paginate*`, `listForBackend`), `create*`/`update*`/`delete*ByToken` writes, and adv-select `search*Options`/`load*Options` helpers used by the menu-item picker.
+
+```php
+use VmEngine\Cms\Services\CmsArticleService;
+
+$service = app(CmsArticleService::class);
+
+$article = $service->findPublishedArticleOrFailById($id);
+$articles = $service->getPublishedArticlesInSectionForWidget(sectionId: $section->id, sort: 'latest', limit: 6);
+$service->createArticle($data, $tagInputs, auth()->id());   // wrapped in DB::transaction
+```
+
+`CmsArticleService` additionally owns `CmsSection`, `CmsCategory`, and `CmsTag` queries/writes (there's no separate service for those). `CmsGalleryService` owns both `CmsAlbum` and `CmsAlbumImage` — including `reorderImagesInAlbum()` and the auto-cover logic (`applyAutoCoverOnImageCreate`/`recomputeCoverOnImageDelete`) that used to live in `CmsAlbumImageObserver`. `CmsDownloadService` owns both `CmsDownload` and `CmsDownloadFile`, including `reorderFilesInDownload()`.
+
+Every service constructor injects `CmsActivityLogger` (see below) and calls it internally from every write method — you don't need to log activity yourself when using these services.
+
+### `CmsActivityLogger`
+
+Lightweight audit helper wrapping `SynAuth::logActivity()`. Wired into every backend mutation path (form objects, list-component deletes, in-page managers).
+
+```php
+use VmEngine\Cms\Services\CmsActivityLogger;
+
+$logger = app(CmsActivityLogger::class);
+
+$logger->logCreate('page', $page);
+$logger->logUpdate('page', $page, $oldData);   // records only the diff of changed fields (old → new), ignoring timestamps
+$logger->logDelete('page', $page);
+$logger->logReorder('download', 'files', $download, $orderedFileIds); // action key: cms.download.{id}.reorder_files
+```
+
+Action keys follow `cms.{entity}.{id}.{action}` with feature `{entity}.{id}` and module `cms`, matching the logging pattern used by other Synapse modules.
 
 ### `CmsFallbackService`
 

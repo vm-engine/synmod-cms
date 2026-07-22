@@ -5,6 +5,14 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.11] - 2026-07-22
+
+### Fixed
+- **Mobile-responsive backend list toolbars** — `album-list`, `article-list`, `category-list`, `download-list`, `page-list`, and `section-list` header toolbars (create button + search input) now stack into a column and go full-width on small screens instead of overflowing horizontally.
+
+### Documentation
+- `README.md`/`CLAUDE.md` caught up to already-shipped functionality: the Downloads content type, custom view/layout override cascade (`resolveCustomView()`/`resolveCustomLayout()`, `FrontendViewResolver`), the `CmsPageService`/`CmsArticleService`/`CmsGalleryService`/`CmsDownloadService`/`CmsActivityLogger` domain services (introduced v1.1.7), the `<x-cms::widget.gallery>` widget, `template`/`card` override props across widgets, and the `<x-cms::menu>` `template` prop.
+
 ## [1.1.10] - 2026-06-30
 
 ### Fixed

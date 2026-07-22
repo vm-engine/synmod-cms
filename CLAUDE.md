@@ -86,12 +86,31 @@ Located in `src/Livewire/` (standard) or `resources/views/components/` (MFC). Fo
 **Backend (admin):** All CRUD under `/admin/cms/` with `can-access` middleware.
 
 **Frontend (public):** Resolved automatically via fallback routing — no explicit route needed:
-- `cms::frontend.page-viewer`, `section-index`, `category-index`, `article-viewer`, `album-viewer`, `gallery-index`, `menu`
+- `cms::frontend.page-viewer`, `section-index`, `category-index`, `article-viewer`, `album-viewer`, `gallery-index`, `download-index`, `download-viewer`, `menu`
+- Each viewer resolves its Blade view/layout via `FrontendViewResolver::view()` / `::layout()` against the model's `resolveCustomView()` / `resolveCustomLayout()` — see "Custom View/Layout Overrides" below.
 
-**Widgets (embeddable anywhere):** `<x-cms::widget.page>`, `page-children`, `articles`, `section-articles`, `category-articles`, `tag-articles`, `banner-slider` — all in `src/View/Components/Widget/`.
+**Widgets (embeddable anywhere):** `<x-cms::widget.page>`, `page-children`, `articles`, `section-articles`, `category-articles`, `tag-articles`, `banner-slider`, `gallery` — all in `src/View/Components/Widget/`. Most accept `template`/`card` (Blade view overrides), `wrapperClass`/`gridClass`, `bare`, and `with` (extra vars forwarded to the custom view) — check the individual component class for which props it supports, they aren't uniform across all eight.
+
+### Custom View/Layout Overrides
+
+Every content model (`CmsPage`, `CmsSection`, `CmsCategory`, `CmsArticle`, `CmsAlbum`, `CmsDownload`, `CmsMenuItem`) has `custom_view`/`custom_layout` columns plus `resolveCustomView()`/`resolveCustomLayout()` methods — **always call the resolver method, never read the raw column**, since several models cascade:
+
+- `CmsArticle` → own → category's `custom_article_view` → section's `custom_article_view` (views); own → category → section (layouts)
+- `CmsCategory` → own → section's `custom_category_view`/`custom_layout`
+- `CmsPage` → own → parent page, recursively
+- `CmsAlbum`, `CmsDownload`, `CmsMenuItem` → own value only, no cascade
+
+`FrontendViewResolver::view($custom, $default)` / `::layout($custom)` (in `src/Support/FrontendViewResolver.php`) apply the `view()->exists()` check and theme-layout fallback — every bundled frontend viewer MFC calls these instead of duplicating the logic. Do the same in any new frontend viewer.
 
 ### Services
 
+Since v1.1.7, all queries/writes outside the model itself go through these — never call `Cms*::query()` directly from Livewire/forms/controllers:
+
+- **`CmsPageService`** — `CmsPage` finders, backend listing, create/update/delete, adv-select search/load
+- **`CmsArticleService`** — `CmsArticle` **and** `CmsSection`/`CmsCategory`/`CmsTag` (no separate services for those three)
+- **`CmsGalleryService`** — `CmsAlbum` **and** `CmsAlbumImage`, incl. `reorderImagesInAlbum()` and the auto-cover logic (moved out of `CmsAlbumImageObserver`)
+- **`CmsDownloadService`** — `CmsDownload` **and** `CmsDownloadFile`, incl. `reorderFilesInDownload()`
+- **`CmsActivityLogger`** — `logCreate()`/`logUpdate()` (diff-only)/`logDelete()`/`logReorder()`; injected into every domain service above and called internally on every write — action keys follow `cms.{entity}.{id}.{action}`
 - **`CmsFallbackService`** — fallback route management (observers only)
 - **`CmsMenuService`** — `buildTree('position')` eager-loads 3 levels for frontend rendering
 - **`CmsSitemapService`** — generates `/sitemap.xml` XML; called by `SitemapController`
