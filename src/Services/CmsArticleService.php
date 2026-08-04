@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsSection;
@@ -228,6 +229,10 @@ class CmsArticleService
     public function createArticle(array $data, array $tagInputs, int $userId): CmsArticle
     {
         return DB::transaction(function () use ($data, $tagInputs, $userId): CmsArticle {
+            if (isset($data['body'])) {
+                $data['body'] = Purifier::clean($data['body'], 'cms_rte');
+            }
+
             $data['read_time'] = CmsArticle::computeReadTime($data['body'] ?? null);
             $data['created_by'] = $userId;
             $data['updated_by'] = $userId;
@@ -249,6 +254,10 @@ class CmsArticleService
     {
         return DB::transaction(function () use ($article, $data, $tagInputs, $userId): CmsArticle {
             $oldData = $article->toArray();
+
+            if (isset($data['body'])) {
+                $data['body'] = Purifier::clean($data['body'], 'cms_rte');
+            }
 
             $data['read_time'] = CmsArticle::computeReadTime($data['body'] ?? null);
             $data['updated_by'] = $userId;
@@ -373,6 +382,10 @@ class CmsArticleService
      */
     public function createSection(array $data, int $userId): CmsSection
     {
+        if (isset($data['description'])) {
+            $data['description'] = Purifier::clean($data['description'], 'cms_rte');
+        }
+
         $data['created_by'] = $userId;
         $section = CmsSection::create($data);
         $this->logger->logCreate('section', $section, $section->toArray());
@@ -386,6 +399,11 @@ class CmsArticleService
     public function updateSection(CmsSection $section, array $data): CmsSection
     {
         $oldData = $section->toArray();
+
+        if (isset($data['description'])) {
+            $data['description'] = Purifier::clean($data['description'], 'cms_rte');
+        }
+
         $section->update($data);
         $this->logger->logUpdate('section', $section, $oldData);
 
@@ -503,6 +521,10 @@ class CmsArticleService
      */
     public function createCategory(array $data, int $userId): CmsCategory
     {
+        if (isset($data['description'])) {
+            $data['description'] = Purifier::clean($data['description'], 'cms_rte');
+        }
+
         $data['created_by'] = $userId;
         $category = CmsCategory::create($data);
         $this->logger->logCreate('category', $category, $category->toArray());
@@ -516,6 +538,11 @@ class CmsArticleService
     public function updateCategory(CmsCategory $category, array $data): CmsCategory
     {
         $oldData = $category->toArray();
+
+        if (isset($data['description'])) {
+            $data['description'] = Purifier::clean($data['description'], 'cms_rte');
+        }
+
         $category->update($data);
         $this->logger->logUpdate('category', $category, $oldData);
 

@@ -7,6 +7,7 @@ namespace VmEngine\Cms\Services;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
+use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsPage;
 
 class CmsPageService
@@ -156,6 +157,10 @@ class CmsPageService
      */
     public function create(array $data, int $userId): CmsPage
     {
+        if (isset($data['body'])) {
+            $data['body'] = Purifier::clean($data['body'], 'cms_rte');
+        }
+
         $data['created_by'] = $userId;
         $data['full_slug'] = (new CmsPage($data))->computeFullSlug();
 
@@ -172,6 +177,10 @@ class CmsPageService
     public function update(CmsPage $page, array $data): CmsPage
     {
         $oldData = $page->toArray();
+
+        if (isset($data['body'])) {
+            $data['body'] = Purifier::clean($data['body'], 'cms_rte');
+        }
 
         $data['full_slug'] = (new CmsPage($data))->computeFullSlug();
 

@@ -8,7 +8,7 @@
     },
     "name": "CMS",
     "description": "Content Management System — static pages, dynamic articles, gallery, and frontend menu management",
-    "version": "1.1.11",
+    "version": "1.1.12",
     "author": "Adods",
     "email": "theadods@gmail.com",
     "url_prefix": "cms",
@@ -25,7 +25,8 @@
         "composer": {
             "main": {
                 "vm-engine/synapps-fallback": "*",
-                "vm-engine/synmod-fm": "*"
+                "vm-engine/synmod-fm": "*",
+                "mews/purifier": "^3.4"
             },
             "dev": {}
         }

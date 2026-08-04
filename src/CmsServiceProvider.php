@@ -6,6 +6,7 @@ namespace VmEngine\Cms;
 
 use Illuminate\Support\ServiceProvider;
 use VmEngine\Cms\Console\Commands\PatchResourcesCommand;
+use VmEngine\Cms\Console\Commands\SanitizeContentCommand;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
@@ -38,6 +39,7 @@ class CmsServiceProvider extends ServiceProvider
         if ($this->app->runningInConsole()) {
             $this->commands([
                 PatchResourcesCommand::class,
+                SanitizeContentCommand::class,
             ]);
         }
 

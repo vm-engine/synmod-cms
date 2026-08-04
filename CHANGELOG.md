@@ -5,6 +5,12 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [1.1.12] - 2026-08-04
+
+### Security
+- **RTE/description content is now sanitized on save** — `CmsArticle.body`, `CmsPage.body`, `CmsSection.description`, and `CmsCategory.description` were previously persisted with no HTML sanitization and rendered unescaped (`{!! !!}`) on the frontend, allowing stored XSS via `<script>`, `on*` event handlers, `style` attributes, and `javascript:`/`data:` URIs. Added `mews/purifier` with a dedicated `cms_rte` profile (strict tag/attribute allowlist, no inline styles, no event handlers, `http`/`https`/`mailto` URIs only) and wired it into `CmsArticleService` (article, section, category) and `CmsPageService` (create/update).
+- Added `cms:sanitize-content` (supports `--dry-run`) to re-clean existing rows saved before this fix.
+
 ## [1.1.11] - 2026-07-22
 
 ### Fixed
