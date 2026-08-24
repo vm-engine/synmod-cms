@@ -1,6 +1,6 @@
 {
     "name": "vm-engine/synmod-cms",
-    "description": "CMS module for Laravel Synapse \u2014 static pages, dynamic articles, gallery, and frontend menu management",
+    "description": "CMS module for Laravel Synapse — static pages, dynamic articles, gallery, and frontend menu management",
     "keywords": [
         "laravel",
         "synapse",
