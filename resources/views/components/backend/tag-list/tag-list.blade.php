@@ -15,7 +15,8 @@
                     <button
                         class="btn primary"
                         type="button"
-                        @click="$dispatch('open-modal-tag-form'); $wire.dispatch('reset-tag-form')"
+                        @click="$dispatch('open-modal-tag-form')"
+                        wire:click="$dispatch('reset-tag-form')"
                     >
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </button>
@@ -63,7 +64,8 @@
                                         <button
                                             class="btn-icon warning has-tooltip group"
                                             type="button"
-                                            @click="$dispatch('open-modal-tag-form'); $wire.dispatch('load-tag', { id: {{ $tag->id }} })"
+                                            @click="$dispatch('open-modal-tag-form')"
+                                            wire:click="$dispatch('load-tag', { id: {{ $tag->id }} })"
                                         >
                                             <span class="fa-solid fa-pen-to-square"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
@@ -119,7 +121,7 @@
             <h3 class="text-lg font-semibold">{{ $form->tag ? __('cms::labels.edit_tag') : __('cms::labels.add_tag') }}
             </h3>
 
-            <div x-data="{ autoSlug: {{ '!$form->tag' }}, generateSlug(v) { return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim(); } }">
+            <div x-data="cmsSlugField({{ $form->tag ? 'false' : 'true' }})">
                 <label
                     class="form-label required"
                     for="tag_name"
@@ -129,7 +131,7 @@
                     id="tag_name"
                     type="text"
                     wire:model.blur="form.name"
-                    @input="if (autoSlug) { $wire.set('form.slug', generateSlug($event.target.value)); }"
+                    @input="handleNameInput($event.target.value)"
                 />
                 @error('form.name')
                     <p class="form-error">{{ $message }}</p>
@@ -170,3 +172,26 @@
         </div>
     </x-synapse-modal>
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+        Alpine.data('cmsSlugField', (autoSlug) => ({
+            autoSlug,
+            generateSlug(v) {
+                return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(
+                    /-+/g, '-').trim();
+            },
+            handleNameInput(value) {
+                if (this.autoSlug) {
+                    this.$wire.set('form.slug', this.generateSlug(value));
+                }
+            },
+        }));
+        };
+    document.addEventListener('alpine:init', register);
+    if (window.Alpine) {
+        register();
+    }
+    })();
+</script>

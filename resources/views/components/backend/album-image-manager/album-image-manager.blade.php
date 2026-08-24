@@ -1,4 +1,4 @@
-<div x-data="{ pageName: '{{ $this->title() }}', previewUrl: null, previewTitle: null }">
+<div x-data="cmsAlbumImagePreview('{{ $this->title() }}')">
     <x-synapse-confirm-dialog />
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
@@ -75,17 +75,7 @@
             </div>
             <div
                 class="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 sm:p-6 lg:grid-cols-4"
-                x-data="{
-                    init() {
-                        new Sortable(this.$el, {
-                            animation: 150,
-                            onEnd: (evt) => {
-                                const ids = Array.from(this.$el.querySelectorAll('[data-id]')).map(el => parseInt(el.dataset.id));
-                                $wire.updateOrder(ids);
-                            }
-                        });
-                    }
-                }"
+                x-data="cmsSortableAlbumImages()"
             >
                 @forelse($this->images as $image)
                     <div
@@ -99,7 +89,7 @@
                                     src="{{ $image->file->getUrl() }}"
                                     alt="{{ $image->title }}"
                                     loading="lazy"
-                                    @click.stop="previewUrl = '{{ $image->file->getUrl() }}'; previewTitle = '{{ addslashes((string) $image->title) }}'"
+                                    @click.stop="showPreview('{{ $image->file->getUrl() }}', '{{ addslashes((string) $image->title) }}')"
                                 />
                             @else
                                 <div class="flex h-full items-center justify-center text-gray-400">
@@ -177,8 +167,8 @@
         x-show="previewUrl !== null"
         x-cloak
         x-transition
-        @click="previewUrl = null; previewTitle = null"
-        @keydown.escape.window="previewUrl = null; previewTitle = null"
+        @click="closePreview()"
+        @keydown.escape.window="closePreview()"
     >
         <div
             class="relative max-h-[90vh] max-w-[90vw]"
@@ -197,7 +187,7 @@
             <button
                 class="absolute -right-3 -top-3 flex h-8 w-8 items-center justify-center rounded-full bg-white text-gray-800 shadow-lg hover:bg-gray-100"
                 type="button"
-                @click="previewUrl = null; previewTitle = null"
+                @click="closePreview()"
             >
                 <span class="fa-solid fa-times text-sm"></span>
             </button>
@@ -205,3 +195,41 @@
     </div>
 
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+        Alpine.data('cmsAlbumImagePreview', (pageName) => ({
+            pageName,
+            previewUrl: null,
+            previewTitle: null,
+            showPreview(url, title) {
+                this.previewUrl = url;
+                this.previewTitle = title;
+            },
+            closePreview() {
+                this.previewUrl = null;
+                this.previewTitle = null;
+            },
+        }));
+
+        Alpine.data('cmsSortableAlbumImages', () => ({
+            init() {
+                new Sortable(this.$el, {
+                    animation: 150,
+                    onEnd: () => {
+                        const ids = Array.from(this.$el.querySelectorAll('[data-id]'))
+                            .map(el =>
+                                parseInt(el.dataset.id));
+                        this.$wire.updateOrder(ids);
+                    }
+                });
+            }
+        }));
+        };
+    document.addEventListener('alpine:init', register);
+    if (window.Alpine) {
+        register();
+    }
+    })();
+</script>

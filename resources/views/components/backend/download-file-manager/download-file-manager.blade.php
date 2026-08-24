@@ -24,15 +24,35 @@
                         @enderror
                     </div>
                     <div>
-                        <label class="form-label" for="newFileTitle">{{ __('cms::labels.title') }}</label>
-                        <input class="form-input" id="newFileTitle" type="text" wire:model="newFileTitle" />
+                        <label
+                            class="form-label"
+                            for="newFileTitle"
+                        >{{ __('cms::labels.title') }}</label>
+                        <input
+                            class="form-input"
+                            id="newFileTitle"
+                            type="text"
+                            wire:model="newFileTitle"
+                        />
                     </div>
                     <div>
-                        <label class="form-label" for="newFileDescription">{{ __('cms::labels.description') }}</label>
-                        <input class="form-input" id="newFileDescription" type="text" wire:model="newFileDescription" />
+                        <label
+                            class="form-label"
+                            for="newFileDescription"
+                        >{{ __('cms::labels.description') }}</label>
+                        <input
+                            class="form-input"
+                            id="newFileDescription"
+                            type="text"
+                            wire:model="newFileDescription"
+                        />
                     </div>
                     <div class="sm:col-span-2 flex justify-end">
-                        <button class="btn primary" type="button" wire:click="addFile">
+                        <button
+                            class="btn primary"
+                            type="button"
+                            wire:click="addFile"
+                        >
                             <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_file') }}
                         </button>
                     </div>
@@ -54,36 +74,38 @@
             </div>
             <div
                 class="divide-y divide-gray-100 dark:divide-gray-800"
-                x-data="{
-                    init() {
-                        new Sortable(this.$el, {
-                            animation: 150,
-                            handle: '.drag-handle',
-                            onEnd: (evt) => {
-                                const ids = Array.from(this.$el.querySelectorAll('[data-id]')).map(el => parseInt(el.dataset.id));
-                                $wire.updateOrder(ids);
-                            }
-                        });
-                    }
-                }"
+                x-data="cmsSortableDownloadFiles()"
             >
                 @forelse($this->files as $file)
-                    <div class="flex items-center gap-4 px-5 py-3" data-id="{{ $file->id }}">
-                        <span class="drag-handle fa-solid fa-grip-vertical cursor-grab text-gray-300 hover:text-gray-500"></span>
-                        <div class="flex-none w-10 h-10 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
-                            @if($file->file?->isImage())
-                                <img class="w-full h-full object-cover rounded" src="{{ $file->file->getThumbnailUrl() }}" alt="">
+                    <div
+                        class="flex items-center gap-4 px-5 py-3"
+                        data-id="{{ $file->id }}"
+                    >
+                        <span
+                            class="drag-handle fa-solid fa-grip-vertical cursor-grab text-gray-300 hover:text-gray-500"
+                        ></span>
+                        <div
+                            class="flex-none w-10 h-10 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
+                            @if ($file->file?->isImage())
+                                <img
+                                    class="w-full h-full object-cover rounded"
+                                    src="{{ $file->file->getThumbnailUrl() }}"
+                                    alt=""
+                                >
                             @else
                                 <span class="fa-solid fa-file text-gray-400 text-lg"></span>
                             @endif
                         </div>
                         <div class="flex-1 min-w-0">
-                            <p class="font-medium text-sm truncate">{{ $file->title ?: ($file->file?->original_name ?? $file->file?->filename ?? 'Untitled') }}</p>
-                            @if($file->description)
+                            <p class="font-medium text-sm truncate">
+                                {{ $file->title ?: $file->file?->original_name ?? ($file->file?->filename ?? 'Untitled') }}
+                            </p>
+                            @if ($file->description)
                                 <p class="text-xs text-gray-400 truncate">{{ $file->description }}</p>
                             @endif
-                            @if($file->file)
-                                <p class="text-xs text-gray-400">{{ $file->file->getHumanSize() }} &bull; {{ strtoupper($file->file->extension) }}</p>
+                            @if ($file->file)
+                                <p class="text-xs text-gray-400">{{ $file->file->getHumanSize() }} &bull;
+                                    {{ strtoupper($file->file->extension) }}</p>
                             @endif
                         </div>
                         <div class="flex items-center gap-1 flex-none">
@@ -130,9 +152,37 @@
         </div>
 
         <div class="flex justify-start">
-            <a class="btn secondary" href="{{ backend_route('cms.download.index') }}" wire:navigate>
+            <a
+                class="btn secondary"
+                href="{{ backend_route('cms.download.index') }}"
+                wire:navigate
+            >
                 <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
         </div>
     </div>
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+        Alpine.data('cmsSortableDownloadFiles', () => ({
+            init() {
+                new Sortable(this.$el, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    onEnd: () => {
+                        const ids = Array.from(this.$el.querySelectorAll('[data-id]')).map(el =>
+                            parseInt(el.dataset.id));
+                        this.$wire.updateOrder(ids);
+                    }
+                });
+            }
+        }));
+        };
+    document.addEventListener('alpine:init', register);
+    if (window.Alpine) {
+        register();
+    }
+    })();
+</script>

@@ -32,18 +32,7 @@
             </div>
             <div
                 class="space-y-2 p-5 sm:p-6"
-                x-data="{
-                    init() {
-                        new Sortable(this.$el, {
-                            animation: 150,
-                            handle: '.drag-handle',
-                            onEnd: (evt) => {
-                                const ids = Array.from(this.$el.querySelectorAll(':scope > [data-item-id]')).map(el => parseInt(el.dataset.itemId));
-                                $wire.updateOrder(ids);
-                            }
-                        });
-                    }
-                }"
+                x-data="cmsSortableMenuItems()"
             >
                 @forelse($this->items as $item)
                     <div
@@ -185,3 +174,27 @@
         </div>
     </div>
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+        Alpine.data('cmsSortableMenuItems', () => ({
+            init() {
+                new Sortable(this.$el, {
+                    animation: 150,
+                    handle: '.drag-handle',
+                    onEnd: () => {
+                        const ids = Array.from(this.$el.querySelectorAll(':scope > [data-item-id]'))
+                            .map(el => parseInt(el.dataset.itemId));
+                        this.$wire.updateOrder(ids);
+                    }
+                });
+            }
+        }));
+        };
+    document.addEventListener('alpine:init', register);
+    if (window.Alpine) {
+        register();
+    }
+    })();
+</script>

@@ -32,6 +32,8 @@ class CmsServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->registerComponents();
+
+        $this->mergeConfigFrom(__DIR__.'/../config/cms-purifier.php', 'purifier.settings.cms_rte');
     }
 
     public function boot(): void

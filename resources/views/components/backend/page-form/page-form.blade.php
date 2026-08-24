@@ -1,4 +1,4 @@
-<div x-data="{ pageName: '{{ $this->title() }}', generateSlug(v) { return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(/-+/g, '-').trim(); } }">
+<div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $pageId ? 'false' : 'true' }})">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
     <form wire:submit.prevent="save">
@@ -20,14 +20,14 @@
                             id="title"
                             type="text"
                             wire:model.blur="form.title"
-                            @blur="if (!$wire.form.slug) $wire.set('form.slug', generateSlug($event.target.value)); if (!$wire.form.meta_title) $wire.set('form.meta_title', $event.target.value)"
+                            @blur="handleTitleBlur($event.target.value)"
                         />
                         @error('form.title')
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
 
-                    <div x-data="{ autoSlug: {{ $pageId ? 'false' : 'true' }} }">
+                    <div>
                         <label
                             class="form-label required"
                             for="slug"
@@ -44,7 +44,7 @@
                                 class="input-group-item right btn"
                                 type="button"
                                 title="{{ __('cms::labels.fill_from_title') }}"
-                                @click="$wire.set('form.slug', generateSlug($wire.form.title)); autoSlug = false"
+                                @click="fillSlugFromTitle()"
                             >
                                 <span class="fa-solid fa-wand-magic-sparkles"></span>
                             </button>
@@ -66,7 +66,7 @@
                             :options="$this->parentOptions"
                             :disabled="$parentLocked"
                         />
-                        @if($parentLocked)
+                        @if ($parentLocked)
                             <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.parent_locked') }}</p>
                         @endif
                     </div>
@@ -248,15 +248,31 @@
 
             @include('cms::components.backend.partials._custom-rendering-card', [
                 'fields' => [
-                    ['id' => 'custom_view', 'model' => 'form.custom_view', 'label' => 'custom_view', 'help' => 'custom_view_page_help', 'placeholder' => 'home::templates.inner-page'],
-                    ['id' => 'custom_layout', 'model' => 'form.custom_layout', 'label' => 'custom_layout', 'help' => 'custom_layout_page_help', 'placeholder' => 'home::layouts.my-layout'],
+                    [
+                        'id' => 'custom_view',
+                        'model' => 'form.custom_view',
+                        'label' => 'custom_view',
+                        'help' => 'custom_view_page_help',
+                        'placeholder' => 'home::templates.inner-page',
+                    ],
+                    [
+                        'id' => 'custom_layout',
+                        'model' => 'form.custom_layout',
+                        'label' => 'custom_layout',
+                        'help' => 'custom_layout_page_help',
+                        'placeholder' => 'home::layouts.my-layout',
+                    ],
                 ],
             ])
 
         </div>
 
         {{-- Custom Variables --}}
-        <livewire:cms::backend.custom-var-manager wire:model="form.customVars" :allow-add="$form->customVarAllowAdd" wire:key="cvm-page-{{ $pageId ?? 'new' }}" />
+        <livewire:cms::backend.custom-var-manager
+            wire:model="form.customVars"
+            :allow-add="$form->customVarAllowAdd"
+            wire:key="cvm-page-{{ $pageId ?? 'new' }}"
+        />
 
         {{-- Fixed Action Bar --}}
         <div
@@ -289,3 +305,34 @@
         <div class="h-16"></div>
     </form>
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+        Alpine.data('cmsPageSlugForm', (pageName, autoSlug) => ({
+            pageName,
+            autoSlug,
+            generateSlug(v) {
+                return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(
+                    /-+/g, '-').trim();
+            },
+            handleTitleBlur(value) {
+                if (!this.$wire.form.slug) {
+                    this.$wire.set('form.slug', this.generateSlug(value));
+                }
+                if (!this.$wire.form.meta_title) {
+                    this.$wire.set('form.meta_title', value);
+                }
+            },
+            fillSlugFromTitle() {
+                this.$wire.set('form.slug', this.generateSlug(this.$wire.form.title));
+                this.autoSlug = false;
+            },
+        }));
+        };
+    document.addEventListener('alpine:init', register);
+    if (window.Alpine) {
+        register();
+    }
+    })();
+</script>

@@ -5,6 +5,17 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - Unreleased
+
+### Security
+- **The `cms_rte` Purifier profile documented as shipped in 1.1.12 was never actually wired up** — `config/cms-purifier.php` existed but `CmsServiceProvider` never merged it into `config('purifier.settings.cms_rte')`, so every `Purifier::clean($data, 'cms_rte')` call (article/page/category body and description sanitization, `cms:sanitize-content`) silently fell back to Purifier's default HTML profile instead of the strict allowlist (no inline styles, no event handlers, no `<script>`/`<iframe>`, `http`/`https`/`mailto` URIs only) described in that release. Added the missing `mergeConfigFrom()` call.
+
+### Changed
+- **Requires `vm-engine/synapse` ^2.1|^3.0** — supports synapse's new default CSP-safe Alpine.js build.
+
+### Fixed
+- **CSP-safe Alpine.js compatibility.** Backend views (`album-form`, `article-form`, `category-form`, `download-form`, `page-form`, `section-form`, `album-image-manager`, `menu-list`, `menu-item-manager`, `download-file-manager`, `tag-list`), the `album-viewer` frontend widget, `banner-slider` widget, and `tinymce` component migrated off inline `x-data="{ ... }"` object literals with methods and multi-statement directive expressions to the `Alpine.data()` registry pattern (required by `vm-engine/synapse` ^3.0's new default CSP-safe Alpine build), guarded against the `alpine:init`/`wire:navigate` timing race. Fixed a pre-existing bug in `tag-list.blade.php` where `{{ '!$form->tag' }}` output the literal string `!$form->tag` instead of a real PHP negation.
+
 ## [1.1.12] - 2026-08-04
 
 ### Security
