@@ -97,7 +97,11 @@ new class extends Component
     #[Computed()]
     public function statusOptions(): array
     {
-        return ['' => '-- All --', 'draft' => 'Draft', 'published' => 'Published'];
+        return [
+            ['value' => '', 'label' => '-- All --'],
+            ['value' => 'draft', 'label' => 'Draft'],
+            ['value' => 'published', 'label' => 'Published'],
+        ];
     }
 
     #[Computed()]

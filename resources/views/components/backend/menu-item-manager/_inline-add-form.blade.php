@@ -18,8 +18,9 @@
         </div>
         <div>
             <label class="form-label">{{ __('cms::labels.target_type') }}</label>
-            <x-synapse-select
-                wire:model.live="newTargetType"
+            <x-synapse-adv-select
+                wire-model="newTargetType"
+                :live="true"
                 :options="$this->targetTypeOptions"
             />
         </div>

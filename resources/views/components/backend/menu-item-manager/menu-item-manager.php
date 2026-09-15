@@ -282,23 +282,23 @@ new class extends Component
     public function targetTypeOptions(): array
     {
         return [
-            'url' => __('cms::labels.type_url'),
-            'page' => __('cms::labels.type_page'),
-            'section' => __('cms::labels.type_section'),
-            'category' => __('cms::labels.type_category'),
-            'article' => __('cms::labels.type_article'),
-            'album' => __('cms::labels.type_album'),
-            'album_image' => __('cms::labels.type_album_image'),
-            'album_list' => __('cms::labels.type_album_list'),
-            'download' => __('cms::labels.type_download'),
-            'download_list' => __('cms::labels.type_download_list'),
+            ['value' => 'url', 'label' => __('cms::labels.type_url')],
+            ['value' => 'page', 'label' => __('cms::labels.type_page')],
+            ['value' => 'section', 'label' => __('cms::labels.type_section')],
+            ['value' => 'category', 'label' => __('cms::labels.type_category')],
+            ['value' => 'article', 'label' => __('cms::labels.type_article')],
+            ['value' => 'album', 'label' => __('cms::labels.type_album')],
+            ['value' => 'album_image', 'label' => __('cms::labels.type_album_image')],
+            ['value' => 'album_list', 'label' => __('cms::labels.type_album_list')],
+            ['value' => 'download', 'label' => __('cms::labels.type_download')],
+            ['value' => 'download_list', 'label' => __('cms::labels.type_download_list')],
         ];
     }
 
     #[Computed()]
     public function parentOptions(): array
     {
-        $options = ['' => '— '.__('cms::labels.no_parent').' —'];
+        $options = [['value' => '', 'label' => '— '.__('cms::labels.no_parent').' —']];
         if (! $this->editingId) {
             return $options;
         }
@@ -308,7 +308,7 @@ new class extends Component
 
         // Level-0 items can be parents (for level-1 children)
         foreach ($allItems->whereNull('parent_id')->where('id', '!=', $this->editingId) as $item) {
-            $options[$item->id] = $item->label;
+            $options[] = ['value' => $item->id, 'label' => $item->label];
         }
 
         // Level-1 items can also be parents (for level-2 grandchildren)
@@ -316,7 +316,7 @@ new class extends Component
             if ($rootIds->contains($item->parent_id)) {
                 $parentItem = $allItems->firstWhere('id', $item->parent_id);
                 $parentLabel = $parentItem !== null ? $parentItem->label : '';
-                $options[$item->id] = $parentLabel.' › '.$item->label;
+                $options[] = ['value' => $item->id, 'label' => $parentLabel.' › '.$item->label];
             }
         }
 

@@ -162,19 +162,17 @@
     <x-synapse-drawer :title="$drawerTitle">
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.access') }}</label>
-            <x-synapse-select
-                id="filterAccess"
-                name="filterAccess"
-                wire:model.live="filterAccess"
+            <x-synapse-adv-select
+                wire-model="filterAccess"
+                :live="true"
                 :options="$this->accessOptions"
             />
         </div>
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.status') }}</label>
-            <x-synapse-select
-                id="filterStatus"
-                name="filterStatus"
-                wire:model.live="filterStatus"
+            <x-synapse-adv-select
+                wire-model="filterStatus"
+                :live="true"
                 :options="$this->statusOptions"
             />
         </div>

@@ -96,9 +96,9 @@ new class extends Component
     public function typeOptions(): array
     {
         return [
-            '' => '-- All Types --',
-            'normal' => 'Normal Gallery',
-            'banner' => 'Banner Slider',
+            ['value' => '', 'label' => '-- All Types --'],
+            ['value' => 'normal', 'label' => 'Normal Gallery'],
+            ['value' => 'banner', 'label' => 'Banner Slider'],
         ];
     }
 
@@ -106,9 +106,9 @@ new class extends Component
     public function statusOptions(): array
     {
         return [
-            '' => '-- All --',
-            'active' => 'Active',
-            'inactive' => 'Inactive',
+            ['value' => '', 'label' => '-- All --'],
+            ['value' => 'active', 'label' => 'Active'],
+            ['value' => 'inactive', 'label' => 'Inactive'],
         ];
     }
 

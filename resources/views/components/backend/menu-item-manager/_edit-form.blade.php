@@ -14,8 +14,9 @@
         </div>
         <div>
             <label class="form-label">{{ __('cms::labels.target_type') }}</label>
-            <x-synapse-select
-                wire:model.live="editTargetType"
+            <x-synapse-adv-select
+                wire-model="editTargetType"
+                :live="true"
                 :options="$this->targetTypeOptions"
             />
         </div>
@@ -28,8 +29,9 @@
         </div>
         <div>
             <label class="form-label">{{ __('cms::labels.parent') }}</label>
-            <x-synapse-select
-                wire:model.live="editParentId"
+            <x-synapse-adv-select
+                wire-model="editParentId"
+                :live="true"
                 :options="$this->parentOptions"
             />
         </div>

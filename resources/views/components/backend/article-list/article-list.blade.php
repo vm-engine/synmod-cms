@@ -188,29 +188,26 @@
         @if (!$sectionId)
             <div class="mb-6">
                 <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.section') }}</label>
-                <x-synapse-select
-                    id="filterSection"
-                    name="filterSection"
-                    wire:model.live="filterSection"
+                <x-synapse-adv-select
+                    wire-model="filterSection"
+                    :live="true"
                     :options="$this->sectionOptions"
                 />
             </div>
         @endif
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.category') }}</label>
-            <x-synapse-select
-                id="filterCategory"
-                name="filterCategory"
-                wire:model.live="filterCategory"
+            <x-synapse-adv-select
+                wire-model="filterCategory"
+                :live="true"
                 :options="$this->categoryOptions"
             />
         </div>
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.status') }}</label>
-            <x-synapse-select
-                id="filterStatus"
-                name="filterStatus"
-                wire:model.live="filterStatus"
+            <x-synapse-adv-select
+                wire-model="filterStatus"
+                :live="true"
                 :options="$this->statusOptions"
             />
         </div>

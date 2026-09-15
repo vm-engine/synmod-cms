@@ -72,10 +72,13 @@
                                 class="form-label required"
                                 for="status"
                             >{{ __('cms::labels.status') }}</label>
-                            <x-synapse-select
-                                id="status"
-                                wire:model.live="form.status"
-                                :options="['active' => 'Active', 'inactive' => 'Inactive']"
+                            <x-synapse-adv-select
+                                wire-model="form.status"
+                                :live="true"
+                                :options="[
+                                    ['value' => 'active', 'label' => 'Active'],
+                                    ['value' => 'inactive', 'label' => 'Inactive'],
+                                ]"
                             />
                         </div>
                         <div>
@@ -83,9 +86,9 @@
                                 class="form-label required"
                                 for="access"
                             >{{ __('cms::labels.access') }}</label>
-                            <x-synapse-select
-                                id="access"
-                                wire:model.live="form.access"
+                            <x-synapse-adv-select
+                                wire-model="form.access"
+                                :live="true"
                                 :options="$this->accessOptions"
                             />
                         </div>
@@ -201,30 +204,31 @@
 <script nonce="{{ csp_nonce() }}">
     (() => {
         const register = () => {
-        Alpine.data('cmsPageSlugForm', (pageName, autoSlug) => ({
-            pageName,
-            autoSlug,
-            generateSlug(v) {
-                return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-').replace(
-                    /-+/g, '-').trim();
-            },
-            handleTitleBlur(value) {
-                if (!this.$wire.form.slug) {
-                    this.$wire.set('form.slug', this.generateSlug(value));
-                }
-                if (!this.$wire.form.meta_title) {
-                    this.$wire.set('form.meta_title', value);
-                }
-            },
-            fillSlugFromTitle() {
-                this.$wire.set('form.slug', this.generateSlug(this.$wire.form.title));
-                this.autoSlug = false;
-            },
-        }));
+            Alpine.data('cmsPageSlugForm', (pageName, autoSlug) => ({
+                pageName,
+                autoSlug,
+                generateSlug(v) {
+                    return v.toLowerCase().replace(/[^a-z0-9\s-]/g, '').replace(/\s+/g, '-')
+                        .replace(
+                            /-+/g, '-').trim();
+                },
+                handleTitleBlur(value) {
+                    if (!this.$wire.form.slug) {
+                        this.$wire.set('form.slug', this.generateSlug(value));
+                    }
+                    if (!this.$wire.form.meta_title) {
+                        this.$wire.set('form.meta_title', value);
+                    }
+                },
+                fillSlugFromTitle() {
+                    this.$wire.set('form.slug', this.generateSlug(this.$wire.form.title));
+                    this.autoSlug = false;
+                },
+            }));
         };
-    document.addEventListener('alpine:init', register);
-    if (window.Alpine) {
-        register();
-    }
+        document.addEventListener('alpine:init', register);
+        if (window.Alpine) {
+            register();
+        }
     })();
 </script>

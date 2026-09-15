@@ -96,9 +96,9 @@ new class extends Component
     public function statusOptions(): array
     {
         return [
-            '' => '-- All --',
-            'active' => 'Active',
-            'inactive' => 'Inactive',
+            ['value' => '', 'label' => '-- All --'],
+            ['value' => 'active', 'label' => 'Active'],
+            ['value' => 'inactive', 'label' => 'Inactive'],
         ];
     }
 
@@ -106,9 +106,9 @@ new class extends Component
     public function accessOptions(): array
     {
         return [
-            '' => '-- All --',
-            'public' => 'Public',
-            'private' => 'Private',
+            ['value' => '', 'label' => '-- All --'],
+            ['value' => 'public', 'label' => 'Public'],
+            ['value' => 'private', 'label' => 'Private'],
         ];
     }
 

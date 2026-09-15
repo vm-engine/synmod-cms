@@ -69,10 +69,10 @@ new class extends Component
     public function statusOptions(): array
     {
         return [
-            '' => '-- All Status --',
-            'draft' => 'Draft',
-            'published' => 'Published',
-            'scheduled' => 'Scheduled',
+            ['value' => '', 'label' => '-- All Status --'],
+            ['value' => 'draft', 'label' => 'Draft'],
+            ['value' => 'published', 'label' => 'Published'],
+            ['value' => 'scheduled', 'label' => 'Scheduled'],
         ];
     }
 

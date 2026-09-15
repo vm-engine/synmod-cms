@@ -135,10 +135,10 @@ new class extends Component
     public function statusOptions(): array
     {
         return [
-            '' => '-- All --',
-            'draft' => 'Draft',
-            'published' => 'Published',
-            'scheduled' => 'Scheduled',
+            ['value' => '', 'label' => '-- All --'],
+            ['value' => 'draft', 'label' => 'Draft'],
+            ['value' => 'published', 'label' => 'Published'],
+            ['value' => 'scheduled', 'label' => 'Scheduled'],
         ];
     }
 

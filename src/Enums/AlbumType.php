@@ -20,8 +20,8 @@ enum AlbumType: string
     public static function options(): array
     {
         return [
-            self::Normal->value => self::Normal->label(),
-            self::Banner->value => self::Banner->label(),
+            ['value' => self::Normal->value, 'label' => self::Normal->label()],
+            ['value' => self::Banner->value, 'label' => self::Banner->label()],
         ];
     }
 }

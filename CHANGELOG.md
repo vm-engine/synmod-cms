@@ -14,6 +14,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Requires `vm-engine/synapse` ^2.1|^3.0** — supports synapse's new default CSP-safe Alpine.js build.
 
 ### Fixed
+- Migrated the remaining `<x-synapse-select>` usages (removed from `vm-engine/synapse` v3.0) to `<x-synapse-adv-select>` across 15 backend views (albums, articles, categories, downloads, menu items, pages, sections) — these views were throwing unknown-component errors. `AlbumType::options()`, `DownloadAccess::options()`, `CmsArticleService::getSectionOptions()`/`getCategoryOptions()`, `CmsPageService::getParentOptions()`, and the various list/form components' option-source methods reshaped to the value/label array format the new component requires.
+
+### Fixed
 - **CSP-safe Alpine.js compatibility.** Backend views (`album-form`, `article-form`, `category-form`, `download-form`, `page-form`, `section-form`, `album-image-manager`, `menu-list`, `menu-item-manager`, `download-file-manager`, `tag-list`), the `album-viewer` frontend widget, `banner-slider` widget, and `tinymce` component migrated off inline `x-data="{ ... }"` object literals with methods and multi-statement directive expressions to the `Alpine.data()` registry pattern (required by `vm-engine/synapse` ^3.0's new default CSP-safe Alpine build), guarded against the `alpine:init`/`wire:navigate` timing race. Fixed a pre-existing bug in `tag-list.blade.php` where `{{ '!$form->tag' }}` output the literal string `!$form->tag` instead of a real PHP negation.
 
 ## [1.1.12] - 2026-08-04

@@ -20,8 +20,8 @@ enum DownloadAccess: string
     public static function options(): array
     {
         return [
-            self::Public->value => self::Public->label(),
-            self::Private->value => self::Private->label(),
+            ['value' => self::Public->value, 'label' => self::Public->label()],
+            ['value' => self::Private->value, 'label' => self::Private->label()],
         ];
     }
 }

@@ -363,15 +363,15 @@ class CmsArticleService
     }
 
     /**
-     * Section dropdown for filters: ['' => 'All', id => title].
+     * Section dropdown for filters.
      *
-     * @return array<int|string, string>
+     * @return array<int, array{value: int|string, label: string}>
      */
     public function getSectionOptions(string $emptyLabel = '-- All Sections --'): array
     {
-        $options = ['' => $emptyLabel];
+        $options = [['value' => '', 'label' => $emptyLabel]];
         foreach (CmsSection::orderBy('title')->get() as $section) {
-            $options[$section->id] = $section->title;
+            $options[] = ['value' => $section->id, 'label' => $section->title];
         }
 
         return $options;
@@ -472,19 +472,19 @@ class CmsArticleService
     }
 
     /**
-     * Category dropdown filter: ['' => 'All', id => title], optionally scoped by section.
+     * Category dropdown filter, optionally scoped by section.
      *
-     * @return array<int|string, string>
+     * @return array<int, array{value: int|string, label: string}>
      */
     public function getCategoryOptions(?int $sectionId = null, string $emptyLabel = '-- All Categories --'): array
     {
-        $options = ['' => $emptyLabel];
+        $options = [['value' => '', 'label' => $emptyLabel]];
         $query = CmsCategory::orderBy('title');
         if ($sectionId !== null) {
             $query->where('section_id', $sectionId);
         }
         foreach ($query->get() as $category) {
-            $options[$category->id] = $category->title;
+            $options[] = ['value' => $category->id, 'label' => $category->title];
         }
 
         return $options;
