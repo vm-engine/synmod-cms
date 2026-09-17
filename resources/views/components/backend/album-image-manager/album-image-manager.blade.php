@@ -6,11 +6,8 @@
 
         {{-- Add image --}}
         @canAccess('cms.gallery.image.create')
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium">{{ __('cms::labels.add_image') }}</h3>
-            </div>
-            <div class="p-5 sm:p-6">
+        <x-synapse-panel :title="__('cms::labels.add_image')">
+            <div class="syn-panel-body p-5 sm:p-6">
                 <div class="grid gap-4 sm:grid-cols-3">
                     <div class="sm:col-span-3">
                         <label class="form-label required">{{ __('cms::labels.image_url') }}</label>
@@ -65,16 +62,13 @@
                     wire:key="cvm-new-image-{{ $albumId }}"
                 />
             </div>
-        </div>
+        </x-synapse-panel>
         @endcanAccess
 
         {{-- Image grid --}}
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium">{{ __('cms::labels.images') }} ({{ $this->images->count() }})</h3>
-            </div>
+        <x-synapse-panel :title="__('cms::labels.images') . ' (' . $this->images->count() . ')'">
             <div
-                class="grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 sm:p-6 lg:grid-cols-4"
+                class="syn-panel-body grid grid-cols-2 gap-4 p-5 sm:grid-cols-3 sm:p-6 lg:grid-cols-4"
                 x-data="cmsSortableAlbumImages()"
             >
                 @forelse($this->images as $image)
@@ -148,7 +142,7 @@
                     </div>
                 @endforelse
             </div>
-        </div>
+        </x-synapse-panel>
 
         <div class="flex justify-start">
             <a
@@ -199,37 +193,38 @@
 <script nonce="{{ csp_nonce() }}">
     (() => {
         const register = () => {
-        Alpine.data('cmsAlbumImagePreview', (pageName) => ({
-            pageName,
-            previewUrl: null,
-            previewTitle: null,
-            showPreview(url, title) {
-                this.previewUrl = url;
-                this.previewTitle = title;
-            },
-            closePreview() {
-                this.previewUrl = null;
-                this.previewTitle = null;
-            },
-        }));
+            Alpine.data('cmsAlbumImagePreview', (pageName) => ({
+                pageName,
+                previewUrl: null,
+                previewTitle: null,
+                showPreview(url, title) {
+                    this.previewUrl = url;
+                    this.previewTitle = title;
+                },
+                closePreview() {
+                    this.previewUrl = null;
+                    this.previewTitle = null;
+                },
+            }));
 
-        Alpine.data('cmsSortableAlbumImages', () => ({
-            init() {
-                new Sortable(this.$el, {
-                    animation: 150,
-                    onEnd: () => {
-                        const ids = Array.from(this.$el.querySelectorAll('[data-id]'))
-                            .map(el =>
-                                parseInt(el.dataset.id));
-                        this.$wire.updateOrder(ids);
-                    }
-                });
-            }
-        }));
+            Alpine.data('cmsSortableAlbumImages', () => ({
+                init() {
+                    new Sortable(this.$el, {
+                        animation: 150,
+                        onEnd: () => {
+                            const ids = Array.from(this.$el.querySelectorAll(
+                                    '[data-id]'))
+                                .map(el =>
+                                    parseInt(el.dataset.id));
+                            this.$wire.updateOrder(ids);
+                        }
+                    });
+                }
+            }));
         };
-    document.addEventListener('alpine:init', register);
-    if (window.Alpine) {
-        register();
-    }
+        document.addEventListener('alpine:init', register);
+        if (window.Alpine) {
+            register();
+        }
     })();
 </script>

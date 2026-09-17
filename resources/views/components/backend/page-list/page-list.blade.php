@@ -4,42 +4,34 @@
     <x-synapse-confirm-dialog />
 
     <div class="space-y-5 sm:space-y-6">
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="px-5 py-4 sm:px-6 sm:py-5">
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
-                        {{ __('cms::labels.page_list') }}
-                    </h3>
-                </div>
-                <div class="flex flex-col gap-3 px-5 pb-4 sm:my-auto sm:flex-row sm:items-center sm:pb-0">
-                    @canAccess('cms.page.create')
-                    <a
-                        class="btn primary w-full justify-center sm:w-auto"
-                        href="{{ backend_route('cms.page.form') }}"
-                        wire:navigate
-                    >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
-                    </a>
-                    @endcanAccess
-                    <div class="input-group w-full sm:w-auto">
-                        <input
-                            class="form-input w-full grow p-2"
-                            type="text"
-                            placeholder="{{ __('cms::labels.search') }}"
-                            wire:model.live.debounce="q"
-                        >
+        <x-synapse-panel :title="__('cms::labels.page_list')">
+            <x-slot:toolbar>
+                @canAccess('cms.page.create')
+                <a
+                    class="btn primary w-full justify-center sm:w-auto"
+                    href="{{ backend_route('cms.page.form') }}"
+                    wire:navigate
+                >
+                    <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                </a>
+                @endcanAccess
+                <x-synapse-search-box
+                    :placeholder="__('cms::labels.search')"
+                    wire:model.live.debounce="q"
+                >
+                    <x-slot:trailing>
                         <button
-                            class="input-group-item right btn"
                             type="button"
+                            class="btn"
                             @click="drawerOpen = true"
                         >
                             <span class="fa-solid fa-filter"></span>
                         </button>
-                    </div>
-                </div>
-            </div>
+                    </x-slot:trailing>
+                </x-synapse-search-box>
+            </x-slot:toolbar>
 
-            <div class="border-t border-gray-100 dark:border-gray-800">
+            <div class="syn-panel-body">
                 <div class="max-w-full overflow-x-auto">
                     <table class="datatable min-w-full">
                         <thead>
@@ -59,10 +51,10 @@
                             </tr>
                         </thead>
                         @php
-                            $statusClass = fn($s) => match ($s) {
-                                'published' => 'bg-success/10 text-success',
-                                'scheduled' => 'bg-warning/10 text-warning',
-                                default => 'bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400',
+                            $statusColor = fn($s) => match ($s) {
+                                'published' => 'success',
+                                'scheduled' => 'warning',
+                                default => 'gray',
                             };
                         @endphp
                         <tbody>
@@ -73,11 +65,9 @@
                                         <td>{{ $page->title }}</td>
                                         <td><code class="text-xs">{{ $page->full_slug }}</code></td>
                                         <td>
-                                            <span
-                                                class="{{ $statusClass($page->status) }} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                                            >
+                                            <x-synapse-badge :color="$statusColor($page->status)">
                                                 {{ ucfirst($page->status) }}
-                                            </span>
+                                            </x-synapse-badge>
                                         </td>
                                         <td>
                                             <div class="text-center">
@@ -145,11 +135,9 @@
                                         <td class="font-medium">{{ $root->title }}</td>
                                         <td><code class="text-xs">{{ $root->full_slug }}</code></td>
                                         <td>
-                                            <span
-                                                class="{{ $statusClass($root->status) }} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                                            >
+                                            <x-synapse-badge :color="$statusColor($root->status)">
                                                 {{ ucfirst($root->status) }}
-                                            </span>
+                                            </x-synapse-badge>
                                         </td>
                                         <td>
                                             <div class="text-center">
@@ -210,11 +198,9 @@
                                             </td>
                                             <td><code class="text-xs">{{ $child->full_slug }}</code></td>
                                             <td>
-                                                <span
-                                                    class="{{ $statusClass($child->status) }} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                                                >
+                                                <x-synapse-badge :color="$statusColor($child->status)">
                                                     {{ ucfirst($child->status) }}
-                                                </span>
+                                                </x-synapse-badge>
                                             </td>
                                             <td>
                                                 <div class="text-center">
@@ -276,11 +262,9 @@
                                                 </td>
                                                 <td><code class="text-xs">{{ $grandchild->full_slug }}</code></td>
                                                 <td>
-                                                    <span
-                                                        class="{{ $statusClass($grandchild->status) }} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium"
-                                                    >
+                                                    <x-synapse-badge :color="$statusColor($grandchild->status)">
                                                         {{ ucfirst($grandchild->status) }}
-                                                    </span>
+                                                    </x-synapse-badge>
                                                 </td>
                                                 <td>
                                                     <div class="text-center">
@@ -334,7 +318,7 @@
                     </table>
                 </div>
             </div>
-        </div>
+        </x-synapse-panel>
     </div>
 
     @php

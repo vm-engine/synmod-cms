@@ -4,43 +4,36 @@
     <x-synapse-confirm-dialog />
 
     <div class="space-y-5 sm:space-y-6">
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="px-5 py-4 sm:px-6 sm:py-5">
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
-                        {{ __('cms::labels.article_list') }}</h3>
-                </div>
-                <div class="flex flex-col gap-3 px-5 pb-4 sm:my-auto sm:flex-row sm:items-center sm:pb-0">
-                    @if ($sectionId)
-                        @canAccess('cms.article.create')
-                        <a
-                            class="btn primary w-full justify-center sm:w-auto"
-                            href="{{ backend_route('cms.section.article.form', ['sectionId' => $sectionId]) }}"
-                            wire:navigate
-                        >
-                            <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
-                        </a>
-                        @endcanAccess
-                    @endif
-                    <div class="input-group w-full sm:w-auto">
-                        <input
-                            class="form-input w-full grow p-2"
-                            type="text"
-                            placeholder="{{ __('cms::labels.search') }}"
-                            wire:model.live.debounce="q"
-                        >
+        <x-synapse-panel :title="__('cms::labels.article_list')">
+            <x-slot:toolbar>
+                @if ($sectionId)
+                    @canAccess('cms.article.create')
+                    <a
+                        class="btn primary w-full justify-center sm:w-auto"
+                        href="{{ backend_route('cms.section.article.form', ['sectionId' => $sectionId]) }}"
+                        wire:navigate
+                    >
+                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                    </a>
+                    @endcanAccess
+                @endif
+                <x-synapse-search-box
+                    :placeholder="__('cms::labels.search')"
+                    wire:model.live.debounce="q"
+                >
+                    <x-slot:trailing>
                         <button
-                            class="input-group-item right btn"
                             type="button"
+                            class="btn"
                             @click="drawerOpen = true"
                         >
                             <span class="fa-solid fa-filter"></span>
                         </button>
-                    </div>
-                </div>
-            </div>
+                    </x-slot:trailing>
+                </x-synapse-search-box>
+            </x-slot:toolbar>
 
-            <div class="border-t border-gray-100 dark:border-gray-800 max-w-full overflow-x-auto">
+            <div class="syn-panel-body max-w-full overflow-x-auto">
                 <table class="datatable min-w-full">
                     <thead>
                         <tr>
@@ -107,11 +100,15 @@
                                 @endif
                                 <td>{{ $article->category?->title ?? '-' }}</td>
                                 <td>
-                                    <span
-                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $article->status->value === 'published' ? 'bg-success/10 text-success' : ($article->status->value === 'scheduled' ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400') }}"
+                                    <x-synapse-badge
+                                        :color="$article->status->value === 'published'
+                                            ? 'success'
+                                            : ($article->status->value === 'scheduled'
+                                                ? 'warning'
+                                                : 'gray')"
                                     >
                                         {{ $article->status->label() }}
-                                    </span>
+                                    </x-synapse-badge>
                                 </td>
                                 <td>
                                     @if ($article->is_featured)
@@ -166,50 +163,52 @@
                 </table>
             </div>
 
-            <div class="flex gap-2 p-3 border-t border-gray-100 dark:border-gray-800">
-                <div class="flex-none p-1">
-                    <select
-                        class="form-input py-1 text-sm"
-                        wire:model.live="limit"
-                    >
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="25">25</option>
-                        <option value="50">50</option>
-                    </select>
+            <div class="syn-panel-body">
+                <div class="syn-per-page-selector">
+                    <div class="flex-none p-1">
+                        <select
+                            class="syn-per-page-select"
+                            wire:model.live="limit"
+                        >
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="25">25</option>
+                            <option value="50">50</option>
+                        </select>
+                    </div>
+                    <div class="pagination-container flex-1">{{ $this->articleList->links() }}</div>
                 </div>
-                <div class="pagination-container flex-1">{{ $this->articleList->links() }}</div>
             </div>
-        </div>
+        </x-synapse-panel>
     </div>
 
-    @php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
-    <x-synapse-drawer :title="$drawerTitle">
-        @if (!$sectionId)
-            <div class="mb-6">
-                <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.section') }}</label>
-                <x-synapse-adv-select
-                    wire-model="filterSection"
-                    :live="true"
-                    :options="$this->sectionOptions"
-                />
-            </div>
-        @endif
+@php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
+<x-synapse-drawer :title="$drawerTitle">
+    @if (!$sectionId)
         <div class="mb-6">
-            <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.category') }}</label>
+            <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.section') }}</label>
             <x-synapse-adv-select
-                wire-model="filterCategory"
+                wire-model="filterSection"
                 :live="true"
-                :options="$this->categoryOptions"
+                :options="$this->sectionOptions"
             />
         </div>
-        <div class="mb-6">
-            <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.status') }}</label>
-            <x-synapse-adv-select
-                wire-model="filterStatus"
-                :live="true"
-                :options="$this->statusOptions"
-            />
-        </div>
-    </x-synapse-drawer>
+    @endif
+    <div class="mb-6">
+        <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.category') }}</label>
+        <x-synapse-adv-select
+            wire-model="filterCategory"
+            :live="true"
+            :options="$this->categoryOptions"
+        />
+    </div>
+    <div class="mb-6">
+        <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.status') }}</label>
+        <x-synapse-adv-select
+            wire-model="filterStatus"
+            :live="true"
+            :options="$this->statusOptions"
+        />
+    </div>
+</x-synapse-drawer>
 </div>

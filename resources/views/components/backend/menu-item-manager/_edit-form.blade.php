@@ -4,7 +4,7 @@
         <div>
             <label class="form-label required">{{ __('cms::labels.label') }}</label>
             <input
-                class="form-input @error('editLabel') !border-red-500 @enderror"
+                class="form-input @error('editLabel') has-error @enderror"
                 type="text"
                 wire:model="editLabel"
             />

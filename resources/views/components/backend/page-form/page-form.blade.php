@@ -5,18 +5,15 @@
         <div class="space-y-5 sm:space-y-6">
 
             {{-- Main Content --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.page_content') }}</h3>
-                </div>
-                <div class="space-y-4 p-5 sm:p-6">
+            <x-synapse-panel :title="__('cms::labels.page_content')">
+                <div class="syn-panel-body space-y-4 p-5 sm:p-6">
                     <div>
                         <label
                             class="form-label required"
                             for="title"
                         >{{ __('cms::labels.title') }}</label>
                         <input
-                            class="form-input @error('form.title') !border-red-500 @enderror"
+                            class="form-input @error('form.title') has-error @enderror"
                             id="title"
                             type="text"
                             wire:model.blur="form.title"
@@ -34,7 +31,7 @@
                         >{{ __('cms::labels.slug') }}</label>
                         <div class="input-group">
                             <input
-                                class="form-input @error('form.slug') !border-red-500 @enderror grow"
+                                class="form-input @error('form.slug') has-error @enderror grow"
                                 id="slug"
                                 type="text"
                                 @input="autoSlug = false"
@@ -99,14 +96,11 @@
                         @enderror
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             {{-- Publishing --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.publishing') }}</h3>
-                </div>
-                <div class="grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+            <x-synapse-panel :title="__('cms::labels.publishing')">
+                <div class="syn-panel-body grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
                     <div>
                         <label
                             class="form-label required"
@@ -167,14 +161,11 @@
                         />
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             {{-- Page Settings --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.page_settings') }}</h3>
-                </div>
-                <div class="space-y-3 p-5 sm:p-6">
+            <x-synapse-panel :title="__('cms::labels.page_settings')">
+                <div class="syn-panel-body space-y-3 p-5 sm:p-6">
                     <div class="flex items-center gap-3">
                         <x-synapse-toggler
                             id="show_title"
@@ -206,14 +197,11 @@
                         <span class="text-sm">{{ __('cms::labels.show_children') }}</span>
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             {{-- SEO --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.seo') }}</h3>
-                </div>
-                <div class="space-y-4 p-5 sm:p-6">
+            <x-synapse-panel :title="__('cms::labels.seo')">
+                <div class="syn-panel-body space-y-4 p-5 sm:p-6">
                     <div>
                         <label
                             class="form-label"
@@ -248,7 +236,7 @@
                         />
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             @include('cms::components.backend.partials._custom-rendering-card', [
                 'fields' => [
@@ -279,8 +267,7 @@
         />
 
         {{-- Fixed Action Bar --}}
-        <div
-            class="z-9 fixed bottom-0 left-0 right-0 flex items-center justify-between border-t border-gray-200 bg-white px-5 py-3 dark:border-gray-700 dark:bg-gray-900">
+        <div class="syn-form-action-bar">
             <a
                 class="btn secondary"
                 href="{{ backend_route('cms.page.index') }}"

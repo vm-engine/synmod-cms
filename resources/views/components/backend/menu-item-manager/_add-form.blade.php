@@ -6,7 +6,7 @@
             for="newLabel"
         >{{ __('cms::labels.label') }}</label>
         <input
-            class="form-input @error('newLabel') !border-red-500 @enderror"
+            class="form-input @error('newLabel') has-error @enderror"
             id="newLabel"
             type="text"
             wire:model="newLabel"

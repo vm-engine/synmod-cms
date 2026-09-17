@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - Unreleased
 
+### Fixed
+- **`.form-label`/`.form-error` had no CSS definition anywhere** (added in `vm-engine/synapse`'s `synapse-components.css`) — labels and validation error messages across ~19 backend form/list views were rendering completely unstyled. No Blade changes needed; purely a missing-CSS fix under the class names already in use everywhere.
+- **`!border-red-500` replaced with the established `.has-error` class** (15 occurrences across `album-form`, `category-form`, `download-form`, `section-form`, `menu-item-manager`'s 3 sub-forms, `menu-list`, `tag-list`, `page-form`, `article-form`) — matches the themed error-input color used everywhere else in the app instead of a blunt important-override.
+
+### Changed
+- **Semantic CSS migration across the 8 highest-density backend views** (`page-list`, `page-form`, `article-form`, `article-list`, `album-image-manager`, `download-file-manager`, `download-list`, `album-list`) — inline Tailwind utility soup replaced with `vm-engine/synapse`'s `<x-synapse-panel>` (+ `toolbar` slot), `<x-synapse-search-box>`, and `<x-synapse-badge>` wherever the markup matched, plus a new `.syn-form-action-bar` class (added to `vm-engine/synapse`) for the fixed bottom save bar shared by `page-form`/`article-form`. No visual redesign, no behavior change. **No automated test coverage exists for any of these 8 components** — verification was Pint + full manual structural review; a dedicated test-coverage pass is planned separately.
+
 ### Security
 - **The `cms_rte` Purifier profile documented as shipped in 1.1.12 was never actually wired up** — `config/cms-purifier.php` existed but `CmsServiceProvider` never merged it into `config('purifier.settings.cms_rte')`, so every `Purifier::clean($data, 'cms_rte')` call (article/page/category body and description sanitization, `cms:sanitize-content`) silently fell back to Purifier's default HTML profile instead of the strict allowlist (no inline styles, no event handlers, no `<script>`/`<iframe>`, `http`/`https`/`mailto` URIs only) described in that release. Added the missing `mergeConfigFrom()` call.
 

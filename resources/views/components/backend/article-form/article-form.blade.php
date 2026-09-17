@@ -5,11 +5,8 @@
         <div class="space-y-5 sm:space-y-6">
 
             {{-- Article Content --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.article_content') }}</h3>
-                </div>
-                <div class="p-5 sm:p-6 space-y-4">
+            <x-synapse-panel :title="__('cms::labels.article_content')">
+                <div class="syn-panel-body p-5 sm:p-6 space-y-4">
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div>
                             <label class="form-label required">{{ __('cms::labels.section') }}</label>
@@ -40,7 +37,7 @@
                             for="title"
                         >{{ __('cms::labels.title') }}</label>
                         <input
-                            class="form-input @error('form.title') !border-red-500 @enderror"
+                            class="form-input @error('form.title') has-error @enderror"
                             id="title"
                             type="text"
                             wire:model.blur="form.title"
@@ -58,7 +55,7 @@
                         >{{ __('cms::labels.slug') }}</label>
                         <div class="input-group">
                             <input
-                                class="form-input grow @error('form.slug') !border-red-500 @enderror"
+                                class="form-input grow @error('form.slug') has-error @enderror"
                                 id="slug"
                                 type="text"
                                 @input="autoSlug = false"
@@ -115,14 +112,11 @@
                         />
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             {{-- Publishing --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.publishing') }}</h3>
-                </div>
-                <div class="p-5 sm:p-6 grid sm:grid-cols-2 gap-4">
+            <x-synapse-panel :title="__('cms::labels.publishing')">
+                <div class="syn-panel-body p-5 sm:p-6 grid sm:grid-cols-2 gap-4">
                     <div>
                         <label
                             class="form-label required"
@@ -200,14 +194,11 @@
                         <span class="text-sm font-medium">{{ __('cms::labels.is_featured') }}</span>
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             {{-- SEO --}}
-            <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-                <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800">
-                    <h3 class="text-base font-medium">{{ __('cms::labels.seo') }}</h3>
-                </div>
-                <div class="p-5 sm:p-6 space-y-4">
+            <x-synapse-panel :title="__('cms::labels.seo')">
+                <div class="syn-panel-body p-5 sm:p-6 space-y-4">
                     <div>
                         <label
                             class="form-label"
@@ -242,7 +233,7 @@
                         />
                     </div>
                 </div>
-            </div>
+            </x-synapse-panel>
 
             @include('cms::components.backend.partials._custom-rendering-card', [
                 'fields' => [
@@ -271,8 +262,7 @@
             wire:key="cvm-article-{{ $articleId ?? 'new' }}"
         />
 
-        <div
-            class="fixed bottom-0 left-0 right-0 z-9 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between items-center">
+        <div class="syn-form-action-bar">
             <a
                 class="btn secondary"
                 href="{{ backend_route('cms.section.article.index', ['sectionId' => $sectionId]) }}"

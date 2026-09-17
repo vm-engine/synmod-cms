@@ -127,7 +127,7 @@
                     for="tag_name"
                 >{{ __('cms::labels.name') }}</label>
                 <input
-                    class="form-input @error('form.name') !border-red-500 @enderror"
+                    class="form-input @error('form.name') has-error @enderror"
                     id="tag_name"
                     type="text"
                     wire:model.blur="form.name"
@@ -142,7 +142,7 @@
                     for="tag_slug"
                 >{{ __('cms::labels.slug') }}</label>
                 <input
-                    class="form-input @error('form.slug') !border-red-500 @enderror"
+                    class="form-input @error('form.slug') has-error @enderror"
                     id="tag_slug"
                     type="text"
                     wire:model.live="form.slug"

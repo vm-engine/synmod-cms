@@ -144,7 +144,7 @@
                     for="menu_name"
                 >{{ __('cms::labels.name') }}</label>
                 <input
-                    class="form-input @error('form.name') !border-red-500 @enderror"
+                    class="form-input @error('form.name') has-error @enderror"
                     id="menu_name"
                     type="text"
                     wire:model="form.name"
@@ -159,7 +159,7 @@
                     for="menu_position"
                 >{{ __('cms::labels.position') }}</label>
                 <input
-                    class="form-input @error('form.position') !border-red-500 @enderror"
+                    class="form-input @error('form.position') has-error @enderror"
                     id="menu_position"
                     type="text"
                     wire:model="form.position"

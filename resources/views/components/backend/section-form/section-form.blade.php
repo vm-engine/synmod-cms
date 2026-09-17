@@ -15,7 +15,7 @@
                             for="title"
                         >{{ __('cms::labels.title') }}</label>
                         <input
-                            class="form-input @error('form.title') !border-red-500 @enderror"
+                            class="form-input @error('form.title') has-error @enderror"
                             id="title"
                             type="text"
                             wire:model.blur="form.title"
@@ -33,7 +33,7 @@
                         >{{ __('cms::labels.slug') }}</label>
                         <div class="input-group">
                             <input
-                                class="form-input grow @error('form.slug') !border-red-500 @enderror"
+                                class="form-input grow @error('form.slug') has-error @enderror"
                                 id="slug"
                                 type="text"
                                 @input="autoSlug = false"

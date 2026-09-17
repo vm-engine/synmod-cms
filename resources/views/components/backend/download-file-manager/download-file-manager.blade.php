@@ -6,11 +6,8 @@
 
         {{-- Add file --}}
         @canAccess('cms.download.file.create')
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium">{{ __('cms::labels.add_file') }}</h3>
-            </div>
-            <div class="p-5 sm:p-6">
+        <x-synapse-panel :title="__('cms::labels.add_file')">
+            <div class="syn-panel-body p-5 sm:p-6">
                 <div class="grid gap-4 sm:grid-cols-2">
                     <div class="sm:col-span-2">
                         <label class="form-label required">{{ __('cms::labels.file') }}</label>
@@ -64,16 +61,13 @@
                     wire:key="cvm-new-file-{{ $downloadId }}"
                 />
             </div>
-        </div>
+        </x-synapse-panel>
         @endcanAccess
 
         {{-- File list --}}
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="border-b border-gray-100 px-5 py-4 sm:px-6 sm:py-5 dark:border-gray-800">
-                <h3 class="text-base font-medium">{{ __('cms::labels.files') }} ({{ $this->files->count() }})</h3>
-            </div>
+        <x-synapse-panel :title="__('cms::labels.files') . ' (' . $this->files->count() . ')'">
             <div
-                class="divide-y divide-gray-100 dark:divide-gray-800"
+                class="syn-panel-body divide-y divide-gray-100 dark:divide-gray-800"
                 x-data="cmsSortableDownloadFiles()"
             >
                 @forelse($this->files as $file)
@@ -149,7 +143,7 @@
                     </div>
                 @endforelse
             </div>
-        </div>
+        </x-synapse-panel>
 
         <div class="flex justify-start">
             <a
@@ -166,23 +160,24 @@
 <script nonce="{{ csp_nonce() }}">
     (() => {
         const register = () => {
-        Alpine.data('cmsSortableDownloadFiles', () => ({
-            init() {
-                new Sortable(this.$el, {
-                    animation: 150,
-                    handle: '.drag-handle',
-                    onEnd: () => {
-                        const ids = Array.from(this.$el.querySelectorAll('[data-id]')).map(el =>
-                            parseInt(el.dataset.id));
-                        this.$wire.updateOrder(ids);
-                    }
-                });
-            }
-        }));
+            Alpine.data('cmsSortableDownloadFiles', () => ({
+                init() {
+                    new Sortable(this.$el, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        onEnd: () => {
+                            const ids = Array.from(this.$el.querySelectorAll(
+                                '[data-id]')).map(el =>
+                                parseInt(el.dataset.id));
+                            this.$wire.updateOrder(ids);
+                        }
+                    });
+                }
+            }));
         };
-    document.addEventListener('alpine:init', register);
-    if (window.Alpine) {
-        register();
-    }
+        document.addEventListener('alpine:init', register);
+        if (window.Alpine) {
+            register();
+        }
     })();
 </script>

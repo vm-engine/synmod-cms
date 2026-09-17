@@ -4,41 +4,34 @@
     <x-synapse-confirm-dialog />
 
     <div class="space-y-5 sm:space-y-6">
-        <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                <div class="px-5 py-4 sm:px-6 sm:py-5">
-                    <h3 class="text-base font-medium text-gray-800 dark:text-white/90">
-                        {{ __('cms::labels.download_list') }}</h3>
-                </div>
-                <div class="flex flex-col gap-3 px-5 pb-4 sm:my-auto sm:flex-row sm:items-center sm:pb-0">
-                    @canAccess('cms.download.category.create')
-                    <a
-                        class="btn primary w-full justify-center sm:w-auto"
-                        href="{{ backend_route('cms.download.form') }}"
-                        wire:navigate
-                    >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
-                    </a>
-                    @endcanAccess
-                    <div class="input-group w-full sm:w-auto">
-                        <input
-                            class="form-input w-full grow p-2"
-                            type="text"
-                            placeholder="{{ __('cms::labels.search') }}"
-                            wire:model.live.debounce="q"
-                        >
+        <x-synapse-panel :title="__('cms::labels.download_list')">
+            <x-slot:toolbar>
+                @canAccess('cms.download.category.create')
+                <a
+                    class="btn primary w-full justify-center sm:w-auto"
+                    href="{{ backend_route('cms.download.form') }}"
+                    wire:navigate
+                >
+                    <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                </a>
+                @endcanAccess
+                <x-synapse-search-box
+                    :placeholder="__('cms::labels.search')"
+                    wire:model.live.debounce="q"
+                >
+                    <x-slot:trailing>
                         <button
-                            class="input-group-item right btn"
                             type="button"
+                            class="btn"
                             @click="drawerOpen = true"
                         >
                             <span class="fa-solid fa-filter"></span>
                         </button>
-                    </div>
-                </div>
-            </div>
+                    </x-slot:trailing>
+                </x-synapse-search-box>
+            </x-slot:toolbar>
 
-            <div class="border-t border-gray-100 dark:border-gray-800 max-w-full overflow-x-auto">
+            <div class="syn-panel-body max-w-full overflow-x-auto">
                 <table class="datatable min-w-full">
                     <thead>
                         <tr>
@@ -68,22 +61,18 @@
                                 <td>{{ $this->downloadList->firstItem() + $i }}</td>
                                 <td>{{ $download->title }}</td>
                                 <td>
-                                    <span
-                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $download->access->value === 'private' ? 'bg-warning/10 text-warning' : 'bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400' }}"
-                                    >
+                                    <x-synapse-badge :color="$download->access->value === 'private' ? 'warning' : 'gray'">
                                         <span
                                             class="fa-solid {{ $download->access->value === 'private' ? 'fa-lock' : 'fa-lock-open' }} mr-1 text-[10px]"
                                         ></span>
                                         {{ $download->access->label() }}
-                                    </span>
+                                    </x-synapse-badge>
                                 </td>
                                 <td>{{ $download->files_count }}</td>
                                 <td>
-                                    <span
-                                        class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium {{ $download->status === 'active' ? 'bg-success/10 text-success' : 'bg-gray-100 text-gray-500 dark:bg-gray-700/50 dark:text-gray-400' }}"
-                                    >
+                                    <x-synapse-badge :color="$download->status === 'active' ? 'success' : 'gray'">
                                         {{ ucfirst($download->status) }}
-                                    </span>
+                                    </x-synapse-badge>
                                 </td>
                                 <td>
                                     <div class="text-center">
@@ -142,20 +131,22 @@
                 </table>
             </div>
 
-            <div class="flex gap-2 p-3 border-t border-gray-100 dark:border-gray-800">
-                <div class="flex-none p-1">
-                    <select
-                        class="form-input py-1 text-sm"
-                        wire:model.live="limit"
-                    >
-                        <option value="10">10</option>
-                        <option value="15">15</option>
-                        <option value="25">25</option>
-                    </select>
+            <div class="syn-panel-body">
+                <div class="syn-per-page-selector">
+                    <div class="flex-none p-1">
+                        <select
+                            class="syn-per-page-select"
+                            wire:model.live="limit"
+                        >
+                            <option value="10">10</option>
+                            <option value="15">15</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+                    <div class="pagination-container flex-1">{{ $this->downloadList->links() }}</div>
                 </div>
-                <div class="pagination-container flex-1">{{ $this->downloadList->links() }}</div>
             </div>
-        </div>
+        </x-synapse-panel>
     </div>
 
     @php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
