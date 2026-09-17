@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
+use VmEngine\Cms\Factories\CmsDownloadFileFactory;
 use VmEngine\Fm\Models\FmFile;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -45,6 +46,11 @@ class CmsDownloadFile extends Model
         'sort_order' => 'integer',
         'config' => 'array',
     ];
+
+    protected static function newFactory(): CmsDownloadFileFactory
+    {
+        return CmsDownloadFileFactory::new();
+    }
 
     public function download(): BelongsTo
     {

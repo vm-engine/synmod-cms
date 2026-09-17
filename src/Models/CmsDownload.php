@@ -13,6 +13,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\DownloadAccess;
+use VmEngine\Cms\Factories\CmsDownloadFactory;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -62,6 +63,11 @@ class CmsDownload extends Model
         'sort_order' => 'integer',
         'config' => 'array',
     ];
+
+    protected static function newFactory(): CmsDownloadFactory
+    {
+        return CmsDownloadFactory::new();
+    }
 
     #[Scope]
     protected function active(Builder $builder): void
