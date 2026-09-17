@@ -46,6 +46,7 @@ class ArticleFormObject extends Form
 
     public string $custom_layout = '';
 
+    /** @var array<int, int> */
     public array $tag_ids = [];
 
     /** @var array<int, array{key: string, label: string, value: string, editable: bool}> */
@@ -78,6 +79,9 @@ class ArticleFormObject extends Form
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [

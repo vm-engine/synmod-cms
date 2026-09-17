@@ -57,6 +57,9 @@ class DownloadFormObject extends Form
         $this->customVarAllowAdd = ($download->config ?? [])['custom_var_allow_add'] ?? false;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [

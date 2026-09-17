@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,7 +38,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsDownload extends Model
 {
+    /** @use HasFactory<CmsDownloadFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_downloads';
@@ -69,32 +72,47 @@ class CmsDownload extends Model
         return CmsDownloadFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsDownload>  $builder
+     */
     #[Scope]
     protected function active(Builder $builder): void
     {
         $builder->where('status', 'active');
     }
 
+    /**
+     * @param  Builder<CmsDownload>  $builder
+     */
     #[Scope]
     protected function publicAccess(Builder $builder): void
     {
         $builder->where('access', DownloadAccess::Public->value);
     }
 
+    /**
+     * @param  Builder<CmsDownload>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
     }
 
+    /**
+     * @return HasMany<CmsDownloadFile, $this>
+     */
     public function files(): HasMany
     {
         return $this->hasMany(CmsDownloadFile::class, 'download_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function resolveCustomView(): ?string

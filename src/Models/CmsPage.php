@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -27,7 +28,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string $status
  * @property Carbon|null $published_at
  * @property int $sort_order
- * @property array|null $config
+ * @property array<string, mixed>|null $config
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
@@ -41,7 +42,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsPage extends Model
 {
+    /** @use HasFactory<CmsPageFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_pages';
@@ -77,6 +80,9 @@ class CmsPage extends Model
         return CmsPageFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsPage>  $builder
+     */
     #[Scope]
     protected function published(Builder $builder): void
     {
@@ -87,31 +93,46 @@ class CmsPage extends Model
             });
     }
 
+    /**
+     * @param  Builder<CmsPage>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'excerpt'], 'like', "%{$q}%");
     }
 
+    /**
+     * @param  Builder<CmsPage>  $builder
+     */
     #[Scope]
     protected function roots(Builder $builder): void
     {
         $builder->whereNull('parent_id');
     }
 
+    /**
+     * @return BelongsTo<CmsPage, $this>
+     */
     public function parent(): BelongsTo
     {
         return $this->belongsTo(CmsPage::class, 'parent_id');
     }
 
+    /**
+     * @return HasMany<CmsPage, $this>
+     */
     public function children(): HasMany
     {
         return $this->hasMany(CmsPage::class, 'parent_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function getDepth(): int

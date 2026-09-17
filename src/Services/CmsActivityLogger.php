@@ -48,12 +48,11 @@ class CmsActivityLogger
     {
         $id = (string) ($parent->getKey() ?? '0');
 
-        SynAuth::logActivity(
+        $this->logActivity(
             Auth::id(),
             'cms.'.$parentEntity.'.'.$id.'.reorder_'.$childCollection,
             'User '.$this->userName().' reordered '.$childCollection.' in '.$parentEntity.'. New order: '.json_encode($orderedIds),
             $parentEntity.'.'.$id,
-            'cms',
         );
     }
 
@@ -61,13 +60,21 @@ class CmsActivityLogger
     {
         $id = (string) ($model->getKey() ?? '0');
 
-        SynAuth::logActivity(
+        $this->logActivity(
             Auth::id(),
             'cms.'.$entity.'.'.$id.'.'.$action,
             $message,
             $entity.'.'.$id,
-            'cms',
         );
+    }
+
+    private function logActivity(int|string|null $userId, string $action, string $description, string $feature): void
+    {
+        if ($userId === null) {
+            return;
+        }
+
+        SynAuth::logActivity((int) $userId, $action, $description, $feature, 'cms');
     }
 
     private function userName(): string

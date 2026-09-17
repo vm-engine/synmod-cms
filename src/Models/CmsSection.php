@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -23,7 +24,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $cover_image
  * @property string $status
  * @property int $sort_order
- * @property array|null $config
+ * @property array<string, mixed>|null $config
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
@@ -39,7 +40,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsSection extends Model
 {
+    /** @use HasFactory<CmsSectionFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_sections';
@@ -72,31 +75,46 @@ class CmsSection extends Model
         return CmsSectionFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsSection>  $builder
+     */
     #[Scope]
     protected function published(Builder $builder): void
     {
         $builder->where('status', 'published');
     }
 
+    /**
+     * @param  Builder<CmsSection>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
     }
 
+    /**
+     * @return HasMany<CmsCategory, $this>
+     */
     public function categories(): HasMany
     {
         return $this->hasMany(CmsCategory::class, 'section_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return HasMany<CmsArticle, $this>
+     */
     public function articles(): HasMany
     {
         return $this->hasMany(CmsArticle::class, 'section_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function resolveCustomView(): ?string

@@ -28,7 +28,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsAlbumImage extends Model
 {
+    /** @use HasFactory<CmsAlbumImageFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_album_images';
@@ -52,11 +54,17 @@ class CmsAlbumImage extends Model
         return CmsAlbumImageFactory::new();
     }
 
+    /**
+     * @return BelongsTo<CmsAlbum, $this>
+     */
     public function album(): BelongsTo
     {
         return $this->belongsTo(CmsAlbum::class, 'album_id');
     }
 
+    /**
+     * @return BelongsTo<FmFile, $this>
+     */
     public function file(): BelongsTo
     {
         return $this->belongsTo(FmFile::class, 'file_id');

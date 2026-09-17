@@ -14,7 +14,7 @@ All tools run from the **main Laravel project root** (`/srv/www/pips-kfl/`), not
 
 ```bash
 # Static analysis (run FIRST, fix all errors before Pint)
-vendor/bin/phpstan analyse packages/synmod-cms/src packages/synmod-cms/database/factories --level=5
+vendor/bin/phpstan analyse -c packages/synmod-cms/phpstan.neon --no-progress
 
 # Code style
 vendor/bin/pint packages/synmod-cms/

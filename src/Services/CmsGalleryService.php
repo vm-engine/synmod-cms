@@ -98,7 +98,7 @@ class CmsGalleryService
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy($sort, $direction)->paginate($perPage)->onEachSide(1);
+        return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
@@ -337,5 +337,15 @@ class CmsGalleryService
 
         $newCover = $next?->file instanceof FmFile ? $next->file->getUrl() : null;
         $album->update(['cover_image' => $newCover]);
+    }
+
+    /**
+     * @return 'asc'|'desc'
+     */
+    private function normalizeDirection(string $direction): string
+    {
+        $normalized = strtolower($direction);
+
+        return in_array($normalized, ['asc', 'desc'], true) ? $normalized : 'asc';
     }
 }

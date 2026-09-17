@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -25,7 +26,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string $status
  * @property int $sort_order
  * @property bool $inherit_config
- * @property array|null $config
+ * @property array<string, mixed>|null $config
  * @property string|null $meta_title
  * @property string|null $meta_description
  * @property string|null $og_image
@@ -40,7 +41,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsCategory extends Model
 {
+    /** @use HasFactory<CmsCategoryFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_categories';
@@ -75,33 +78,51 @@ class CmsCategory extends Model
         return CmsCategoryFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsCategory>  $builder
+     */
     #[Scope]
     protected function published(Builder $builder): void
     {
         $builder->where('status', 'published');
     }
 
+    /**
+     * @param  Builder<CmsCategory>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
     }
 
+    /**
+     * @return BelongsTo<CmsSection, $this>
+     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(CmsSection::class, 'section_id');
     }
 
+    /**
+     * @return HasMany<CmsArticle, $this>
+     */
     public function articles(): HasMany
     {
         return $this->hasMany(CmsArticle::class, 'category_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return array<string, mixed>
+     */
     public function effectiveConfig(): array
     {
         if ($this->inherit_config || empty($this->config)) {

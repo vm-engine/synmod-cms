@@ -24,7 +24,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsMenu extends Model
 {
+    /** @use HasFactory<CmsMenuFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_menus';
@@ -45,11 +47,17 @@ class CmsMenu extends Model
         return CmsMenuFactory::new();
     }
 
+    /**
+     * @return HasMany<CmsMenuItem, $this>
+     */
     public function items(): HasMany
     {
         return $this->hasMany(CmsMenuItem::class, 'menu_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return HasMany<CmsMenuItem, $this>
+     */
     public function rootItems(): HasMany
     {
         return $this->hasMany(CmsMenuItem::class, 'menu_id')

@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -47,7 +48,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsArticle extends Model
 {
+    /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_articles';
@@ -91,6 +94,9 @@ class CmsArticle extends Model
         return CmsArticleFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsArticle>  $builder
+     */
     #[Scope]
     protected function published(Builder $builder): void
     {
@@ -105,41 +111,62 @@ class CmsArticle extends Model
             });
     }
 
+    /**
+     * @param  Builder<CmsArticle>  $builder
+     */
     #[Scope]
     protected function featured(Builder $builder): void
     {
         $builder->where('is_featured', true);
     }
 
+    /**
+     * @param  Builder<CmsArticle>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'excerpt'], 'like', "%{$q}%");
     }
 
+    /**
+     * @return BelongsTo<CmsSection, $this>
+     */
     public function section(): BelongsTo
     {
         return $this->belongsTo(CmsSection::class, 'section_id');
     }
 
+    /**
+     * @return BelongsTo<CmsCategory, $this>
+     */
     public function category(): BelongsTo
     {
         return $this->belongsTo(CmsCategory::class, 'category_id');
     }
 
+    /**
+     * @return BelongsToMany<CmsTag, $this>
+     */
     public function tags(): BelongsToMany
     {
         return $this->belongsToMany(CmsTag::class, 'cms_article_tag', 'article_id', 'tag_id');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function updater(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'updated_by');
+        return $this->belongsTo(User::class, 'updated_by');
     }
 
     public function resolveCustomView(): ?string

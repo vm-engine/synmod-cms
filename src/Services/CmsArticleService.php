@@ -63,7 +63,7 @@ class CmsArticleService
             $query->where('category_id', $filters['categoryId']);
         }
 
-        return $query->orderBy($sort, $direction)->paginate($perPage)->onEachSide(1);
+        return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
@@ -74,7 +74,7 @@ class CmsArticleService
         return CmsArticle::published()
             ->where('section_id', $sectionId)
             ->with(['category', 'tags'])
-            ->orderBy($orderBy, $orderDir)
+            ->orderBy($orderBy, $this->normalizeDirection($orderDir))
             ->paginate($perPage)
             ->onEachSide(1);
     }
@@ -87,7 +87,7 @@ class CmsArticleService
         return CmsArticle::published()
             ->where('category_id', $categoryId)
             ->with(['section', 'tags'])
-            ->orderBy($orderBy, $orderDir)
+            ->orderBy($orderBy, $this->normalizeDirection($orderDir))
             ->paginate($perPage)
             ->onEachSide(1);
     }
@@ -335,7 +335,7 @@ class CmsArticleService
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy($sort, $direction)->paginate($perPage)->onEachSide(1);
+        return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
@@ -468,7 +468,7 @@ class CmsArticleService
             $query->where('status', $filters['status']);
         }
 
-        return $query->orderBy($sort, $direction)->paginate($perPage)->onEachSide(1);
+        return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
@@ -709,5 +709,15 @@ class CmsArticleService
     public function getTagSuggestionMap(): array
     {
         return CmsTag::orderBy('name')->pluck('name', 'id')->all();
+    }
+
+    /**
+     * @return 'asc'|'desc'
+     */
+    private function normalizeDirection(string $direction): string
+    {
+        $normalized = strtolower($direction);
+
+        return in_array($normalized, ['asc', 'desc'], true) ? $normalized : 'asc';
     }
 }

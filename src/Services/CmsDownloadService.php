@@ -53,7 +53,7 @@ class CmsDownloadService
             $query->where('access', $filters['access']);
         }
 
-        return $query->orderBy($sort, $direction)->paginate($perPage)->onEachSide(1);
+        return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
@@ -231,5 +231,15 @@ class CmsDownloadService
         });
 
         $this->logger->logReorder('download', 'files', $download, $ids);
+    }
+
+    /**
+     * @return 'asc'|'desc'
+     */
+    private function normalizeDirection(string $direction): string
+    {
+        $normalized = strtolower($direction);
+
+        return in_array($normalized, ['asc', 'desc'], true) ? $normalized : 'asc';
     }
 }

@@ -22,7 +22,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsTag extends Model
 {
+    /** @use HasFactory<CmsTagFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_tags';
@@ -37,6 +39,9 @@ class CmsTag extends Model
         return CmsTagFactory::new();
     }
 
+    /**
+     * @return BelongsToMany<CmsArticle, $this>
+     */
     public function articles(): BelongsToMany
     {
         return $this->belongsToMany(CmsArticle::class, 'cms_article_tag', 'tag_id', 'article_id');

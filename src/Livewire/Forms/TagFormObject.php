@@ -23,6 +23,9 @@ class TagFormObject extends Form
         $this->slug = $tag->slug;
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function rules(): array
     {
         return [

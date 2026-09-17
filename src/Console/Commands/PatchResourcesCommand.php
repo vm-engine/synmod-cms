@@ -35,6 +35,12 @@ class PatchResourcesCommand extends Command
         $import = 'import "../../../vendor/vm-engine/synmod-cms/resources/js/cms.js";';
         $contents = file_get_contents($path);
 
+        if ($contents === false) {
+            $this->warn("Could not read {$path}");
+
+            return;
+        }
+
         if (str_contains($contents, $import)) {
             $this->line('  synapps.js — already patched (skipped)');
 
@@ -57,6 +63,12 @@ class PatchResourcesCommand extends Command
 
         $contents = file_get_contents($path);
         $marker = 'node_modules/tinymce';
+
+        if ($contents === false) {
+            $this->warn("Could not read {$path}");
+
+            return;
+        }
 
         if (str_contains($contents, $marker)) {
             $this->line('  vite.config.js — already patched (skipped)');

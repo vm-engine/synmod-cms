@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [2.0.0] - Unreleased
 
+### Changed
+- **PHPStan level 7 gate added** (package-local `phpstan.neon`, empty baseline). `src/` hardened: PHPDoc generics/iterable value types across models, enums, Livewire form objects and services; `orderBy` direction is now validated by a shared `normalizeDirection()` helper (falls back to `asc` for anything other than `asc`/`desc`); activity logging skips unauthenticated users instead of passing `null`; `PatchResourcesCommand` guards unreadable files.
+
 ### Fixed
 - **`.form-label`/`.form-error` had no CSS definition anywhere** (added in `vm-engine/synapse`'s `synapse-components.css`) — labels and validation error messages across ~19 backend form/list views were rendering completely unstyled. No Blade changes needed; purely a missing-CSS fix under the class names already in use everywhere.
 - **`!border-red-500` replaced with the established `.has-error` class** (15 occurrences across `album-form`, `category-form`, `download-form`, `section-form`, `menu-item-manager`'s 3 sub-forms, `menu-list`, `tag-list`, `page-form`, `article-form`) — matches the themed error-input color used everywhere else in the app instead of a blunt important-override.

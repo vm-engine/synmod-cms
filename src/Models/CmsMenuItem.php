@@ -34,7 +34,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsMenuItem extends Model
 {
+    /** @use HasFactory<CmsMenuItemFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_menu_items';
@@ -64,16 +66,25 @@ class CmsMenuItem extends Model
         return CmsMenuItemFactory::new();
     }
 
+    /**
+     * @return BelongsTo<CmsMenu, $this>
+     */
     public function menu(): BelongsTo
     {
         return $this->belongsTo(CmsMenu::class, 'menu_id');
     }
 
+    /**
+     * @return BelongsTo<CmsMenuItem, $this>
+     */
     public function parentItem(): BelongsTo
     {
         return $this->belongsTo(CmsMenuItem::class, 'parent_id');
     }
 
+    /**
+     * @return HasMany<CmsMenuItem, $this>
+     */
     public function children(): HasMany
     {
         return $this->hasMany(CmsMenuItem::class, 'parent_id')->orderBy('sort_order');

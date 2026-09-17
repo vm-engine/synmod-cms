@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Attributes\Scope;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
@@ -37,7 +38,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsAlbum extends Model
 {
+    /** @use HasFactory<CmsAlbumFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_albums';
@@ -69,38 +72,56 @@ class CmsAlbum extends Model
         return CmsAlbumFactory::new();
     }
 
+    /**
+     * @param  Builder<CmsAlbum>  $builder
+     */
     #[Scope]
     protected function active(Builder $builder): void
     {
         $builder->where('status', 'active');
     }
 
+    /**
+     * @param  Builder<CmsAlbum>  $builder
+     */
     #[Scope]
     protected function normal(Builder $builder): void
     {
         $builder->where('type', AlbumType::Normal->value);
     }
 
+    /**
+     * @param  Builder<CmsAlbum>  $builder
+     */
     #[Scope]
     protected function banner(Builder $builder): void
     {
         $builder->where('type', AlbumType::Banner->value);
     }
 
+    /**
+     * @param  Builder<CmsAlbum>  $builder
+     */
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
         $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
     }
 
+    /**
+     * @return HasMany<CmsAlbumImage, $this>
+     */
     public function images(): HasMany
     {
         return $this->hasMany(CmsAlbumImage::class, 'album_id')->orderBy('sort_order');
     }
 
+    /**
+     * @return BelongsTo<User, $this>
+     */
     public function creator(): BelongsTo
     {
-        return $this->belongsTo(config('auth.providers.users.model'), 'created_by');
+        return $this->belongsTo(User::class, 'created_by');
     }
 
     public function resolveCustomView(): ?string

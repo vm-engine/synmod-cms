@@ -28,7 +28,9 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsDownloadFile extends Model
 {
+    /** @use HasFactory<CmsDownloadFileFactory> */
     use HasFactory;
+
     use WithDeleteToken;
 
     protected $table = 'cms_download_files';
@@ -52,11 +54,17 @@ class CmsDownloadFile extends Model
         return CmsDownloadFileFactory::new();
     }
 
+    /**
+     * @return BelongsTo<CmsDownload, $this>
+     */
     public function download(): BelongsTo
     {
         return $this->belongsTo(CmsDownload::class, 'download_id');
     }
 
+    /**
+     * @return BelongsTo<FmFile, $this>
+     */
     public function file(): BelongsTo
     {
         return $this->belongsTo(FmFile::class, 'file_id');
