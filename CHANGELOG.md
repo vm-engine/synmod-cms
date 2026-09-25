@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [2.0.0] - Unreleased
 
 ### Changed
+- **PHPStan config trimmed to zero ignores** — the blanket `ignoreErrors` patterns and empty baseline are gone; `src/` passes level 7 without them under current Larastan.
+
+### Changed
 - **PHPStan level 7 gate added** (package-local `phpstan.neon`, empty baseline). `src/` hardened: PHPDoc generics/iterable value types across models, enums, Livewire form objects and services; `orderBy` direction is now validated by a shared `normalizeDirection()` helper (falls back to `asc` for anything other than `asc`/`desc`); activity logging skips unauthenticated users instead of passing `null`; `PatchResourcesCommand` guards unreadable files.
 
 ### Fixed
