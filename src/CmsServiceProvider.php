@@ -7,6 +7,7 @@ namespace VmEngine\Cms;
 use Illuminate\Support\ServiceProvider;
 use VmEngine\Cms\Console\Commands\PatchResourcesCommand;
 use VmEngine\Cms\Console\Commands\SanitizeContentCommand;
+use VmEngine\Cms\Console\Commands\SetupCommand;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
@@ -38,8 +39,11 @@ class CmsServiceProvider extends ServiceProvider
 
     public function boot(): void
     {
+        $this->embedHtml5MediaSources();
+
         if ($this->app->runningInConsole()) {
             $this->commands([
+                SetupCommand::class,
                 PatchResourcesCommand::class,
                 SanitizeContentCommand::class,
             ]);
@@ -53,5 +57,37 @@ class CmsServiceProvider extends ServiceProvider
         CmsAlbumImage::observe(CmsAlbumImageObserver::class);
         CmsDownload::observe(CmsDownloadObserver::class);
         CmsMenuItem::observe(CmsMenuItemObserver::class);
+    }
+
+    /**
+     * mews/purifier's html5 definition types <video>/<source> `src` and `poster`
+     * as plain link URIs, so URI.DisableExternalResources never applies to them.
+     * Retype them as embedded resources (like <img src>) so cms_rte's local-only
+     * media rule holds. The rev bump invalidates HTMLPurifier's cached definition.
+     */
+    private function embedHtml5MediaSources(): void
+    {
+        $key = 'purifier.settings.custom_definition';
+        $definition = config($key);
+
+        if (! is_array($definition) || empty($definition['elements'])) {
+            return;
+        }
+
+        foreach ($definition['elements'] as $index => $element) {
+            if (! in_array($element[0] ?? null, ['video', 'source'], true)) {
+                continue;
+            }
+
+            foreach (['src', 'poster'] as $attribute) {
+                if (isset($element[4][$attribute])) {
+                    $definition['elements'][$index][4][$attribute] = 'URI#embedded';
+                }
+            }
+        }
+
+        $definition['rev'] = (int) ($definition['rev'] ?? 1) + 1;
+
+        config([$key => $definition]);
     }
 }

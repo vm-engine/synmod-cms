@@ -86,7 +86,7 @@
                             class="form-label"
                             for="body"
                         >{{ __('cms::labels.body') }}</label>
-                        <x-cms::tinymce
+                        <x-cms::rte
                             name="form.body"
                             :value="$form->body"
                             height="400"

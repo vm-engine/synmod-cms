@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'page' => 'Halaman Statis',
     'page_publish' => 'Terbitkan Halaman',

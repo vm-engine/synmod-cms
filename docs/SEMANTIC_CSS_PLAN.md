@@ -1,6 +1,8 @@
 # Semantic CSS Plan — synmod-cms
 
-Same pattern as `packages/synapse` (see `.claude/plans/2026-08-25-synapse-semantic-css.md`). Not implemented yet — inventory only.
+> **Status (2026-09-27): done** for the 8 files below: they use `<x-synapse-panel>`, `<x-synapse-search-box>`, `<x-synapse-badge>` and the shared `.syn-form-action-bar` — no `syn-cms-*` classes or `cms-components.css` were needed, so the "Proposed convention" section is obsolete. `.form-label`/`.form-error` now have styles in synapse, and `!border-red-500` became `has-error`. Kept for history.
+
+Same pattern as `packages/synapse` (see `.claude/plans/2026-08-25-synapse-semantic-css.md`).
 
 ## Candidate files (by inline utility-class density, top 8)
 

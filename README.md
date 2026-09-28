@@ -10,7 +10,7 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 
 ## Features
 
-- **Static Pages** — up to 3 levels deep (`/parent/child/grandchild`), with TinyMCE body editor, SEO fields, cover image, and per-page display config (show title, breadcrumb, children layout)
+- **Static Pages** — up to 3 levels deep (`/parent/child/grandchild`), with a rich-text body editor, SEO fields, cover image, and per-page display config (show title, breadcrumb, children layout)
 - **Sections / Categories / Articles** — hierarchical dynamic content; categories are optional; articles support tags, scheduling (`published_at`, `expires_at`), featured flag, and automatic read-time computation
 - **Gallery** — albums of type `normal` (public, routed at `/gallery/{slug}`) or `banner` (display-only, no public route); drag-and-drop image ordering; auto-sets album cover from first image uploaded; FM file picker integration
 - **Menus** — user-defined positions (`header`, `footer`, `sidebar`, or any string), infinitely nested items linking to pages, sections, categories, articles, albums, or custom URLs, drag-and-drop reordering
@@ -19,7 +19,8 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 - **Custom Variables** — configurable key/value pairs on all content types (pages, sections, categories, articles, albums, album images), accessible in frontend components and templates
 - **Custom View & Layout Overrides** — every content type can override its rendered Blade view and/or layout per-record, with a cascading fallback (article → category → section, page → parent page); see [Custom View & Layout Overrides](#custom-view--layout-overrides)
 - **Automatic Fallback Routing** — all published content registers its public slug in `fallback_routes` on save and removes it on delete/unpublish; slug renames cascade to children automatically; no route cache clearing needed
-- **TinyMCE** — self-hosted rich text editor bundled via Vite, integrated with FM file picker for inline image insertion and video embeds
+- **Rich-text editor** — Jodit (default) or TinyMCE, switchable at runtime from **CMS → Settings** (`/admin/cms/settings`, `cms.settings` ACL); both integrate with the FM file picker for images and file links. Output is sanitized by the `cms_rte` purifier profile regardless of editor.
+- **HTML Sanitization** — rich-text bodies/descriptions (articles, pages, categories) are cleaned with the strict `cms_rte` Purifier profile (`config/cms-purifier.php`, merged into `purifier.settings.cms_rte`): no event handlers, `<script>`/`<iframe>`; the only inline style allowed is `text-align` on blocks; `http`/`https`/`mailto` URIs only; embedded images and `<video>` must be local (relative or on the app's host — i.e. from the File Manager). Re-clean existing rows with `php artisan cms:sanitize-content [--dry-run]`
 - **Sitemap** — `/sitemap.xml` served by `SitemapController`, includes all published pages, sections, categories, articles, and active normal albums with priority and change frequency metadata
 - **Activity Logging** — every backend create/update/delete/reorder is logged via `CmsActivityLogger`, recording only the diff of changed fields on updates
 - **Frontend Livewire Components** — semantic BEM-style components for page, section, category, article, gallery index, album, and menu rendering; all resolved automatically via the fallback routing system
@@ -52,7 +53,11 @@ Then install and discover:
 composer update vm-engine/synmod-cms
 php artisan synapps:discover
 php artisan migrate
+php artisan cms:setup   # wires CMS JS into resources/js/app.js + TinyMCE assets into vite.config.js, picks the default editor
+npm install && npm run build
 ```
+
+`cms:setup` is idempotent. `cms:patch-resources` (and its old name `mod-cms:patch-resources`) still works as a deprecated alias.
 
 ---
 
@@ -80,6 +85,7 @@ All admin routes are under `/admin/cms/` and require authentication. Access is c
 | `GET /admin/cms/menu` | `backend.cms.menu.index` | `cms.menu.read` |
 | `GET /admin/cms/menu/{menuId}/items` | `backend.cms.menu.items` | `cms.menu.update` |
 | `GET /admin/cms/tag` | `backend.cms.tag.index` | `cms.tag.read` |
+| `GET /admin/cms/settings` | `backend.cms.settings` | `cms.settings.read` |
 
 > **Note:** Article create/edit forms are always section-scoped. The global article list (`cms.article.index`) is read-only for overview; all CRUD operations go through the section-scoped routes.
 
@@ -589,7 +595,7 @@ Run from the main Laravel project root:
 
 ```bash
 # Static analysis (run first)
-vendor/bin/phpstan analyse packages/synmod-cms/src packages/synmod-cms/database/factories --level=5
+vendor/bin/phpstan analyse -c packages/synmod-cms/phpstan.neon --memory-limit=1G   # level 7, no ignores
 
 # Code style
 vendor/bin/pint packages/synmod-cms/

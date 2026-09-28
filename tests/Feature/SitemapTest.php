@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Enums\ArticleStatus;

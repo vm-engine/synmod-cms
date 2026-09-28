@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     // Umum
     'home' => 'Beranda',
@@ -256,4 +258,13 @@ return [
     'custom_layout_download_help' => 'Layout pembungkus halaman unduhan.',
     'custom_view_help' => 'Nama Blade view (mis. home::templates.my-view). Kosongkan untuk menggunakan default.',
     'custom_layout_help' => 'Nama Blade layout (mis. home::layouts.my-layout). Kosongkan untuk menggunakan layout tema.',
+    'rte_insert_image' => 'Sisipkan gambar dari File Manager',
+    'rte_insert_file' => 'Tautkan file dari File Manager',
+    'rte_insert_video' => 'Sisipkan video dari File Manager',
+    'settings' => 'Pengaturan CMS',
+    'settings_editor_section' => 'Editor Konten',
+    'settings_editor' => 'Editor teks kaya',
+    'settings_editor_help' => 'Editor untuk isi halaman, seksi, dan artikel. Kedua editor dipasang oleh `php artisan cms:setup`.',
+    'settings_saved' => 'Pengaturan berhasil disimpan.',
+    'no_permission' => 'Anda tidak memiliki izin untuk melakukan tindakan ini.',
 ];

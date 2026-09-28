@@ -17,6 +17,7 @@
     "dependencies": {
         "npm": {
             "main": {
+                "jodit": "^4.15",
                 "tinymce": "^7.0",
                 "sortablejs": "^1.15"
             },
@@ -86,6 +87,14 @@
                     "route": "cms.tag.index",
                     "icon": "fa-solid fa-tags",
                     "acl": "cms.tag.read"
+                },
+                "settings": {
+                    "id": "settings",
+                    "name": "__cms::menu.be.settings",
+                    "class": "",
+                    "route": "cms.settings",
+                    "icon": "fa-solid fa-gear",
+                    "acl": "cms.settings.read"
                 }
             }
         }

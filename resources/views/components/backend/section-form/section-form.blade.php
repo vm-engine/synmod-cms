@@ -58,7 +58,7 @@
                             class="form-label"
                             for="description"
                         >{{ __('cms::labels.description') }}</label>
-                        <x-cms::tinymce
+                        <x-cms::rte
                             name="form.description"
                             :value="$form->description"
                             height="250"

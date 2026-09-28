@@ -91,6 +91,12 @@ Located in `src/Livewire/` (standard) or `resources/views/components/` (MFC). Fo
 
 **Widgets (embeddable anywhere):** `<x-cms::widget.page>`, `page-children`, `articles`, `section-articles`, `category-articles`, `tag-articles`, `banner-slider`, `gallery` — all in `src/View/Components/Widget/`. Most accept `template`/`card` (Blade view overrides), `wrapperClass`/`gridClass`, `bare`, and `with` (extra vars forwarded to the custom view) — check the individual component class for which props it supports, they aren't uniform across all eight.
 
+### Rich-Text Editor
+
+Forms render `<x-cms::rte>`, which picks `<x-cms::jodit>` (default) or `<x-cms::tinymce>` from `RteDriver::current()` (`dbconf('cms.editor.driver')`, set by `cms:setup` and the settings page at `cms.settings`). Never use `x-cms::jodit`/`x-cms::tinymce` directly in forms. Jodit's Alpine component (`cmsJodit`) lives in `resources/js/cms.js` and lazy-imports `jodit` **plus `jodit/esm/plugins/all.js`** (`'jodit'` alone is the ESM core with 24 plugins — no justify/source/video/paste, so those buttons render as text and paste cleanup silently does nothing); `cms:setup` imports `cms.js` into the host's `resources/js/app.js`. Both editors insert images/links through the FM picker events (`fm:open-picker` → `fm:file-selected`, filtered by picker key).
+
+Tests for `cms:setup` must point `$this->app->setBasePath()` at a temp dir — never edit the real host files and restore them in `afterEach` (it is skipped when a `PendingCommand` fails).
+
 ### Custom View/Layout Overrides
 
 Every content model (`CmsPage`, `CmsSection`, `CmsCategory`, `CmsArticle`, `CmsAlbum`, `CmsDownload`, `CmsMenuItem`) has `custom_view`/`custom_layout` columns plus `resolveCustomView()`/`resolveCustomLayout()` methods — **always call the resolver method, never read the raw column**, since several models cascade:

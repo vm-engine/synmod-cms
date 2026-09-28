@@ -57,7 +57,7 @@
                     content_style: 'body { font-family: system-ui, sans-serif; font-size: 14px; }',
                     file_picker_callback: function(callback, value, meta) {
                         const key = 'tinymce-' + fieldName;
-                        const accept = meta.filetype === 'image' ? 'image/*' : '*';
+                        const accept = meta.filetype === 'image' ? 'image/*' : (meta.filetype === 'media' ? 'video/*' : '*');
                         window.dispatchEvent(new CustomEvent('fm:open-picker', {
                             detail: {
                                 accept,

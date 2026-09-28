@@ -1,6 +1,9 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Services\CmsPageService;
@@ -131,4 +134,47 @@ it('backfills existing dirty content via cms:sanitize-content and saves changes'
     expect($section->description)
         ->not->toContain('<script')
         ->toContain('Dirty section');
+});
+
+describe('cms_rte media and alignment', function () {
+    it('keeps text-align on blocks but strips other CSS', function () {
+        $clean = Purifier::clean('<p style="text-align:center;color:red">Hi</p><h2 style="text-align:right">T</h2>', 'cms_rte');
+
+        expect($clean)
+            ->toContain('<p style="text-align:center;">Hi</p>')
+            ->toContain('<h2 style="text-align:right;">T</h2>')
+            ->not->toContain('color');
+    });
+
+    it('keeps local videos from the file manager', function () {
+        $clean = Purifier::clean('<video src="/storage/fm/public/clip.mp4" controls></video>', 'cms_rte');
+
+        expect($clean)->toContain('<video src="/storage/fm/public/clip.mp4" controls></video>');
+    });
+
+    it('keeps local <source> children inside a video', function () {
+        $clean = Purifier::clean('<video controls><source src="/storage/fm/public/clip.mp4" type="video/mp4"></video>', 'cms_rte');
+
+        expect($clean)->toContain('<source src="/storage/fm/public/clip.mp4" type="video/mp4"');
+    });
+
+    it('strips external videos and images', function () {
+        $clean = Purifier::clean(
+            '<video src="https://evil.example.com/x.mp4" controls></video><img src="https://evil.example.com/x.png" alt="x">',
+            'cms_rte',
+        );
+
+        expect($clean)->not->toContain('evil.example.com');
+    });
+
+    it('keeps absolute same-host image URLs', function () {
+        $url = rtrim((string) config('app.url'), '/').'/storage/fm/public/hero.jpg';
+
+        expect(Purifier::clean('<img src="'.$url.'" alt="hero">', 'cms_rte'))->toContain($url);
+    });
+
+    it('still strips iframes', function () {
+        expect(Purifier::clean('<iframe src="https://www.youtube.com/embed/x"></iframe>', 'cms_rte'))
+            ->not->toContain('iframe');
+    });
 });

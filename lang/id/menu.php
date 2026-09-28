@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     'be' => [
         'parent' => 'CMS',
@@ -9,5 +11,6 @@ return [
         'download' => 'Unduhan',
         'menu' => 'Menu',
         'tag' => 'Tag',
+        'settings' => 'Pengaturan',
     ],
 ];

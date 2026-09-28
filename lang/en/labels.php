@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
     // Generic
     'home' => 'Home',
@@ -256,4 +258,13 @@ return [
     'custom_layout_download_help' => 'Layout to wrap the download page.',
     'custom_view_help' => 'Blade view name (e.g. home::templates.my-view). Leave empty to use the default.',
     'custom_layout_help' => 'Blade layout name (e.g. home::layouts.my-layout). Leave empty to use the theme layout.',
+    'rte_insert_image' => 'Insert image from File Manager',
+    'rte_insert_file' => 'Link a file from File Manager',
+    'rte_insert_video' => 'Insert video from File Manager',
+    'settings' => 'CMS Settings',
+    'settings_editor_section' => 'Content Editor',
+    'settings_editor' => 'Rich-text editor',
+    'settings_editor_help' => 'Editor used for page, section and article bodies. Both editors are installed by `php artisan cms:setup`.',
+    'settings_saved' => 'Settings saved successfully.',
+    'no_permission' => 'You do not have permission to perform this action.',
 ];

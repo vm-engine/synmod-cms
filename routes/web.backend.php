@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use Illuminate\Support\Facades\Route;
 
 Route::group([], function () {
@@ -64,4 +66,8 @@ Route::group([], function () {
     // Tags
     Route::livewire('/tag', 'cms::backend.tag-list')->name('tag.index')
         ->middleware('can-access:cms.tag.read');
+
+    // Settings
+    Route::livewire('/settings', 'cms::backend.settings')->name('settings')
+        ->middleware('can-access:cms.settings.read');
 });
