@@ -6,7 +6,7 @@
     <div
         class="cms-banner-slider"
         style="--slider-height: {{ $height }}"
-        x-data="cmsBannerSlider(@js($slides), {{ $autoplay ? 'true' : 'false' }}, {{ $interval }})"
+        x-data="cmsBannerSlider({{ json_encode($slides) }}, {{ $autoplay ? 'true' : 'false' }}, {{ $interval }})"
         @mouseenter="stopTimer()"
         @mouseleave="autoplay && slides.length > 1 && startTimer()"
     >

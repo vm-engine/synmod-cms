@@ -1,7 +1,7 @@
 <div class="cms-download-index">
     <nav class="cms-breadcrumb" aria-label="breadcrumb">
         <ol class="cms-breadcrumb__list">
-            <li class="cms-breadcrumb__item"><a href="/" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
+            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item cms-breadcrumb__item--active">{{ __('cms::labels.downloads') }}</li>
         </ol>
     </nav>
@@ -20,7 +20,7 @@
             <div class="cms-download-card__image">
                 <img
                     src="{{ $download->cover_image }}"
-                    alt="{{ $download->title }}"
+                    alt="{{ $download->translate('title') }}"
                     loading="lazy"
                 />
             </div>
@@ -37,9 +37,9 @@
                     </span>
                     @endif
                 </div>
-                <h2 class="cms-download-card__title">{{ $download->title }}</h2>
-                @if($download->description)
-                <p class="cms-download-card__desc">{{ $download->description }}</p>
+                <h2 class="cms-download-card__title">{{ $download->translate('title') }}</h2>
+                @if($download->translate('description'))
+                <p class="cms-download-card__desc">{{ $download->translate('description') }}</p>
                 @endif
                 <span class="cms-download-card__count">
                     {{ $download->files_count }} {{ __('cms::labels.files') }}

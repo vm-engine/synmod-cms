@@ -24,7 +24,7 @@ new class extends Component
 
     public function title(): string
     {
-        return $this->page ? ($this->page->meta_title ?: $this->page->title) : '';
+        return $this->page?->translatedMetaTitle() ?? '';
     }
 
     public function render()

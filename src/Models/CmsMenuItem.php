@@ -11,6 +11,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsMenuItemFactory;
+use VmEngine\Cms\Support\CmsUrl;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -32,11 +35,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read CmsMenuItem|null $parentItem
  * @property-read Collection<int, CmsMenuItem> $children
  */
-class CmsMenuItem extends Model
+class CmsMenuItem extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsMenuItemFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_menu_items';
@@ -64,6 +68,14 @@ class CmsMenuItem extends Model
     protected static function newFactory(): CmsMenuItemFactory
     {
         return CmsMenuItemFactory::new();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['label'];
     }
 
     /**
@@ -102,76 +114,36 @@ class CmsMenuItem extends Model
 
     public function resolveUrl(): string
     {
-        if ($this->target_type === 'url') {
-            return $this->target_url ?? '#';
-        }
+        return match ($this->target_type) {
+            'url' => $this->target_url !== null ? CmsUrl::localizeHref($this->target_url) : '#',
+            'album_list' => CmsUrl::to($this->target_url ?: 'gallery'),
+            'download_list' => CmsUrl::to($this->target_url ?: 'downloads'),
+            default => $this->resolveContentUrl(),
+        };
+    }
 
-        if ($this->target_type === 'album_list') {
-            return '/'.($this->target_url ?: 'gallery');
-        }
-
-        if ($this->target_type === 'download_list') {
-            return '/'.($this->target_url ?: 'downloads');
-        }
-
+    private function resolveContentUrl(): string
+    {
         if ($this->target_id === null) {
             return '#';
         }
 
-        return match ($this->target_type) {
-            'page' => (function () {
-                $page = CmsPage::find($this->target_id);
-
-                return $page ? '/'.$page->full_slug : '#';
-            })(),
-            'section' => (function () {
-                $section = CmsSection::find($this->target_id);
-
-                return $section ? '/'.$section->slug : '#';
-            })(),
-            'category' => (function () {
-                $cat = CmsCategory::with('section')->find($this->target_id);
-
-                return $cat ? '/'.$cat->section->slug.'/'.$cat->slug : '#';
-            })(),
-            'article' => (function () {
-                $art = CmsArticle::with(['section', 'category'])->find($this->target_id);
-                if (! $art) {
-                    return '#';
-                }
-                $base = '/'.$art->section->slug;
-                if ($art->category_id) {
-                    $base .= '/'.$art->category->slug;
-                }
-
-                return $base.'/'.$art->slug;
-            })(),
-            'album' => (function () {
-                $album = CmsAlbum::find($this->target_id);
-
-                return $album ? '/gallery/'.$album->slug : '#';
-            })(),
-            'album_image' => (function () {
-                $image = CmsAlbumImage::with('album')->find($this->target_id);
-                if (! $image) {
-                    return '#';
-                }
-
-                return '/gallery/'.$image->album->slug.'#image-'.$image->id;
-            })(),
-            'download' => (function () {
-                $download = CmsDownload::find($this->target_id);
-                if (! $download) {
-                    return '#';
-                }
-                $prefix = CmsMenuItem::where('target_type', 'download_list')
-                    ->whereNotNull('target_url')
-                    ->where('target_url', '!=', '')
-                    ->value('target_url') ?? 'downloads';
-
-                return '/'.$prefix.'/'.$download->slug;
-            })(),
-            default => '#',
+        $target = match ($this->target_type) {
+            'page' => CmsPage::find($this->target_id),
+            'section' => CmsSection::find($this->target_id),
+            'category' => CmsCategory::with('section')->find($this->target_id),
+            'article' => CmsArticle::with(['section', 'category'])->find($this->target_id),
+            'album' => CmsAlbum::find($this->target_id),
+            'album_image' => CmsAlbumImage::with('album')->find($this->target_id),
+            'download' => CmsDownload::find($this->target_id),
+            default => null,
         };
+
+        if ($target === null) {
+            return '#';
+        }
+
+        // Album images deep-link into the album lightbox (#item-{id}, as search results do).
+        return CmsUrl::to($target, fragment: $target instanceof CmsAlbumImage ? 'item-'.$target->id : null);
     }
 }

@@ -19,4 +19,5 @@ return [
     'menu' => 'Menus',
     'tag' => 'Tags',
     'settings' => 'CMS Settings',
+    'search_term' => 'Search Terms',
 ];

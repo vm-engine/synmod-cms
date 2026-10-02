@@ -11,6 +11,7 @@ return [
         'download' => 'Downloads',
         'menu' => 'Menus',
         'tag' => 'Tags',
+        'search_term' => 'Search Terms',
         'settings' => 'Settings',
     ],
 ];

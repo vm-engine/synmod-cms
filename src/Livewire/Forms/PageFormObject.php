@@ -7,9 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsPageService;
+use VmEngine\Cms\Traits\HasTranslationFields;
 
 class PageFormObject extends Form
 {
+    use HasTranslationFields;
+
     public ?CmsPage $page = null;
 
     public ?int $parent_id = null;
@@ -77,6 +80,8 @@ class PageFormObject extends Form
         $this->custom_layout = $page->custom_layout ?? '';
         $this->customVars = $config['custom_var'] ?? [];
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
+
+        $this->fillTranslations($page);
     }
 
     /**
@@ -84,7 +89,7 @@ class PageFormObject extends Form
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'status' => 'required|in:draft,published,scheduled',
@@ -95,13 +100,15 @@ class PageFormObject extends Form
             'custom_view' => 'nullable|string|max:255',
             'custom_layout' => 'nullable|string|max:255',
         ];
+
+        return [...$rules, ...$this->translationRules($rules, new CmsPage)];
     }
 
     public function store(int $createdBy): CmsPage
     {
         $this->validate();
 
-        $page = app(CmsPageService::class)->create($this->toData(), $createdBy);
+        $page = $this->saveWithTranslations(fn () => app(CmsPageService::class)->create($this->toData(), $createdBy));
 
         $this->reset();
 
@@ -112,7 +119,7 @@ class PageFormObject extends Form
     {
         $this->validate();
 
-        app(CmsPageService::class)->update($this->page, $this->toData());
+        $this->saveWithTranslations(fn () => app(CmsPageService::class)->update($this->page, $this->toData()));
     }
 
     /**

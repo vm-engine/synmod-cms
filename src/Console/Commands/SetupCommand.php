@@ -40,6 +40,8 @@ class SetupCommand extends Command
 
         dbconf(['cms.editor.driver' => $driver]);
 
+        $this->call('cms:search-reindex');
+
         $this->components->success('CMS setup complete. Default editor: '.RteDriver::from($driver)->label().'.');
         $this->line('  Next: run `npm install` (jodit, tinymce) and `npm run build`.');
 

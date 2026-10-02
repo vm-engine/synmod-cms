@@ -1,13 +1,14 @@
 <div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $pageId ? 'false' : 'true' }})">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form wire:submit.prevent="save">
+    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit.prevent="save">
         <div class="space-y-5 sm:space-y-6">
 
             {{-- Main Content --}}
             <x-synapse-panel :title="__('cms::labels.page_content')">
                 <div class="syn-panel-body space-y-4 p-5 sm:p-6">
-                    <div>
+                    <x-cms::locale-tabs :values="$form->translations" />
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label required"
                             for="title"
@@ -23,6 +24,11 @@
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
+                    <x-cms::translation-input
+                        field="title"
+                        :label="__('cms::labels.title')"
+                        :placeholder="$form->title"
+                    />
 
                     <div>
                         <label
@@ -68,7 +74,7 @@
                         @endif
                     </div>
 
-                    <div>
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="excerpt"
@@ -80,8 +86,14 @@
                             wire:model="form.excerpt"
                         ></textarea>
                     </div>
+                    <x-cms::translation-input
+                        field="excerpt"
+                        type="textarea"
+                        :label="__('cms::labels.excerpt')"
+                        :placeholder="Str::limit($form->excerpt, 120)"
+                    />
 
-                    <div>
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="body"
@@ -95,6 +107,13 @@
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
+                    <x-cms::translation-input
+                        field="body"
+                        type="rte"
+                        :label="__('cms::labels.body')"
+                        :height="400"
+                        :values="$form->translations"
+                    />
                 </div>
             </x-synapse-panel>
 
@@ -202,7 +221,8 @@
             {{-- SEO --}}
             <x-synapse-panel :title="__('cms::labels.seo')">
                 <div class="syn-panel-body space-y-4 p-5 sm:p-6">
-                    <div>
+                    <x-cms::locale-tabs :values="$form->translations" />
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="meta_title"
@@ -214,7 +234,12 @@
                             wire:model="form.meta_title"
                         />
                     </div>
-                    <div>
+                    <x-cms::translation-input
+                        field="meta_title"
+                        :label="__('cms::labels.meta_title')"
+                        :placeholder="$form->meta_title"
+                    />
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="meta_description"
@@ -226,6 +251,12 @@
                             wire:model="form.meta_description"
                         ></textarea>
                     </div>
+                    <x-cms::translation-input
+                        field="meta_description"
+                        type="textarea"
+                        :label="__('cms::labels.meta_description')"
+                        :placeholder="Str::limit($form->meta_description, 120)"
+                    />
                     <div>
                         <label class="form-label">{{ __('cms::labels.og_image') }}</label>
                         <livewire:fm::file-picker

@@ -7,9 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\HasTranslationFields;
 
 class AlbumFormObject extends Form
 {
+    use HasTranslationFields;
+
     public ?CmsAlbum $album = null;
 
     public string $title = '';
@@ -55,6 +58,8 @@ class AlbumFormObject extends Form
         $this->custom_layout = $album->custom_layout ?? '';
         $this->customVars = ($album->config ?? [])['custom_var'] ?? [];
         $this->customVarAllowAdd = ($album->config ?? [])['custom_var_allow_add'] ?? false;
+
+        $this->fillTranslations($album);
     }
 
     /**
@@ -62,7 +67,7 @@ class AlbumFormObject extends Form
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'type' => 'required|in:normal,banner',
@@ -73,13 +78,15 @@ class AlbumFormObject extends Form
             'custom_view' => 'nullable|string|max:255',
             'custom_layout' => 'nullable|string|max:255',
         ];
+
+        return [...$rules, ...$this->translationRules($rules, new CmsAlbum)];
     }
 
     public function store(int $createdBy): CmsAlbum
     {
         $this->validate();
 
-        $album = app(CmsGalleryService::class)->createAlbum($this->toData(), $createdBy);
+        $album = $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->createAlbum($this->toData(), $createdBy));
 
         $this->reset();
 
@@ -90,7 +97,7 @@ class AlbumFormObject extends Form
     {
         $this->validate();
 
-        app(CmsGalleryService::class)->updateAlbum($this->album, $this->toData());
+        $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->updateAlbum($this->album, $this->toData()));
     }
 
     /**

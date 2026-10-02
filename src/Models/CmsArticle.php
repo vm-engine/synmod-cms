@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\ArticleStatus;
 use VmEngine\Cms\Factories\CmsArticleFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -46,11 +48,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read CmsCategory|null $category
  * @property-read Collection<int, CmsTag> $tags
  */
-class CmsArticle extends Model
+class CmsArticle extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_articles';
@@ -95,6 +98,22 @@ class CmsArticle extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'excerpt', 'body', 'meta_title', 'meta_description'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableHtmlFields(): array
+    {
+        return ['body'];
+    }
+
+    /**
      * @param  Builder<CmsArticle>  $builder
      */
     #[Scope]
@@ -126,7 +145,7 @@ class CmsArticle extends Model
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
-        $builder->whereAny(['title', 'slug', 'excerpt'], 'like', "%{$q}%");
+        $this->whereLikeWithTranslations($builder, ['title', 'slug', 'excerpt'], $q);
     }
 
     /**

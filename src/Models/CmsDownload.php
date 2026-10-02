@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Factories\CmsDownloadFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -36,11 +38,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property Carbon $updated_at
  * @property-read Collection<int, CmsDownloadFile> $files
  */
-class CmsDownload extends Model
+class CmsDownload extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsDownloadFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_downloads';
@@ -73,6 +76,14 @@ class CmsDownload extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'description', 'meta_title', 'meta_description'];
+    }
+
+    /**
      * @param  Builder<CmsDownload>  $builder
      */
     #[Scope]
@@ -96,7 +107,7 @@ class CmsDownload extends Model
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
-        $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
+        $this->whereLikeWithTranslations($builder, ['title', 'slug', 'description'], $q);
     }
 
     /**

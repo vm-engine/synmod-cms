@@ -50,8 +50,8 @@ class BannerSlider extends Component
             ->map(fn (CmsAlbumImage $i) => [
                 'url' => $i->file?->getUrl() ?? '',
                 'thumb' => $i->file?->getThumbnailUrl() ?: ($i->file?->getUrl() ?? ''),
-                'title' => $i->title ?? '',
-                'caption' => $i->caption ?? '',
+                'title' => $i->translate('title') ?? '',
+                'caption' => $i->translate('caption') ?? '',
                 'link' => $i->config['link'] ?? null,
             ])->values()->all();
     }

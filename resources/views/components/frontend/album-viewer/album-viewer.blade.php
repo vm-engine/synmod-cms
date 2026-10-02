@@ -4,10 +4,11 @@
             ->filter(fn($i) => $i->file)
             ->map(
                 fn($i) => [
+                    'id' => $i->id,
                     'url' => $i->file->getUrl(),
                     'thumb' => $i->file->getThumbnailUrl() ?: $i->file->getUrl(),
-                    'title' => $i->title ?? '',
-                    'caption' => $i->caption ?? '',
+                    'title' => $i->translate('title') ?? '',
+                    'caption' => $i->translate('caption') ?? '',
                 ],
             )
             ->values();
@@ -20,7 +21,7 @@
         >
             <ol class="cms-breadcrumb__list">
                 <li class="cms-breadcrumb__item"><a
-                        href="/"
+                        href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}"
                         class="cms-breadcrumb__link"
                     >{{ __('cms::labels.home') }}</a></li>
                 <li class="cms-breadcrumb__item"><a
@@ -30,19 +31,19 @@
                 <li
                     class="cms-breadcrumb__item cms-breadcrumb__item--active"
                     aria-current="page"
-                >{{ $album->title }}</li>
+                >{{ $album->translate('title') }}</li>
             </ol>
         </nav>
 
         <header class="cms-album__header">
-            <h1 class="cms-album__title">{{ $album->title }}</h1>
-            @if ($album->description)
-                <div class="cms-album__description">{{ $album->description }}</div>
+            <h1 class="cms-album__title">{{ $album->translate('title') }}</h1>
+            @if ($album->translate('description'))
+                <div class="cms-album__description">{{ $album->translate('description') }}</div>
             @endif
         </header>
 
         <div
-            x-data="cmsAlbumViewer(@js($lgImages))"
+            x-data="cmsAlbumViewer({{ json_encode($lgImages) }})"
             @keydown.escape.window="open && close()"
             @keydown.arrow-left.window="open && prev()"
             @keydown.arrow-right.window="open && next()"
@@ -51,6 +52,7 @@
                 @forelse($lgImages as $idx => $img)
                     <figure
                         class="cms-gallery-item"
+                        id="item-{{ $img['id'] }}"
                         role="button"
                         tabindex="0"
                         @click="show({{ $idx }})"
@@ -59,7 +61,7 @@
                         <div class="cms-gallery-item__link">
                             <img
                                 src="{{ $img['thumb'] }}"
-                                alt="{{ $img['title'] ?: $album->title }}"
+                                alt="{{ $img['title'] ?: $album->translate('title') }}"
                                 class="cms-gallery-item__image"
                                 loading="lazy"
                             />
@@ -151,13 +153,13 @@
                 <div class="cms-lightbox__caption-bar">
                     <p
                         class="cms-lightbox__title"
-                        x-text="images[current]?.title"
-                        x-show="images[current]?.title"
+                        x-text="currentTitle()"
+                        x-show="currentTitle()"
                     ></p>
                     <p
                         class="cms-lightbox__desc"
-                        x-text="images[current]?.caption"
-                        x-show="images[current]?.caption"
+                        x-text="currentCaption()"
+                        x-show="currentCaption()"
                     ></p>
                 </div>
             </div>
@@ -171,6 +173,21 @@
                 open: false,
                 current: 0,
                 images,
+                init() {
+                    this.openFromHash();
+                    window.addEventListener('hashchange', () => this.openFromHash());
+                },
+                // Search results link to #item-{id}: open that image.
+                openFromHash() {
+                    const match = window.location.hash.match(/^#item-(\d+)$/);
+                    if (!match) {
+                        return;
+                    }
+                    const index = this.images.findIndex((image) => image.id === Number(match[1]));
+                    if (index >= 0) {
+                        this.show(index);
+                    }
+                },
                 show(index) {
                     this.current = index;
                     this.open = true;
@@ -185,6 +202,15 @@
                 },
                 next() {
                     this.current = (this.current + 1) % this.images.length;
+                },
+                // CSP build: no ?. in attributes, so the caption bar reads through these.
+                currentTitle() {
+                    const image = this.images[this.current];
+                    return image ? image.title : '';
+                },
+                currentCaption() {
+                    const image = this.images[this.current];
+                    return image ? image.caption : '';
                 },
             }));
         };

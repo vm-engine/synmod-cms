@@ -126,7 +126,7 @@
                                     confirmColor: 'danger',
                                     icon: 'fa-solid fa-trash',
                                     wireMethod: 'deleteFile',
-                                    wireParams: [parseInt($el.dataset.id)],
+                                    wireParams: [{{ (int) $file->id }}],
                                     wireComponent: $el.dataset.component
                                 })"
                             >

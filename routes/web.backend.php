@@ -66,6 +66,8 @@ Route::group([], function () {
     // Tags
     Route::livewire('/tag', 'cms::backend.tag-list')->name('tag.index')
         ->middleware('can-access:cms.tag.read');
+    Route::livewire('/search-terms', 'cms::backend.search-term-list')->name('search-term.index')
+        ->middleware('can-access:cms.search_term.read');
 
     // Settings
     Route::livewire('/settings', 'cms::backend.settings')->name('settings')

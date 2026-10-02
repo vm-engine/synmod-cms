@@ -1,7 +1,7 @@
 <div>
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form wire:submit="save">
+    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit="save">
         <div class="space-y-5 sm:space-y-6">
 
             {{-- File Preview --}}
@@ -30,16 +30,28 @@
                     <h3 class="text-base font-medium">{{ __('cms::labels.edit_image') }}</h3>
                 </div>
                 <div class="p-5 sm:p-6 space-y-4">
-                    <div>
+                    <x-cms::locale-tabs :values="$form->translations" />
+                    <div x-show="isPrimary()">
                         <label class="form-label" for="img_title">{{ __('cms::labels.image_title') }}</label>
                         <input class="form-input" id="img_title" type="text" wire:model="form.title" />
                         @error('form.title') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
-                    <div>
+                    <x-cms::translation-input
+                        field="title"
+                        :label="__('cms::labels.image_title')"
+                        :placeholder="$form->title"
+                    />
+                    <div x-show="isPrimary()">
                         <label class="form-label" for="img_caption">{{ __('cms::labels.caption') }}</label>
                         <textarea class="form-input" id="img_caption" rows="3" wire:model="form.caption"></textarea>
                         @error('form.caption') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
+                    <x-cms::translation-input
+                        field="caption"
+                        type="textarea"
+                        :label="__('cms::labels.caption')"
+                        :placeholder="Str::limit($form->caption, 120)"
+                    />
                 </div>
             </div>
 

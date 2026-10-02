@@ -1,13 +1,14 @@
 <div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $categoryId ? 'false' : 'true' }})">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form wire:submit.prevent="save">
+    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit.prevent="save">
         <div class="space-y-5 sm:space-y-6">
             <div class="dark:bg-white/3 rounded-2xl border border-gray-200 bg-white dark:border-gray-800">
                 <div class="px-5 py-4 sm:px-6 sm:py-5 border-b border-gray-100 dark:border-gray-800">
                     <h3 class="text-base font-medium">{{ __('cms::labels.category_info') }}</h3>
                 </div>
                 <div class="p-5 sm:p-6 space-y-4">
+                    <x-cms::locale-tabs :values="$form->translations" />
                     <div>
                         <label class="form-label required">{{ __('cms::labels.section') }}</label>
                         <input
@@ -19,7 +20,7 @@
                             {{ $this->sectionName }}</p>
                     </div>
 
-                    <div>
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label required"
                             for="title"
@@ -35,6 +36,11 @@
                             <p class="form-error">{{ $message }}</p>
                         @enderror
                     </div>
+                    <x-cms::translation-input
+                        field="title"
+                        :label="__('cms::labels.title')"
+                        :placeholder="$form->title"
+                    />
 
                     <div>
                         <label
@@ -63,7 +69,7 @@
                         @enderror
                     </div>
 
-                    <div>
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="description"
@@ -75,6 +81,13 @@
                             wire:model="form.description"
                         ></textarea>
                     </div>
+                    <x-cms::translation-input
+                        field="description"
+                        type="textarea"
+                        :label="__('cms::labels.description')"
+                        :rows="4"
+                        :placeholder="Str::limit($form->description, 120)"
+                    />
 
                     <div class="grid sm:grid-cols-2 gap-4">
                         <div>
@@ -133,7 +146,8 @@
                     <h3 class="text-base font-medium">{{ __('cms::labels.seo') }}</h3>
                 </div>
                 <div class="p-5 sm:p-6 space-y-4">
-                    <div>
+                    <x-cms::locale-tabs :values="$form->translations" />
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="meta_title"
@@ -145,7 +159,12 @@
                             wire:model="form.meta_title"
                         />
                     </div>
-                    <div>
+                    <x-cms::translation-input
+                        field="meta_title"
+                        :label="__('cms::labels.meta_title')"
+                        :placeholder="$form->meta_title"
+                    />
+                    <div x-show="isPrimary()">
                         <label
                             class="form-label"
                             for="meta_description"
@@ -157,6 +176,12 @@
                             wire:model="form.meta_description"
                         ></textarea>
                     </div>
+                    <x-cms::translation-input
+                        field="meta_description"
+                        type="textarea"
+                        :label="__('cms::labels.meta_description')"
+                        :placeholder="Str::limit($form->meta_description, 120)"
+                    />
                     <div>
                         <label class="form-label">{{ __('cms::labels.og_image') }}</label>
                         <livewire:fm::file-picker

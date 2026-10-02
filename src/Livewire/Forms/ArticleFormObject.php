@@ -7,9 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\HasTranslationFields;
 
 class ArticleFormObject extends Form
 {
+    use HasTranslationFields;
+
     public ?CmsArticle $article = null;
 
     public ?int $section_id = null;
@@ -77,6 +80,8 @@ class ArticleFormObject extends Form
         $this->tag_ids = $article->tags()->pluck('cms_tags.id')->toArray();
         $this->customVars = ($article->config ?? [])['custom_var'] ?? [];
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
+
+        $this->fillTranslations($article);
     }
 
     /**
@@ -84,7 +89,7 @@ class ArticleFormObject extends Form
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'section_id' => 'required|integer|exists:cms_sections,id',
             'category_id' => 'nullable|integer|exists:cms_categories,id',
             'title' => 'required|string|max:255',
@@ -100,13 +105,15 @@ class ArticleFormObject extends Form
             'custom_view' => 'nullable|string|max:255',
             'custom_layout' => 'nullable|string|max:255',
         ];
+
+        return [...$rules, ...$this->translationRules($rules, new CmsArticle)];
     }
 
     public function store(int $createdBy): CmsArticle
     {
         $this->validate();
 
-        $article = app(CmsArticleService::class)->createArticle($this->toData(), $this->tag_ids, $createdBy);
+        $article = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createArticle($this->toData(), $this->tag_ids, $createdBy));
 
         $this->reset();
 
@@ -117,7 +124,7 @@ class ArticleFormObject extends Form
     {
         $this->validate();
 
-        app(CmsArticleService::class)->updateArticle($this->article, $this->toData(), $this->tag_ids, $updatedBy);
+        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateArticle($this->article, $this->toData(), $this->tag_ids, $updatedBy));
     }
 
     /**

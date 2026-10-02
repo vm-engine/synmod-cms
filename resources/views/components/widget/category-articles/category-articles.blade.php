@@ -3,19 +3,19 @@
     <div class="cms-article-grid cms-article-grid--{{ $layout }}">
         @foreach($articles as $article)
         @php
-            $url = '/' . $sectionModel->slug . ($article->category_id && $categoryModel ? '/' . $categoryModel->slug : '') . '/' . $article->slug;
+            $url = \VmEngine\Cms\Support\CmsUrl::to($article);
         @endphp
         <article class="cms-article-card">
             @if($showCover && $article->cover_image)
             <div class="cms-article-card__image">
                 <a href="{{ $url }}">
-                    <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" loading="lazy" />
+                    <img src="{{ $article->cover_image }}" alt="{{ $article->translate('title') }}" loading="lazy" />
                 </a>
             </div>
             @endif
             <div class="cms-article-card__body">
                 <h3 class="cms-article-card__title">
-                    <a href="{{ $url }}" class="cms-article-card__link">{{ $article->title }}</a>
+                    <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
                 </h3>
                 @if($showDate && $article->published_at)
                 <div class="cms-article-card__meta">
@@ -27,8 +27,8 @@
                     @endif
                 </div>
                 @endif
-                @if($showExcerpt && $article->excerpt)
-                <p class="cms-article-card__excerpt">{{ $article->excerpt }}</p>
+                @if($showExcerpt && $article->translate('excerpt'))
+                <p class="cms-article-card__excerpt">{{ $article->translate('excerpt') }}</p>
                 @endif
             </div>
         </article>

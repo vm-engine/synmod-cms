@@ -120,6 +120,8 @@ Since v1.1.7, all queries/writes outside the model itself go through these — n
 - **`CmsFallbackService`** — fallback route management (observers only)
 - **`CmsMenuService`** — `buildTree('position')` eager-loads 3 levels for frontend rendering
 - **`CmsSitemapService`** — generates `/sitemap.xml` XML; called by `SitemapController`
+- **`CmsSearchIndexer`** / **`CmsSearchService`** — public search index (`cms_searchables`) write/read paths. The index is written ONLY via `CmsFallbackService::syncX/forgetX` (routed content) and the album-image/download-file observers — never from forms. URLs are stored as locale-prefixed paths. `cms:search-reindex` rebuilds it. Settings: `module.json` → `config('synapps.modules.cms.search.*')`.
+- **Public search UI** — `cms::frontend.search-results` (fallback route via `CmsFallbackService::syncSearchPage()`, registered by `cms:search-reindex`) and `cms::frontend.search-box` (`cmsSearchBox` Alpine in `cms.js`). Popular terms (`CmsSearchTermService`) are recorded ONLY by the search page, only with results, once per session. The search templates render `CmsSearchable` rows (already localized), so they're exempt from the frontend translate() guard. In the view, resolve `$this->results` before reading `$this->rateLimited` (the limiter sets it while computing).
 
 ### Routes
 
@@ -142,3 +144,13 @@ Translation keys follow `__cms::file.key` format. Always update both `lang/en/` 
 ### Custom Variables (`config` JSON column)
 
 All content types have a `config` JSON column storing custom variables under `config['vars']`. Schema managers define keys/labels; non-managers can edit editable vars. Access in frontend: `$model->config['vars'] ?? []`.
+
+### Translations (multi-language content)
+
+**Links:** never hand-build public CMS links — use `CmsUrl::to()` (root-relative, locale-prefixed) / `CmsUrl::absolute()` (sitemap, hreflang); `CmsFallbackService` registers routes with `CmsUrl::path()`. `tests/Feature/CmsUrlTest.php` guards against `href="/` in frontend/widget templates. Theme components: `<x-cms::language-switcher>` and `<x-cms::hreflang />` (data from `CmsUrl::alternates()`).
+
+Translatable models use `HasTranslations`: base columns hold the **primary locale** (`CmsLocale::primary()` = `synapps.modules.cms.primary_locale` — a `module.json` key, host override in `synapps/config/modules.json` — pinned to `app.locale` in `CmsServiceProvider::register()` because `app()->setLocale()` rewrites `config('app.locale')` per request — never change it once content exists); other enabled locales live in `cms_translations` (polymorphic, FQCN `translatable_type`, columns named like the base columns). Frontend code reads `$model->translate('field')` — never the raw attribute — and eager-loads `translations`. Never override `getAttribute` for this: backend forms read raw primary columns. HTML fields are declared in `translatableHtmlFields()` and purified with `cms_rte` inside `setTranslations()`.
+
+Forms: form objects `use HasTranslationFields` (`$translations[locale][field]`, `translationRules()` merged into `rules()`, `saveWithTranslations()` — always save base + translations in that one transaction). Views: `x-data="cmsLocaleTabs('<primary>')"` on `<form>`, `<x-cms::locale-tabs>` atop each panel with translatable fields, each primary field block gets `x-show="isPrimary()"` followed by `<x-cms::translation-input>`. Models implement `TranslatableContent`; backend `search` scopes call `whereLikeWithTranslations()`.
+
+Frontend templates must use `translate()` — `tests/Feature/TranslationFrontendTest.php` "Template guard" fails on any direct `->title`/`->excerpt`/... read under `frontend/` and `widget/`. Page titles use `translatedMetaTitle()`. Translations eager-load via `$with` (multi-language only, added in `initializeHasTranslations()`) and are `$hidden` from `toArray()`.

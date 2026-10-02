@@ -19,4 +19,5 @@ return [
     'menu' => 'Menu',
     'tag' => 'Tag',
     'settings' => 'Pengaturan CMS',
+    'search_term' => 'Kata Pencarian',
 ];

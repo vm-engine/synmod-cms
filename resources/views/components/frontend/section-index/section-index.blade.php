@@ -3,19 +3,19 @@
     <header class="cms-section__header">
         @if($section->cover_image)
         <div class="cms-section__cover">
-            <img src="{{ $section->cover_image }}" alt="{{ $section->title }}" class="cms-section__cover-image" />
+            <img src="{{ $section->cover_image }}" alt="{{ $section->translate('title') }}" class="cms-section__cover-image" />
         </div>
         @endif
-        <h1 class="cms-section__title">{{ $section->title }}</h1>
-        @if($section->description)
-        <div class="cms-section__description">{!! $section->description !!}</div>
+        <h1 class="cms-section__title">{{ $section->translate('title') }}</h1>
+        @if($section->translate('description'))
+        <div class="cms-section__description">{!! $section->translate('description') !!}</div>
         @endif
     </header>
 
     @if($section->categories->isNotEmpty())
     <nav class="cms-section__categories">
         @foreach($section->categories->where('status', 'published') as $cat)
-        <a href="/{{ $section->slug }}/{{ $cat->slug }}" class="cms-section__category-link">{{ $cat->title }}</a>
+        <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($cat) }}" class="cms-section__category-link">{{ $cat->translate('title') }}</a>
         @endforeach
     </nav>
     @endif
@@ -23,13 +23,13 @@
     <div class="cms-article-grid">
         @forelse($articles as $article)
         @php
-            $url = '/' . $section->slug . ($article->category_id ? '/' . $article->category->slug : '') . '/' . $article->slug;
+            $url = \VmEngine\Cms\Support\CmsUrl::to($article);
         @endphp
         <article class="cms-article-card">
             @if(($section->config['show_thumbnail'] ?? true) && $article->cover_image)
             <div class="cms-article-card__image">
                 <a href="{{ $url }}">
-                    <img src="{{ $article->cover_image }}" alt="{{ $article->title }}" loading="lazy" />
+                    <img src="{{ $article->cover_image }}" alt="{{ $article->translate('title') }}" loading="lazy" />
                 </a>
             </div>
             @endif
@@ -38,7 +38,7 @@
                 <span class="cms-article-card__featured">Featured</span>
                 @endif
                 <h2 class="cms-article-card__title">
-                    <a href="{{ $url }}" class="cms-article-card__link">{{ $article->title }}</a>
+                    <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
                 </h2>
                 @if(($section->config['show_date'] ?? true))
                 <div class="cms-article-card__meta">
@@ -50,8 +50,8 @@
                     @endif
                 </div>
                 @endif
-                @if($article->excerpt)
-                <p class="cms-article-card__excerpt">{{ $article->excerpt }}</p>
+                @if($article->translate('excerpt'))
+                <p class="cms-article-card__excerpt">{{ $article->translate('excerpt') }}</p>
                 @endif
             </div>
         </article>

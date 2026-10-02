@@ -19,6 +19,7 @@ new class extends Component
         $service = app(CmsMenuService::class);
         $items = $service->buildTree($this->position);
 
-        return $this->view(['items' => $items]);
+        // The view is shared with <x-cms::menu>, which also passes a custom template + vars.
+        return $this->view(['items' => $items, 'template' => '', 'with' => []]);
     }
 };

@@ -34,7 +34,7 @@
             confirmColor: 'danger',
             icon: 'fa-solid fa-trash',
             wireMethod: 'deleteItem',
-            wireParams: [parseInt($el.dataset.id)],
+            wireParams: [{{ (int) $itemId }}],
             wireComponent: $el.dataset.component
         })"
     >

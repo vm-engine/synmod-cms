@@ -90,7 +90,7 @@
                             <tr>
                                 <td>{{ $this->articleList->firstItem() + $i }}</td>
                                 <td>
-                                    <div class="font-medium">{{ $article->title }}</div>
+                                    <div class="font-medium">{{ $article->title }}<x-cms::locale-badges :model="$article" /></div>
                                     @if ($article->read_time > 0)
                                         <div class="text-xs text-gray-400">{{ $article->read_time }} min read</div>
                                     @endif

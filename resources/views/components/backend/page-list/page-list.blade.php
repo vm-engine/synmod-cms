@@ -62,7 +62,7 @@
                                 {{-- Flat search results --}}
                                 @forelse($this->pageList as $page)
                                     <tr>
-                                        <td>{{ $page->title }}</td>
+                                        <td>{{ $page->title }}<x-cms::locale-badges :model="$page" /></td>
                                         <td><code class="text-xs">{{ $page->full_slug }}</code></td>
                                         <td>
                                             <x-synapse-badge :color="$statusColor($page->status)">
@@ -132,7 +132,7 @@
                                 @forelse($this->pageList as $root)
                                     {{-- Root (grandparent) row --}}
                                     <tr>
-                                        <td class="font-medium">{{ $root->title }}</td>
+                                        <td class="font-medium">{{ $root->title }}<x-cms::locale-badges :model="$root" /></td>
                                         <td><code class="text-xs">{{ $root->full_slug }}</code></td>
                                         <td>
                                             <x-synapse-badge :color="$statusColor($root->status)">
@@ -193,7 +193,7 @@
                                                 >
                                                     <span
                                                         class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
-                                                    {{ $child->title }}
+                                                    {{ $child->title }}<x-cms::locale-badges :model="$child" />
                                                 </span>
                                             </td>
                                             <td><code class="text-xs">{{ $child->full_slug }}</code></td>
@@ -257,7 +257,7 @@
                                                     >
                                                         <span
                                                             class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
-                                                        {{ $grandchild->title }}
+                                                        {{ $grandchild->title }}<x-cms::locale-badges :model="$grandchild" />
                                                     </span>
                                                 </td>
                                                 <td><code class="text-xs">{{ $grandchild->full_slug }}</code></td>

@@ -14,6 +14,11 @@ use VmEngine\Cms\Services\CmsSitemapService;
 
 uses(RefreshDatabase::class);
 
+// These cases pin single-language output; multi-language alternates live in CmsUrlTest.
+beforeEach(function () {
+    config(['synapps.apps.multi_language' => false]);
+});
+
 describe('CmsSitemapService', function () {
     it('generates valid XML with urlset root', function () {
         $xml = app(CmsSitemapService::class)->generate();

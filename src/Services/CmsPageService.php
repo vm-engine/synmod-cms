@@ -77,6 +77,7 @@ class CmsPageService
         if ($q !== null && $q !== '' && strlen($q) > 2) {
             /** @var Collection<int, CmsPage> $results */
             $results = CmsPage::search($q)
+                ->with('translations')
                 ->when($status, fn (Builder $b, string $s) => $b->where('status', $s))
                 ->orderBy('full_slug')
                 ->get();
@@ -86,10 +87,13 @@ class CmsPageService
 
         /** @var Collection<int, CmsPage> $tree */
         $tree = CmsPage::roots()
+            ->with('translations')
             ->when($status, fn (Builder $b, string $s) => $b->where('status', $s))
             ->with([
                 'children' => fn ($q) => $q->orderBy('sort_order'),
+                'children.translations',
                 'children.children' => fn ($q) => $q->orderBy('sort_order'),
+                'children.children.translations',
             ])
             ->orderBy('sort_order')
             ->get();

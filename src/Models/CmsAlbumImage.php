@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsAlbumImageFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Fm\Models\FmFile;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -26,11 +28,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read FmFile|null $file
  * @property-read string $delete_token
  */
-class CmsAlbumImage extends Model
+class CmsAlbumImage extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsAlbumImageFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_album_images';
@@ -52,6 +55,14 @@ class CmsAlbumImage extends Model
     protected static function newFactory(): CmsAlbumImageFactory
     {
         return CmsAlbumImageFactory::new();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'caption'];
     }
 
     /**

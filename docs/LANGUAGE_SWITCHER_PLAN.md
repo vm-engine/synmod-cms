@@ -1,6 +1,6 @@
 # Language Switcher Plan — synmod-cms
 
-Frontend language switcher component, to be developed in this module. Not implemented yet — note only.
+Frontend language switcher component. **Implemented 2026-10-02** — see README › Links & language switcher. Answers to the open questions below: names come from intl (`Locale::getDisplayName`) with `module.json` `language_names` overrides; the default is a native `<details>` dropdown with a `variant="list"` option (plus icons via `language_icons`). The bare `/{locale}` home and the `/` → `/{app.locale}` redirect live in synapps-fallback.
 
 ## Context
 

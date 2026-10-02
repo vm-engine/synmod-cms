@@ -1,7 +1,7 @@
 <div>
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form wire:submit="save">
+    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit="save">
         <div class="content-area max-w-2xl">
 
             {{-- File Preview --}}
@@ -30,16 +30,29 @@
                     <h3 class="text-base font-medium">{{ __('cms::labels.edit_file') }}</h3>
                 </div>
                 <div class="p-5 sm:p-6 space-y-4">
-                    <div>
+                    <x-cms::locale-tabs :values="$form->translations" />
+                    <div x-show="isPrimary()">
                         <label class="form-label" for="file_title">{{ __('cms::labels.title') }}</label>
                         <input class="form-input" id="file_title" type="text" wire:model="form.title" />
                         @error('form.title') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
-                    <div>
+                    <x-cms::translation-input
+                        field="title"
+                        :label="__('cms::labels.title')"
+                        :placeholder="$form->title"
+                    />
+                    <div x-show="isPrimary()">
                         <label class="form-label" for="file_description">{{ __('cms::labels.description') }}</label>
                         <textarea class="form-input" id="file_description" rows="4" wire:model="form.description"></textarea>
                         @error('form.description') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
+                    <x-cms::translation-input
+                        field="description"
+                        type="textarea"
+                        :label="__('cms::labels.description')"
+                        :rows="4"
+                        :placeholder="Str::limit($form->description, 120)"
+                    />
                 </div>
             </div>
 

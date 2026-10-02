@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsMenu;
@@ -31,6 +32,9 @@ new class extends Component
 
     public string $newCustomLayout = '';
 
+    /** @var array<string, string> */
+    public array $newLabelTranslations = [];
+
     /** When set, addItem() will create a child of this parent ID */
     public ?int $addingChildFor = null;
 
@@ -52,6 +56,9 @@ new class extends Component
     public string $editCustomView = '';
 
     public string $editCustomLayout = '';
+
+    /** @var array<string, string> */
+    public array $editLabelTranslations = [];
 
     public function mount(int $menuId): void
     {
@@ -77,14 +84,14 @@ new class extends Component
 
     public function startAddChild(int $parentId): void
     {
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
+        $this->reset('newLabel', 'newLabelTranslations', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = $parentId;
     }
 
     public function cancelAddChild(): void
     {
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
+        $this->reset('newLabel', 'newLabelTranslations', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = null;
     }
@@ -95,6 +102,7 @@ new class extends Component
         $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'newLabel' => 'required|string|max:255',
+            'newLabelTranslations.*' => 'nullable|string|max:255',
             'newTargetType' => "required|in:{$validTypes}",
             'newTargetId' => ! in_array($this->newTargetType, $noIdTypes) ? 'required|integer' : 'nullable',
             'newTargetUrl' => $this->newTargetType === 'url' ? 'nullable|string|max:2048' : 'nullable',
@@ -104,17 +112,20 @@ new class extends Component
 
         $supportsCustomView = in_array($this->newTargetType, ['album', 'album_list', 'download', 'download_list']);
 
-        app(CmsMenuService::class)->addItemToMenu($this->menuId, [
-            'label' => $this->newLabel,
-            'target_type' => $this->newTargetType,
-            'target_id' => ! in_array($this->newTargetType, $noIdTypes) ? $this->newTargetId : null,
-            'target_url' => in_array($this->newTargetType, ['url', 'album_list', 'download_list']) ? ($this->newTargetUrl ?: null) : null,
-            'open_new_tab' => $this->newOpenNewTab,
-            'custom_view' => $supportsCustomView ? ($this->newCustomView ?: null) : null,
-            'custom_layout' => $supportsCustomView ? ($this->newCustomLayout ?: null) : null,
-        ], $this->addingChildFor);
+        DB::transaction(function () use ($noIdTypes, $supportsCustomView): void {
+            $item = app(CmsMenuService::class)->addItemToMenu($this->menuId, [
+                'label' => $this->newLabel,
+                'target_type' => $this->newTargetType,
+                'target_id' => ! in_array($this->newTargetType, $noIdTypes) ? $this->newTargetId : null,
+                'target_url' => in_array($this->newTargetType, ['url', 'album_list', 'download_list']) ? ($this->newTargetUrl ?: null) : null,
+                'open_new_tab' => $this->newOpenNewTab,
+                'custom_view' => $supportsCustomView ? ($this->newCustomView ?: null) : null,
+                'custom_layout' => $supportsCustomView ? ($this->newCustomLayout ?: null) : null,
+            ], $this->addingChildFor);
+            $item->setTranslations($this->labelTranslationsByLocale($this->newLabelTranslations));
+        });
 
-        $this->reset('newLabel', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
+        $this->reset('newLabel', 'newLabelTranslations', 'newTargetId', 'newTargetUrl', 'newOpenNewTab', 'newCustomView', 'newCustomLayout');
         $this->newTargetType = 'url';
         $this->addingChildFor = null;
         unset($this->items);
@@ -126,6 +137,7 @@ new class extends Component
         $this->addingChildFor = null;
         $this->editingId = $id;
         $this->editLabel = $item->label;
+        $this->editLabelTranslations = array_map(fn (array $fields): string => $fields['label'] ?? '', $item->translationValues());
         $this->editTargetType = $item->target_type;
         $this->editTargetId = $item->target_id;
         $this->editTargetUrl = $item->target_url ?? '';
@@ -141,6 +153,7 @@ new class extends Component
         $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'editLabel' => 'required|string|max:255',
+            'editLabelTranslations.*' => 'nullable|string|max:255',
             'editTargetType' => "required|in:{$validTypes}",
             'editTargetId' => ! in_array($this->editTargetType, $noIdTypes) ? 'required|integer' : 'nullable',
             'editTargetUrl' => $this->editTargetType === 'url' ? 'nullable|string|max:2048' : 'nullable',
@@ -151,25 +164,39 @@ new class extends Component
         $supportsCustomView = in_array($this->editTargetType, ['album', 'album_list', 'download', 'download_list']);
 
         $item = app(CmsMenuService::class)->findMenuItemOrFailInMenu($this->menuId, $this->editingId);
-        app(CmsMenuService::class)->updateMenuItem($item, [
-            'label' => $this->editLabel,
-            'target_type' => $this->editTargetType,
-            'target_id' => ! in_array($this->editTargetType, $noIdTypes) ? $this->editTargetId : null,
-            'target_url' => in_array($this->editTargetType, ['url', 'album_list', 'download_list']) ? ($this->editTargetUrl ?: null) : null,
-            'open_new_tab' => $this->editOpenNewTab,
-            'parent_id' => $this->editParentId,
-            'custom_view' => $supportsCustomView ? ($this->editCustomView ?: null) : null,
-            'custom_layout' => $supportsCustomView ? ($this->editCustomLayout ?: null) : null,
-        ]);
+        DB::transaction(function () use ($item, $noIdTypes, $supportsCustomView): void {
+            app(CmsMenuService::class)->updateMenuItem($item, [
+                'label' => $this->editLabel,
+                'target_type' => $this->editTargetType,
+                'target_id' => ! in_array($this->editTargetType, $noIdTypes) ? $this->editTargetId : null,
+                'target_url' => in_array($this->editTargetType, ['url', 'album_list', 'download_list']) ? ($this->editTargetUrl ?: null) : null,
+                'open_new_tab' => $this->editOpenNewTab,
+                'parent_id' => $this->editParentId,
+                'custom_view' => $supportsCustomView ? ($this->editCustomView ?: null) : null,
+                'custom_layout' => $supportsCustomView ? ($this->editCustomLayout ?: null) : null,
+            ]);
+            $item->setTranslations($this->labelTranslationsByLocale($this->editLabelTranslations));
+        });
 
-        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
+        $this->reset('editingId', 'editLabel', 'editLabelTranslations', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
         unset($this->items);
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.item_updated'));
     }
 
+    /**
+     * ['id' => 'Beranda'] → ['id' => ['label' => 'Beranda']] for setTranslations().
+     *
+     * @param  array<string, string>  $labels
+     * @return array<string, array<string, string>>
+     */
+    private function labelTranslationsByLocale(array $labels): array
+    {
+        return array_map(fn (string $label): array => ['label' => $label], $labels);
+    }
+
     public function cancelEdit(): void
     {
-        $this->reset('editingId', 'editLabel', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
+        $this->reset('editingId', 'editLabel', 'editLabelTranslations', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
     }
 
     public function deleteItem(int $id): void

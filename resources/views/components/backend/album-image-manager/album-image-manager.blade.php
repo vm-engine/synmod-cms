@@ -111,7 +111,7 @@
                                     confirmColor: 'danger',
                                     icon: 'fa-solid fa-trash',
                                     wireMethod: 'deleteImage',
-                                    wireParams: [parseInt($el.dataset.id)],
+                                    wireParams: [{{ (int) $image->id }}],
                                     wireComponent: $el.dataset.component
                                 })"
                             >

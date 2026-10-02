@@ -14,7 +14,7 @@
                             href="{{ $item->resolveUrl() }}"
                             @if ($item->open_new_tab) target="_blank"
                                 rel="noopener noreferrer" @endif
-                        >{{ $item->label }}</a>
+                        >{{ $item->translate('label') }}</a>
 
                         @if ($item->children->isNotEmpty())
                             <ul class="cms-menu__submenu">
@@ -26,7 +26,7 @@
                                             href="{{ $child->resolveUrl() }}"
                                             @if ($child->open_new_tab) target="_blank"
                                                 rel="noopener noreferrer" @endif
-                                        >{{ $child->label }}</a>
+                                        >{{ $child->translate('label') }}</a>
 
                                         @if ($child->children->isNotEmpty())
                                             <ul class="cms-menu__submenu cms-menu__submenu--level-2">
@@ -37,7 +37,7 @@
                                                             href="{{ $grandchild->resolveUrl() }}"
                                                             @if ($grandchild->open_new_tab) target="_blank"
                                                                 rel="noopener noreferrer" @endif
-                                                        >{{ $grandchild->label }}</a>
+                                                        >{{ $grandchild->translate('label') }}</a>
                                                     </li>
                                                 @endforeach
                                             </ul>

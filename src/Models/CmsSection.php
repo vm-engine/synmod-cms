@@ -14,6 +14,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsSectionFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -38,11 +40,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read Collection<int, CmsCategory> $categories
  * @property-read Collection<int, CmsArticle> $articles
  */
-class CmsSection extends Model
+class CmsSection extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsSectionFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_sections';
@@ -76,6 +79,22 @@ class CmsSection extends Model
     }
 
     /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'description', 'meta_title', 'meta_description'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableHtmlFields(): array
+    {
+        return ['description'];
+    }
+
+    /**
      * @param  Builder<CmsSection>  $builder
      */
     #[Scope]
@@ -90,7 +109,7 @@ class CmsSection extends Model
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
-        $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
+        $this->whereLikeWithTranslations($builder, ['title', 'slug', 'description'], $q);
     }
 
     /**

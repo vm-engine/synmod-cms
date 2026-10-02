@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsDownloadFileFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Fm\Models\FmFile;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -26,11 +28,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read FmFile|null $file
  * @property-read string $delete_token
  */
-class CmsDownloadFile extends Model
+class CmsDownloadFile extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsDownloadFileFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_download_files';
@@ -52,6 +55,14 @@ class CmsDownloadFile extends Model
     protected static function newFactory(): CmsDownloadFileFactory
     {
         return CmsDownloadFileFactory::new();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'description'];
     }
 
     /**

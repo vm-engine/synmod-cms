@@ -33,7 +33,7 @@ new class extends Component
 
     public function title(): string
     {
-        return $this->album ? ($this->album->meta_title ?: $this->album->title) : '';
+        return $this->album?->translatedMetaTitle() ?? '';
     }
 
     public function render()

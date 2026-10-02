@@ -7,12 +7,14 @@ namespace VmEngine\Cms;
 use Illuminate\Support\ServiceProvider;
 use VmEngine\Cms\Console\Commands\PatchResourcesCommand;
 use VmEngine\Cms\Console\Commands\SanitizeContentCommand;
+use VmEngine\Cms\Console\Commands\SearchReindexCommand;
 use VmEngine\Cms\Console\Commands\SetupCommand;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Models\CmsDownloadFile;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
@@ -20,6 +22,7 @@ use VmEngine\Cms\Observers\CmsAlbumImageObserver;
 use VmEngine\Cms\Observers\CmsAlbumObserver;
 use VmEngine\Cms\Observers\CmsArticleObserver;
 use VmEngine\Cms\Observers\CmsCategoryObserver;
+use VmEngine\Cms\Observers\CmsDownloadFileObserver;
 use VmEngine\Cms\Observers\CmsDownloadObserver;
 use VmEngine\Cms\Observers\CmsMenuItemObserver;
 use VmEngine\Cms\Observers\CmsPageObserver;
@@ -35,6 +38,10 @@ class CmsServiceProvider extends ServiceProvider
         $this->registerComponents();
 
         $this->mergeConfigFrom(__DIR__.'/../config/cms-purifier.php', 'purifier.settings.cms_rte');
+
+        // Pin the primary content locale before any middleware runs:
+        // app()->setLocale() rewrites config('app.locale') per request.
+        config(['synapps.modules.cms.primary_locale' => config('synapps.modules.cms.primary_locale') ?: config('app.locale')]);
     }
 
     public function boot(): void
@@ -46,6 +53,7 @@ class CmsServiceProvider extends ServiceProvider
                 SetupCommand::class,
                 PatchResourcesCommand::class,
                 SanitizeContentCommand::class,
+                SearchReindexCommand::class,
             ]);
         }
 
@@ -56,6 +64,7 @@ class CmsServiceProvider extends ServiceProvider
         CmsAlbum::observe(CmsAlbumObserver::class);
         CmsAlbumImage::observe(CmsAlbumImageObserver::class);
         CmsDownload::observe(CmsDownloadObserver::class);
+        CmsDownloadFile::observe(CmsDownloadFileObserver::class);
         CmsMenuItem::observe(CmsMenuItemObserver::class);
     }
 

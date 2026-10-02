@@ -11,6 +11,18 @@
             @error('editLabel')
                 <p class="form-error">{{ $message }}</p>
             @enderror
+            @foreach (\VmEngine\Cms\Support\CmsLocale::secondary() as $locale)
+                <input
+                    class="form-input mt-2 @error('editLabelTranslations.' . $locale) has-error @enderror"
+                    type="text"
+                    placeholder="{{ __('cms::labels.label') }} ({{ strtoupper($locale) }})"
+                    aria-label="{{ __('cms::labels.label') }} ({{ strtoupper($locale) }})"
+                    wire:model="editLabelTranslations.{{ $locale }}"
+                />
+                @error('editLabelTranslations.' . $locale)
+                    <p class="form-error">{{ $message }}</p>
+                @enderror
+            @endforeach
         </div>
         <div>
             <label class="form-label">{{ __('cms::labels.target_type') }}</label>

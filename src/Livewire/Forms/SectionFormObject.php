@@ -7,9 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\HasTranslationFields;
 
 class SectionFormObject extends Form
 {
+    use HasTranslationFields;
+
     public ?CmsSection $section = null;
 
     public string $title = '';
@@ -80,6 +83,8 @@ class SectionFormObject extends Form
         $this->custom_article_view = $section->custom_article_view ?? '';
         $this->customVars = $config['custom_var'] ?? [];
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
+
+        $this->fillTranslations($section);
     }
 
     /**
@@ -87,7 +92,7 @@ class SectionFormObject extends Form
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'status' => 'required|in:draft,published',
@@ -100,13 +105,15 @@ class SectionFormObject extends Form
             'custom_category_view' => 'nullable|string|max:255',
             'custom_article_view' => 'nullable|string|max:255',
         ];
+
+        return [...$rules, ...$this->translationRules($rules, new CmsSection)];
     }
 
     public function store(int $createdBy): CmsSection
     {
         $this->validate();
 
-        $section = app(CmsArticleService::class)->createSection($this->toData(), $createdBy);
+        $section = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createSection($this->toData(), $createdBy));
 
         $this->reset();
 
@@ -117,7 +124,7 @@ class SectionFormObject extends Form
     {
         $this->validate();
 
-        app(CmsArticleService::class)->updateSection($this->section, $this->toData());
+        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateSection($this->section, $this->toData()));
     }
 
     /**

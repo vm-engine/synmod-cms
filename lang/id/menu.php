@@ -11,6 +11,7 @@ return [
         'download' => 'Unduhan',
         'menu' => 'Menu',
         'tag' => 'Tag',
+        'search_term' => 'Kata Pencarian',
         'settings' => 'Pengaturan',
     ],
 ];

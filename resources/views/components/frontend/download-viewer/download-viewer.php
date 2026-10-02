@@ -36,7 +36,7 @@ new class extends Component
 
     public function title(): string
     {
-        return $this->download ? ($this->download->meta_title ?: $this->download->title) : '';
+        return $this->download?->translatedMetaTitle() ?? '';
     }
 
     public function render()

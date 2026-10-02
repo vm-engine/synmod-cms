@@ -315,6 +315,76 @@ Renders an active album's images in a grid (not restricted to `banner`-type albu
 
 ---
 
+## Multi-language Content & Search
+
+When `synapps.apps.multi_language` is on, every page, article, section, category, album, album image, download, download file and menu item can be translated into each enabled language. Slugs are shared, and the visitor's language comes from the `/{locale}/` URL prefix that `synapps-fallback` handles.
+
+- **Storage:** the base columns hold the **primary locale** (`app.locale`, pinned at boot). Other locales live in `cms_translations`. An empty translation field falls back to the primary text, field by field.
+- **Editing:** every CMS form shows language tabs, and one Save writes all languages. Menu items get one label input per language.
+- **Frontend:** viewers, widgets and menus call `$model->translate('title')`. **Custom templates** (`custom_view`, widget `template`/`card`) must do the same to show translations.
+
+### Search
+
+| Piece | Usage |
+|---|---|
+| Search page | `/{locale}/search?q=…` (slug from `search.slug`), registered by `php artisan cms:search-reindex` (also run by `cms:setup`) |
+| Search box | `<livewire:cms::frontend.search-box />` anywhere in your layout. A plain GET form (Enter works without JS), with live top-5 suggestions, popular searches when empty, keyboard navigation and an ARIA combobox. Needs `npm run build` (`cmsSearchBox` in `cms.js`) |
+| Backend | **CMS → Search Terms**: hide, unhide or delete popular terms (ACL `cms.search_term`) |
+| Index | `cms_searchables`, kept in sync automatically. Rebuild with `php artisan cms:search-reindex {--type=page --type=article …}` |
+| PHP API | `app(CmsSearchService::class)->search($q, $types, $perPage)`, `->suggest($q)` |
+
+Results link to album items and download files with `#item-{id}` / `#file-{id}`: the album lightbox opens the linked image, and download rows can be highlighted with CSS, e.g. `.cms-download-item:target { background: #fff7d6; }`.
+
+### Links & language switcher
+
+Every CMS link keeps the visitor's language. In custom templates, never hand-build `href="/{{ $x->slug }}"`; use `\VmEngine\Cms\Support\CmsUrl::to($model)` (root-relative, locale-prefixed: `/id/news/ai`) or `CmsUrl::to('some/path')`. `CmsUrl::absolute($path, $locale)` gives full URLs. With multi-language on, `/` redirects to `/{app.locale}`, and `/{locale}` serves your home route in that language (synapps-fallback). The sitemap lists every language version with `hreflang` alternates.
+
+Add to your frontend layout:
+
+```blade
+<head>
+    …
+    <x-cms::hreflang />   {{-- <link rel="alternate" hreflang="…"> + x-default --}}
+</head>
+<header>
+    <x-cms::language-switcher />
+</header>
+```
+
+| Prop | Values | Default |
+|---|---|---|
+| `variant` | `dropdown` (native `<details>`, no JS) · `list` | `dropdown` |
+| `display` | `name` · `code` · `both` · `icon` · `icon-name` · `icon-code` | `name` |
+| `trigger` | `current` (current language on the dropdown button) · `globe` | `current` |
+| `globe-icon` | CSS class for the globe trigger (your theme must load the icon font) | `ph ph-globe` |
+| `hide-current` | omit the active language from the list | `false` |
+| `wrapper-class` | extra classes on the root (any other attribute, e.g. `id`, `data-*`, is merged too) | — |
+| `template` + `:with` | your own Blade view; receives `$languages` (`code`, `name`, `url`, `absolute`, `active`, `icon`), `$current`, `$display` + `$with` | — |
+
+Markup is unstyled BEM (`cms-language-switcher`, `__current`, `__list`, `__item`, `__item--active`, `__link`, `__icon`, `__name`, `__code`). For a fully custom switcher, call `CmsUrl::alternates()` yourself. The switcher and hreflang render nothing when multi-language is off, only one language is enabled, or the page has no locale prefix.
+
+**Names:** each language's own name from PHP `intl` ("English", "Indonesia", "日本語"). Override in `language_names`, e.g. `{"id": "Bahasa Indonesia"}`.
+
+**Icons:** `language_icons` entries may be an **image** (`/storage/fm/public/flags/id.svg`, any `http(s)://` URL, `data:image/…`; File Manager uploads work), a **CSS class** (`fi fi-id` for flag-icons, or any icon font), or an **emoji**. Without an entry, a flag emoji is derived from the locale's region (`pt_BR` → 🇧🇷) or a built-in map (`en` → 🇬🇧, `id` → 🇮🇩, …). Windows doesn't render flag emoji, so use images or a flag CSS class for production.
+
+### Settings (`module.json` → `config('synapps.modules.cms.*')`)
+
+Override them per project in `synapps/config/modules.json`, e.g. `{"cms": {"search": {"engine": "scout"}}}`, then run `php artisan synapps:config`.
+
+| Key | Default | Meaning |
+|---|---|---|
+| `primary_locale` | `null` (= `app.locale`) | Language of the base columns. **Never change it once content exists** |
+| `language_names` | `{}` | Per-locale display-name overrides for the switcher |
+| `language_icons` | `{}` | Per-locale icon: image path/URL, CSS class or emoji |
+| `search.engine` | `database` | `database` (LIKE) or `scout` (requires `laravel/scout`) |
+| `search.scout_content_limit` | `5000` | Body characters sent to the Scout engine |
+| `search.slug` | `search` | Search page path; run `cms:search-reindex` after changing it |
+| `search.per_page` | `10` | Results per page |
+| `search.rate_limit` / `search.suggest_rate_limit` | `30` / `120` | Searches / suggestions per minute per IP |
+| `search.popular_min_hits` / `search.popular_limit` | `3` / `8` | Popular-term threshold and list size |
+
+Upgrade an existing install: `php artisan migrate && php artisan cms:search-reindex && npm run build`.
+
 ## Custom Variables
 
 All content types (pages, sections, categories, articles, albums, album images) support a configurable set of key/value custom variables stored in the `config` JSON column.

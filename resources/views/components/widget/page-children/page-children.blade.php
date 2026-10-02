@@ -3,11 +3,11 @@
     <div class="cms-widget-page-children__header">
         @if($showTitle)
         <h2 class="cms-widget__heading">
-            <a href="/{{ $page->full_slug }}" class="cms-widget__heading-link">{{ $page->title }}</a>
+            <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($page) }}" class="cms-widget__heading-link">{{ $page->translate('title') }}</a>
         </h2>
         @endif
-        @if($showExcerpt && $page->excerpt)
-        <p class="cms-widget-page-children__excerpt">{{ $page->excerpt }}</p>
+        @if($showExcerpt && $page->translate('excerpt'))
+        <p class="cms-widget-page-children__excerpt">{{ $page->translate('excerpt') }}</p>
         @endif
     </div>
 
@@ -17,17 +17,17 @@
         <div class="cms-page-card">
             @if($showCover && $child->cover_image)
             <div class="cms-page-card__image">
-                <a href="/{{ $child->full_slug }}">
-                    <img src="{{ $child->cover_image }}" alt="{{ $child->title }}" loading="lazy" />
+                <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($child) }}">
+                    <img src="{{ $child->cover_image }}" alt="{{ $child->translate('title') }}" loading="lazy" />
                 </a>
             </div>
             @endif
             <div class="cms-page-card__body">
                 <h3 class="cms-page-card__title">
-                    <a href="/{{ $child->full_slug }}" class="cms-page-card__link">{{ $child->title }}</a>
+                    <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($child) }}" class="cms-page-card__link">{{ $child->translate('title') }}</a>
                 </h3>
-                @if($showExcerpt && $child->excerpt)
-                <p class="cms-page-card__excerpt">{{ $child->excerpt }}</p>
+                @if($showExcerpt && $child->translate('excerpt'))
+                <p class="cms-page-card__excerpt">{{ $child->translate('excerpt') }}</p>
                 @endif
             </div>
         </div>

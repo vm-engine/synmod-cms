@@ -15,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Factories\CmsAlbumFactory;
+use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
@@ -36,11 +38,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property Carbon $updated_at
  * @property-read Collection<int, CmsAlbumImage> $images
  */
-class CmsAlbum extends Model
+class CmsAlbum extends Model implements TranslatableContent
 {
     /** @use HasFactory<CmsAlbumFactory> */
     use HasFactory;
 
+    use HasTranslations;
     use WithDeleteToken;
 
     protected $table = 'cms_albums';
@@ -70,6 +73,14 @@ class CmsAlbum extends Model
     protected static function newFactory(): CmsAlbumFactory
     {
         return CmsAlbumFactory::new();
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableFields(): array
+    {
+        return ['title', 'description', 'meta_title', 'meta_description'];
     }
 
     /**
@@ -105,7 +116,7 @@ class CmsAlbum extends Model
     #[Scope]
     protected function search(Builder $builder, string $q): void
     {
-        $builder->whereAny(['title', 'slug', 'description'], 'like', "%{$q}%");
+        $this->whereLikeWithTranslations($builder, ['title', 'slug', 'description'], $q);
     }
 
     /**

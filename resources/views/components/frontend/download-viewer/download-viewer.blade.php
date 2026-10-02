@@ -2,27 +2,27 @@
 <div class="cms-download-viewer">
     <nav class="cms-breadcrumb" aria-label="breadcrumb">
         <ol class="cms-breadcrumb__list">
-            <li class="cms-breadcrumb__item"><a href="/" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
+            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item"><a href="{{ $indexUrl }}" class="cms-breadcrumb__link">{{ __('cms::labels.downloads') }}</a></li>
-            <li class="cms-breadcrumb__item cms-breadcrumb__item--active" aria-current="page">{{ $download->title }}</li>
+            <li class="cms-breadcrumb__item cms-breadcrumb__item--active" aria-current="page">{{ $download->translate('title') }}</li>
         </ol>
     </nav>
 
     <header class="cms-download-viewer__header">
-        <h1 class="cms-download-viewer__title">{{ $download->title }}</h1>
+        <h1 class="cms-download-viewer__title">{{ $download->translate('title') }}</h1>
         @if($download->access->value === 'private')
         <span class="cms-download-viewer__badge cms-download-viewer__badge--private">
             <span class="fa-solid fa-lock"></span> {{ $download->access->label() }}
         </span>
         @endif
-        @if($download->description)
-        <div class="cms-download-viewer__description">{{ $download->description }}</div>
+        @if($download->translate('description'))
+        <div class="cms-download-viewer__description">{{ $download->translate('description') }}</div>
         @endif
     </header>
 
     <div class="cms-download-list">
         @forelse($download->files as $file)
-        <div class="cms-download-item">
+        <div class="cms-download-item" id="file-{{ $file->id }}">
             <div class="cms-download-item__icon">
                 @if($file->file?->isImage())
                     <img src="{{ $file->file->getThumbnailUrl() }}" alt="" class="cms-download-item__thumb" />
@@ -31,9 +31,9 @@
                 @endif
             </div>
             <div class="cms-download-item__info">
-                <p class="cms-download-item__name">{{ $file->title ?: ($file->file?->original_name ?? $file->file?->filename ?? 'File') }}</p>
-                @if($file->description)
-                <p class="cms-download-item__desc">{{ $file->description }}</p>
+                <p class="cms-download-item__name">{{ $file->translate('title') ?: ($file->file?->original_name ?? $file->file?->filename ?? 'File') }}</p>
+                @if($file->translate('description'))
+                <p class="cms-download-item__desc">{{ $file->translate('description') }}</p>
                 @endif
                 @if($file->file)
                 <p class="cms-download-item__meta">

@@ -13,10 +13,13 @@ use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Support\CmsUrl;
 use VmEngine\SynFallback\Facades\Fallback;
 
 class CmsFallbackService
 {
+    public function __construct(private readonly CmsSearchIndexer $search) {}
+
     public function syncPage(CmsPage $page): void
     {
         if ($page->status !== 'published') {
@@ -25,18 +28,24 @@ class CmsFallbackService
             return;
         }
 
+        $path = (string) CmsUrl::path($page);
+
         Fallback::register(
-            slug: $page->full_slug,
+            slug: $path,
             handler: 'cms::frontend.page-viewer',
             module: 'cms',
             params: ['page_id' => $page->id],
             handlerType: 'livewire',
         );
+
+        $this->search->index($page, $path);
     }
 
     public function forgetPage(CmsPage $page): void
     {
-        Fallback::forget($page->full_slug);
+        Fallback::forget((string) CmsUrl::path($page));
+
+        $this->search->forget($page);
     }
 
     public function syncSection(CmsSection $section): void
@@ -48,7 +57,7 @@ class CmsFallbackService
         }
 
         Fallback::register(
-            slug: $section->slug,
+            slug: (string) CmsUrl::path($section),
             handler: 'cms::frontend.section-index',
             module: 'cms',
             params: ['section_id' => $section->id],
@@ -58,7 +67,10 @@ class CmsFallbackService
 
     public function forgetSection(CmsSection $section): void
     {
-        Fallback::forget($section->slug);
+        Fallback::forget((string) CmsUrl::path($section));
+
+        // Section deletes DB-cascade its categories and articles.
+        $this->search->pruneOrphans();
     }
 
     public function syncCategory(CmsCategory $category): void
@@ -72,21 +84,25 @@ class CmsFallbackService
             return;
         }
 
-        $slug = $section->slug.'/'.$category->slug;
+        $path = (string) CmsUrl::path($category);
 
         Fallback::register(
-            slug: $slug,
+            slug: $path,
             handler: 'cms::frontend.category-index',
             module: 'cms',
             params: ['category_id' => $category->id],
             handlerType: 'livewire',
         );
+
+        $this->search->index($category, $path);
     }
 
     public function forgetCategory(CmsCategory $category): void
     {
         $category->loadMissing('section');
-        Fallback::forget($category->section->slug.'/'.$category->slug);
+        Fallback::forget((string) CmsUrl::path($category));
+
+        $this->search->forget($category);
     }
 
     /**
@@ -112,31 +128,25 @@ class CmsFallbackService
             return;
         }
 
-        if ($article->category_id !== null && $article->category) {
-            $slug = $section->slug.'/'.$article->category->slug.'/'.$article->slug;
-        } else {
-            $slug = $section->slug.'/'.$article->slug;
-        }
+        $path = (string) CmsUrl::path($article);
 
         Fallback::register(
-            slug: $slug,
+            slug: $path,
             handler: 'cms::frontend.article-viewer',
             module: 'cms',
             params: ['article_id' => $article->id],
             handlerType: 'livewire',
         );
+
+        $this->search->index($article, $path);
     }
 
     public function forgetArticle(CmsArticle $article): void
     {
         $article->loadMissing(['section', 'category']);
-        $section = $article->section;
+        Fallback::forget((string) CmsUrl::path($article));
 
-        if ($article->category_id !== null && $article->category) {
-            Fallback::forget($section->slug.'/'.$article->category->slug.'/'.$article->slug);
-        } else {
-            Fallback::forget($section->slug.'/'.$article->slug);
-        }
+        $this->search->forget($article);
     }
 
     public function syncAlbum(CmsAlbum $album): void
@@ -148,18 +158,24 @@ class CmsFallbackService
             return;
         }
 
+        $path = (string) CmsUrl::path($album);
+
         Fallback::register(
-            slug: 'gallery/'.$album->slug,
+            slug: $path,
             handler: 'cms::frontend.album-viewer',
             module: 'cms',
             params: ['album_id' => $album->id],
             handlerType: 'livewire',
         );
+
+        $this->search->index($album, $path);
     }
 
     public function forgetAlbum(CmsAlbum $album): void
     {
-        Fallback::forget('gallery/'.$album->slug);
+        Fallback::forget((string) CmsUrl::path($album));
+
+        $this->search->forget($album);
     }
 
     /**
@@ -190,14 +206,22 @@ class CmsFallbackService
         }
     }
 
+    /**
+     * Register the public search page at the configured slug (cms:search-reindex / cms:setup).
+     */
+    public function syncSearchPage(): void
+    {
+        Fallback::register(
+            slug: (string) config('synapps.modules.cms.search.slug', 'search'),
+            handler: 'cms::frontend.search-results',
+            module: 'cms',
+            handlerType: 'livewire',
+        );
+    }
+
     public function getDownloadPrefix(): string
     {
-        $item = CmsMenuItem::where('target_type', 'download_list')
-            ->whereNotNull('target_url')
-            ->where('target_url', '!=', '')
-            ->first();
-
-        return $item ? ($item->target_url ?: 'downloads') : 'downloads';
+        return CmsUrl::downloadPrefix();
     }
 
     public function syncDownload(CmsDownload $download): void
@@ -208,21 +232,24 @@ class CmsFallbackService
             return;
         }
 
-        $prefix = $this->getDownloadPrefix();
+        $path = (string) CmsUrl::path($download);
 
         Fallback::register(
-            slug: $prefix.'/'.$download->slug,
+            slug: $path,
             handler: 'cms::frontend.download-viewer',
             module: 'cms',
             params: ['download_id' => $download->id],
             handlerType: 'livewire',
         );
+
+        $this->search->index($download, $path);
     }
 
     public function forgetDownload(CmsDownload $download): void
     {
-        $prefix = $this->getDownloadPrefix();
-        Fallback::forget($prefix.'/'.$download->slug);
+        Fallback::forget((string) CmsUrl::path($download));
+
+        $this->search->forget($download);
     }
 
     /**

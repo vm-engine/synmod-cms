@@ -14,6 +14,19 @@
     "url_prefix": "cms",
     "load_priority": 60,
     "is_package": true,
+    "primary_locale": null,
+    "language_names": {},
+    "language_icons": {},
+    "search": {
+        "engine": "database",
+        "scout_content_limit": 5000,
+        "slug": "search",
+        "per_page": 10,
+        "rate_limit": 30,
+        "suggest_rate_limit": 120,
+        "popular_min_hits": 3,
+        "popular_limit": 8
+    },
     "dependencies": {
         "npm": {
             "main": {
@@ -87,6 +100,14 @@
                     "route": "cms.tag.index",
                     "icon": "fa-solid fa-tags",
                     "acl": "cms.tag.read"
+                },
+                "search_term": {
+                    "id": "search_term",
+                    "name": "__cms::menu.be.search_term",
+                    "class": "",
+                    "route": "cms.search-term.index",
+                    "icon": "fa-solid fa-magnifying-glass",
+                    "acl": "cms.search_term.read"
                 },
                 "settings": {
                     "id": "settings",
@@ -219,6 +240,13 @@
             "read": 1,
             "update": 1,
             "delete": 0
+        },
+        "search_term": {
+            "label": "__cms::acl.search_term",
+            "create": 0,
+            "read": 1,
+            "update": 1,
+            "delete": 1
         }
     }
 }

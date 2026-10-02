@@ -7,9 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\HasTranslationFields;
 
 class AlbumImageFormObject extends Form
 {
+    use HasTranslationFields;
+
     public ?CmsAlbumImage $image = null;
 
     public string $title = '';
@@ -28,6 +31,8 @@ class AlbumImageFormObject extends Form
         $this->caption = $image->caption ?? '';
         $this->customVars = $image->config['custom_var'] ?? [];
         $this->customVarAllowAdd = $image->config['custom_var_allow_add'] ?? false;
+
+        $this->fillTranslations($image);
     }
 
     /**
@@ -35,7 +40,7 @@ class AlbumImageFormObject extends Form
      */
     public function rules(): array
     {
-        return [
+        $rules = [
             'title' => 'nullable|string|max:255',
             'caption' => 'nullable|string|max:1000',
             'customVars' => 'array',
@@ -44,6 +49,8 @@ class AlbumImageFormObject extends Form
             'customVars.*.value' => 'nullable|string|max:2000',
             'customVars.*.editable' => 'boolean',
         ];
+
+        return [...$rules, ...$this->translationRules($rules, new CmsAlbumImage)];
     }
 
     public function update(): void
@@ -54,10 +61,10 @@ class AlbumImageFormObject extends Form
         $config['custom_var'] = $this->customVars;
         $config['custom_var_allow_add'] = $this->customVarAllowAdd;
 
-        app(CmsGalleryService::class)->updateImage($this->image, [
+        $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->updateImage($this->image, [
             'title' => $this->title ?: null,
             'caption' => $this->caption ?: null,
             'config' => $config,
-        ]);
+        ]));
     }
 }

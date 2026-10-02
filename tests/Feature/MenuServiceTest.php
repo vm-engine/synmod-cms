@@ -15,6 +15,11 @@ use VmEngine\Cms\Services\CmsMenuService;
 
 uses(RefreshDatabase::class);
 
+// These cases pin single-language URLs; multi-language ones live in CmsUrlTest.
+beforeEach(function () {
+    config(['synapps.apps.multi_language' => false]);
+});
+
 describe('CmsMenuService::getMenuByPosition', function () {
     it('returns the active menu for the given position', function () {
         $menu = CmsMenu::factory()->create(['position' => 'header', 'is_active' => true]);
@@ -245,7 +250,7 @@ describe('CmsMenuItem::resolveUrl', function () {
             'target_id' => $image->id,
         ]);
 
-        expect($item->resolveUrl())->toBe('/gallery/events#image-'.$image->id);
+        expect($item->resolveUrl())->toBe('/gallery/events#item-'.$image->id);
     });
 
     it('returns # for unknown target type', function () {

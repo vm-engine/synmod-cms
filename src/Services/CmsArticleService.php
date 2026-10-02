@@ -45,7 +45,7 @@ class CmsArticleService
      */
     public function paginateArticles(array $filters, string $sort, string $direction, int $perPage): LengthAwarePaginator
     {
-        $query = CmsArticle::with(['section', 'category']);
+        $query = CmsArticle::with(['section', 'category', 'translations']);
 
         if (! empty($filters['q']) && strlen($filters['q']) > 2) {
             $query->search($filters['q']);
