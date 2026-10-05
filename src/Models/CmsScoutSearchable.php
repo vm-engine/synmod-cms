@@ -41,10 +41,8 @@ class CmsScoutSearchable extends CmsSearchable
     /**
      * Engine-ranked results for one locale (filtered inside the engine).
      *
-     * @return LengthAwarePaginator<int, CmsSearchable>
-     */
-    /**
      * @param  list<string>  $types
+     * @return LengthAwarePaginator<int, CmsSearchable>
      */
     public static function searchVisible(string $query, string $locale, array $types, int $perPage): LengthAwarePaginator
     {

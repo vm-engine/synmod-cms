@@ -27,6 +27,11 @@ new class extends Component
         return $this->page?->translatedMetaTitle() ?? '';
     }
 
+    public function description(): ?string
+    {
+        return $this->page?->translatedMetaDescription();
+    }
+
     public function render()
     {
         $template = FrontendViewResolver::view(
@@ -36,6 +41,7 @@ new class extends Component
 
         return view($template, ['page' => $this->page])
             ->title($this->title())
+            ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->page?->resolveCustomLayout()));
     }
 };

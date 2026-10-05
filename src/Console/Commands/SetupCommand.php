@@ -10,8 +10,10 @@ use VmEngine\Cms\Enums\RteDriver;
 use function Laravel\Prompts\select;
 
 /**
- * Wires CMS assets into the host app and picks the default rich-text editor.
- * Both editors are always wired so the choice can change later from CMS settings.
+ * Wires CMS assets into the host app and picks the default rich-text editor:
+ * cms.js (admin: editors, sortable) into app.js, cms-frontend.js (public:
+ * search box) into frontend.js. Both editors are always wired so the choice
+ * can change later from CMS settings.
  */
 class SetupCommand extends Command
 {
@@ -21,6 +23,8 @@ class SetupCommand extends Command
 
     private const CMS_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms.js';";
 
+    private const CMS_FRONTEND_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms-frontend.js';";
+
     private const LEGACY_SYNAPPS_IMPORT = 'import "../../../vendor/vm-engine/synmod-cms/resources/js/cms.js";';
 
     private const TINYMCE_TARGET = "\n                    // TinyMCE (synmod-cms) — static assets (skins, themes, icons, plugins)"
@@ -28,7 +32,8 @@ class SetupCommand extends Command
 
     public function handle(): int
     {
-        $this->patchAppJs();
+        $this->patchEntry('app.js', self::CMS_JS_IMPORT, 'synmod-cms/resources/js/cms.js');
+        $this->patchEntry('frontend.js', self::CMS_FRONTEND_JS_IMPORT, 'synmod-cms/resources/js/cms-frontend.js');
         $this->removeLegacySynappsImport();
         $this->patchViteConfig();
 
@@ -48,25 +53,29 @@ class SetupCommand extends Command
         return self::SUCCESS;
     }
 
-    private function patchAppJs(): void
+    /**
+     * Append $import to resources/js/{$file} unless $marker is already there.
+     * app.js gets the admin bundle (editors, sortable), frontend.js the public one (search box).
+     */
+    private function patchEntry(string $file, string $import, string $marker): void
     {
-        $path = base_path('resources/js/app.js');
+        $path = base_path("resources/js/{$file}");
         $contents = $this->read($path);
 
         if ($contents === null) {
-            $this->warn('  resources/js/app.js not found — add manually: '.self::CMS_JS_IMPORT);
+            $this->warn("  resources/js/{$file} not found — add manually: {$import}");
 
             return;
         }
 
-        if (str_contains($contents, 'synmod-cms/resources/js/cms.js')) {
-            $this->line('  app.js — already patched (skipped)');
+        if (str_contains($contents, $marker)) {
+            $this->line("  {$file} — already patched (skipped)");
 
             return;
         }
 
-        file_put_contents($path, rtrim($contents).PHP_EOL.self::CMS_JS_IMPORT.PHP_EOL);
-        $this->line('  app.js — CMS JS import added');
+        file_put_contents($path, rtrim($contents).PHP_EOL.$import.PHP_EOL);
+        $this->line("  {$file} — CMS JS import added");
     }
 
     /**

@@ -1,9 +1,9 @@
 @if($page)
 <div class="cms-page-viewer">
     @if(($page->config['show_breadcrumb'] ?? true) && $page->parent_id)
-    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+    <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
-            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">Home</a></li>
+            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             @if($page->parent)
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to($page->parent) }}" class="cms-breadcrumb__link">{{ $page->parent->translate('title') }}</a></li>
             @endif

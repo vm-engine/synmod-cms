@@ -17,7 +17,7 @@
     <div class="cms-album-viewer">
         <nav
             class="cms-breadcrumb"
-            aria-label="breadcrumb"
+            aria-label="{{ __('cms::labels.breadcrumb') }}"
         >
             <ol class="cms-breadcrumb__list">
                 <li class="cms-breadcrumb__item"><a
@@ -95,7 +95,7 @@
                     class="cms-lightbox__close"
                     type="button"
                     @click="close()"
-                    aria-label="Close"
+                    aria-label="{{ __('cms::labels.close') }}"
                 >
                     <span class="fa-solid fa-times"></span>
                 </button>
@@ -114,7 +114,7 @@
                         type="button"
                         @click.stop="prev()"
                         x-show="images.length > 1"
-                        aria-label="Previous"
+                        aria-label="{{ __('cms::labels.previous') }}"
                     >
                         <span class="fa-solid fa-chevron-left"></span>
                     </button>
@@ -143,7 +143,7 @@
                         type="button"
                         @click.stop="next()"
                         x-show="images.length > 1"
-                        aria-label="Next"
+                        aria-label="{{ __('cms::labels.next') }}"
                     >
                         <span class="fa-solid fa-chevron-right"></span>
                     </button>

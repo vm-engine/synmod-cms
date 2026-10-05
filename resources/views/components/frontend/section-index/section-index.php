@@ -30,6 +30,11 @@ new class extends Component
         return $this->section?->translatedMetaTitle() ?? '';
     }
 
+    public function description(): ?string
+    {
+        return $this->section?->translatedMetaDescription();
+    }
+
     public function render()
     {
         $config = $this->section?->config ?? [];
@@ -51,6 +56,7 @@ new class extends Component
 
         return view($template, ['section' => $this->section, 'articles' => $articles])
             ->title($this->title())
+            ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->section?->resolveCustomLayout()));
     }
 };

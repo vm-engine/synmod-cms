@@ -1,8 +1,8 @@
 @if($article)
 <div class="cms-article-viewer">
-    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+    <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
-            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">Home</a></li>
+            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item">
                 <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($article->section) }}" class="cms-breadcrumb__link">{{ $article->section->translate('title') }}</a>
             </li>
@@ -18,17 +18,17 @@
     <article class="cms-article">
         <header class="cms-article__header">
             @if($article->is_featured)
-            <span class="cms-article__badge cms-article__badge--featured">Featured</span>
+            <span class="cms-article__badge cms-article__badge--featured">{{ __('cms::labels.featured') }}</span>
             @endif
 
             <h1 class="cms-article__title">{{ $article->translate('title') }}</h1>
 
             <div class="cms-article__meta">
                 <time class="cms-article__date" datetime="{{ $article->published_at?->toDateString() }}">
-                    {{ $article->published_at?->format('d F Y') }}
+                    {{ $article->published_at?->translatedFormat('d F Y') }}
                 </time>
                 @if($article->read_time > 0)
-                <span class="cms-article__read-time">· {{ $article->read_time }} min read</span>
+                <span class="cms-article__read-time">· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                 @endif
                 @if($article->creator)
                 <span class="cms-article__author">· {{ $article->creator->name }}</span>

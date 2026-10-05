@@ -31,4 +31,6 @@ interface TranslatableContent
     public function translationValues(): array;
 
     public function translatedMetaTitle(): string;
+
+    public function translatedMetaDescription(): ?string;
 }

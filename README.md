@@ -328,7 +328,7 @@ When `synapps.apps.multi_language` is on, every page, article, section, category
 | Piece | Usage |
 |---|---|
 | Search page | `/{locale}/search?q=…` (slug from `search.slug`), registered by `php artisan cms:search-reindex` (also run by `cms:setup`) |
-| Search box | `<livewire:cms::frontend.search-box />` anywhere in your layout. A plain GET form (Enter works without JS), with live top-5 suggestions, popular searches when empty, keyboard navigation and an ARIA combobox. Needs `npm run build` (`cmsSearchBox` in `cms.js`) |
+| Search box | `<livewire:cms::frontend.search-box />` anywhere in your layout. A plain GET form (Enter works without JS), with live top-5 suggestions, popular searches when empty, keyboard navigation and an ARIA combobox. Needs `php artisan cms:setup` (imports `cms-frontend.js` into `resources/js/frontend.js`) and `npm run build` |
 | Backend | **CMS → Search Terms**: hide, unhide or delete popular terms (ACL `cms.search_term`) |
 | Index | `cms_searchables`, kept in sync automatically. Rebuild with `php artisan cms:search-reindex {--type=page --type=article …}` |
 | PHP API | `app(CmsSearchService::class)->search($q, $types, $perPage)`, `->suggest($q)` |

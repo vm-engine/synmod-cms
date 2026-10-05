@@ -30,10 +30,10 @@
                 @if($showDate && $article->published_at)
                 <div class="cms-article-card__meta">
                     <time datetime="{{ $article->published_at->toDateString() }}">
-                        {{ $article->published_at->format('d F Y') }}
+                        {{ $article->published_at->translatedFormat('d F Y') }}
                     </time>
                     @if($article->read_time > 0)
-                    <span class="cms-article-card__read-time">· {{ $article->read_time }} min read</span>
+                    <span class="cms-article-card__read-time">· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                     @endif
                 </div>
                 @endif

@@ -226,3 +226,105 @@ describe('Template guard', function () {
         expect($offenders)->toBe([]);
     });
 });
+
+describe('UI strings', function () {
+    it('localizes article chrome and dates', function () {
+        $article = CmsArticle::factory()->create([
+            'title' => 'Zebrafish',
+            'is_featured' => true,
+            'read_time' => 5,
+            'status' => 'published',
+            'published_at' => '2026-10-02 10:00:00',
+        ]);
+        app()->setLocale('id');
+
+        Livewire::test('cms::frontend.article-viewer', ['article_id' => $article->id])
+            ->assertSee('Beranda')
+            ->assertSee('Unggulan')
+            ->assertSee('5 menit baca')
+            ->assertSee('02 Oktober 2026')
+            ->assertDontSee('min read');
+    });
+
+    it('localizes widget card meta', function () {
+        CmsArticle::factory()->create(['read_time' => 3, 'status' => 'published', 'published_at' => '2026-10-02 10:00:00']);
+        app()->setLocale('id');
+
+        expect(Blade::render('<x-cms::widget.articles />'))->toContain('3 menit baca')->toContain('Oktober');
+    });
+
+    it('localizes banner slider controls', function () {
+        $album = CmsAlbum::factory()->create(['slug' => 'hero', 'type' => 'banner', 'status' => 'active']);
+        $file = translationTestFile();
+        CmsAlbumImage::factory()->count(2)->create(['album_id' => $album->id, 'file_id' => $file->id]);
+        app()->setLocale('id');
+
+        expect(Blade::render('<x-cms::widget.banner-slider album="hero" />'))
+            ->toContain('aria-label="Sebelumnya"')
+            ->toContain('aria-label="Berikutnya"')
+            ->toContain('Ke slide :number');
+    });
+});
+
+describe('UI string guard', function () {
+    it('keeps hardcoded UI strings out of frontend and widget templates', function () {
+        $root = dirname(__DIR__, 2);
+        $patterns = [
+            '/>\s*(Home|Featured)\s*</',
+            '/min read/',
+            '/aria-label="(breadcrumb|Close|Previous|Next)"/',
+            "/'Go to slide/",
+            "/format\\('d F Y'\\)/",
+            "/\\?\\? 'File'/",
+        ];
+        $offenders = [];
+
+        foreach ([...glob("{$root}/resources/views/components/frontend/*/*.blade.php"), ...glob("{$root}/resources/views/components/widget/*/*.blade.php")] as $file) {
+            $source = (string) file_get_contents($file);
+            foreach ($patterns as $pattern) {
+                if (preg_match($pattern, $source)) {
+                    $offenders[] = basename($file).' '.$pattern;
+                }
+            }
+        }
+
+        expect($offenders)->toBe([]);
+    });
+});
+
+describe('Meta description', function () {
+    it("uses the locale's own meta description", function () {
+        $article = CmsArticle::factory()->create(['meta_description' => 'English meta', 'excerpt' => 'English excerpt']);
+        $article->setTranslations(['id' => ['title' => 'Halo', 'meta_description' => 'Meta Indonesia']]);
+        app()->setLocale('id');
+
+        expect($article->translatedMetaDescription())->toBe('Meta Indonesia');
+    });
+
+    it("falls back to the locale's excerpt, not the default meta description", function () {
+        $article = CmsArticle::factory()->create(['meta_description' => 'English meta', 'excerpt' => 'English excerpt']);
+        $article->setTranslations(['id' => ['title' => 'Halo', 'excerpt' => '<p>Ringkasan <b>Indonesia</b></p>']]);
+        app()->setLocale('id');
+
+        expect($article->translatedMetaDescription())->toBe('Ringkasan Indonesia');
+    });
+
+    it('uses description for models without an excerpt and trims to 160 characters', function () {
+        $section = CmsSection::factory()->create(['meta_description' => null, 'description' => str_repeat('word ', 60)]);
+
+        expect($section->translatedMetaDescription())->toEndWith('...')
+            ->and(mb_strlen((string) $section->translatedMetaDescription()))->toBeLessThanOrEqual(163);
+    });
+
+    it('returns null when there is nothing to describe', function () {
+        expect(CmsSection::factory()->create(['meta_description' => null, 'description' => null])->translatedMetaDescription())->toBeNull();
+    });
+
+    it('exposes the description on the frontend viewers', function () {
+        $article = CmsArticle::factory()->create(['meta_description' => 'Article meta']);
+        $page = CmsPage::factory()->create(['meta_description' => 'Page meta']);
+
+        expect(Livewire::test('cms::frontend.article-viewer', ['article_id' => $article->id])->instance()->description())->toBe('Article meta')
+            ->and(Livewire::test('cms::frontend.page-viewer', ['page_id' => $page->id])->instance()->description())->toBe('Page meta');
+    });
+});

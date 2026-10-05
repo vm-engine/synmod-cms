@@ -1,5 +1,5 @@
 <div class="cms-download-index">
-    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+    <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item cms-breadcrumb__item--active">{{ __('cms::labels.downloads') }}</li>

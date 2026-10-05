@@ -6,7 +6,7 @@
     <div
         class="cms-banner-slider"
         style="--slider-height: {{ $height }}"
-        x-data="cmsBannerSlider({{ json_encode($slides) }}, {{ $autoplay ? 'true' : 'false' }}, {{ $interval }})"
+        x-data="cmsBannerSlider({{ json_encode($slides) }}, {{ $autoplay ? 'true' : 'false' }}, {{ $interval }}, {{ json_encode(__('cms::labels.go_to_slide')) }})"
         @mouseenter="stopTimer()"
         @mouseleave="autoplay && slides.length > 1 && startTimer()"
     >
@@ -61,7 +61,7 @@
                 type="button"
                 @click="prev()"
                 x-show="slides.length > 1"
-                aria-label="Previous"
+                aria-label="{{ __('cms::labels.previous') }}"
             >
                 <span class="fa-solid fa-chevron-left"></span>
             </button>
@@ -72,7 +72,7 @@
                 type="button"
                 @click="next()"
                 x-show="slides.length > 1"
-                aria-label="Next"
+                aria-label="{{ __('cms::labels.next') }}"
             >
                 <span class="fa-solid fa-chevron-right"></span>
             </button>
@@ -93,7 +93,7 @@
                         :class="{ 'cms-banner-slider__dot--active': idx === current }"
                         type="button"
                         @click="go(idx)"
-                        :aria-label="'Go to slide ' + (idx + 1)"
+                        :aria-label="dotLabel(idx)"
                     ></button>
                 </template>
             </div>
@@ -103,12 +103,16 @@
     <script nonce="{{ csp_nonce() }}">
     (() => {
         const register = () => {
-            Alpine.data('cmsBannerSlider', (slides, autoplay, interval) => ({
+            Alpine.data('cmsBannerSlider', (slides, autoplay, interval, goToLabel) => ({
                 current: 0,
                 slides,
                 autoplay,
                 interval,
+                goToLabel,
                 timer: null,
+                dotLabel(idx) {
+                    return this.goToLabel.replace(':number', idx + 1);
+                },
                 init() {
                     if (this.autoplay && this.slides.length > 1) {
                         this.startTimer();

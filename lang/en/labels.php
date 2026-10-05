@@ -304,4 +304,10 @@ return [
     'search_terms_empty' => 'No searches recorded yet.',
     'all_languages' => 'All languages',
     'language' => 'Language',
+    'min_read' => ':minutes min read',
+    'breadcrumb' => 'Breadcrumb',
+    'close' => 'Close',
+    'previous' => 'Previous',
+    'next' => 'Next',
+    'go_to_slide' => 'Go to slide :number',
 ];

@@ -1,8 +1,8 @@
 @if($category)
 <div class="cms-category-index">
-    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+    <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
-            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">Home</a></li>
+            <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to($category->section) }}" class="cms-breadcrumb__link">{{ $category->section->translate('title') }}</a></li>
             <li class="cms-breadcrumb__item cms-breadcrumb__item--active">{{ $category->translate('title') }}</li>
         </ol>
@@ -38,9 +38,9 @@
                     <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
                 </h2>
                 <div class="cms-article-card__meta">
-                    <time datetime="{{ $article->published_at?->toDateString() }}">{{ $article->published_at?->format('d F Y') }}</time>
+                    <time datetime="{{ $article->published_at?->toDateString() }}">{{ $article->published_at?->translatedFormat('d F Y') }}</time>
                     @if($article->read_time > 0)
-                    <span>· {{ $article->read_time }} min read</span>
+                    <span>· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                     @endif
                 </div>
                 @if($article->translate('excerpt'))

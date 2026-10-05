@@ -35,7 +35,7 @@
             @endif
             <div class="cms-article-card__body">
                 @if($article->is_featured)
-                <span class="cms-article-card__featured">Featured</span>
+                <span class="cms-article-card__featured">{{ __('cms::labels.featured') }}</span>
                 @endif
                 <h2 class="cms-article-card__title">
                     <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
@@ -43,10 +43,10 @@
                 @if(($section->config['show_date'] ?? true))
                 <div class="cms-article-card__meta">
                     <time datetime="{{ $article->published_at?->toDateString() }}">
-                        {{ $article->published_at?->format('d F Y') }}
+                        {{ $article->published_at?->translatedFormat('d F Y') }}
                     </time>
                     @if($article->read_time > 0)
-                    <span class="cms-article-card__read-time">· {{ $article->read_time }} min read</span>
+                    <span class="cms-article-card__read-time">· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                     @endif
                 </div>
                 @endif

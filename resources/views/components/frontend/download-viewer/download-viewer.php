@@ -39,6 +39,11 @@ new class extends Component
         return $this->download?->translatedMetaTitle() ?? '';
     }
 
+    public function description(): ?string
+    {
+        return $this->download?->translatedMetaDescription();
+    }
+
     public function render()
     {
         $template = FrontendViewResolver::view(
@@ -48,6 +53,7 @@ new class extends Component
 
         return view($template, ['download' => $this->download])
             ->title($this->title())
+            ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->download?->resolveCustomLayout()));
     }
 };

@@ -304,4 +304,10 @@ return [
     'search_terms_empty' => 'Belum ada pencarian yang tercatat.',
     'all_languages' => 'Semua bahasa',
     'language' => 'Bahasa',
+    'min_read' => ':minutes menit baca',
+    'breadcrumb' => 'Breadcrumb',
+    'close' => 'Tutup',
+    'previous' => 'Sebelumnya',
+    'next' => 'Berikutnya',
+    'go_to_slide' => 'Ke slide :number',
 ];

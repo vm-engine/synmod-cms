@@ -30,6 +30,11 @@ new class extends Component
         return $this->category?->translatedMetaTitle() ?? '';
     }
 
+    public function description(): ?string
+    {
+        return $this->category?->translatedMetaDescription();
+    }
+
     public function render()
     {
         $config = $this->category?->effectiveConfig() ?? [];
@@ -51,6 +56,7 @@ new class extends Component
 
         return view($template, ['category' => $this->category, 'articles' => $articles])
             ->title($this->title())
+            ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->category?->resolveCustomLayout()));
     }
 };

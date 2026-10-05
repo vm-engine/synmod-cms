@@ -11,6 +11,7 @@ uses(RefreshDatabase::class);
 
 const CMS_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms.js';";
 const LEGACY_IMPORT = 'import "../../../vendor/vm-engine/synmod-cms/resources/js/cms.js";';
+const CMS_FRONTEND_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms-frontend.js';";
 
 // Fixtures live in a temp dir set as the app base path, so the real host
 // files are never touched — afterEach is not guaranteed to run when a
@@ -22,11 +23,13 @@ beforeEach(function () {
 
     $this->files = [
         'app' => $this->basePath.'/resources/js/app.js',
+        'frontend' => $this->basePath.'/resources/js/frontend.js',
         'vite' => $this->basePath.'/vite.config.js',
         'synapps' => $this->basePath.'/synapps/resources/js/synapps.js',
     ];
 
     file_put_contents($this->files['app'], "import '../../synapps/resources/js/synapps-app.js';\n");
+    file_put_contents($this->files['frontend'], "import '../../synapps/resources/js/synapps-frontend.js';\n");
     file_put_contents($this->files['synapps'], "import './synapse-components.js';\n".LEGACY_IMPORT."\n");
     file_put_contents($this->files['vite'], <<<'JS'
         export default defineConfig({
@@ -53,6 +56,8 @@ it('wires assets and stores the chosen editor', function () {
         ->assertSuccessful();
 
     expect(file_get_contents($this->files['app']))->toContain(CMS_JS_IMPORT)
+        ->and(file_get_contents($this->files['frontend']))->toContain(CMS_FRONTEND_JS_IMPORT)
+        ->and(file_get_contents($this->files['frontend']))->not->toContain(CMS_JS_IMPORT)
         ->and(file_get_contents($this->files['synapps']))->not->toContain('synmod-cms/resources/js/cms.js')
         ->and(file_get_contents($this->files['vite']))->toContain("src: 'node_modules/tinymce'")
         ->and(RteDriver::current())->toBe(RteDriver::Tinymce);
@@ -66,6 +71,7 @@ it('is idempotent', function () {
 
     expect(array_map('file_get_contents', $this->files))->toBe($first)
         ->and(substr_count($first['app'], CMS_JS_IMPORT))->toBe(1)
+        ->and(substr_count($first['frontend'], CMS_FRONTEND_JS_IMPORT))->toBe(1)
         ->and(substr_count($first['vite'], 'node_modules/tinymce'))->toBe(1);
 });
 
@@ -89,4 +95,22 @@ it('keeps cms:patch-resources and mod-cms:patch-resources as deprecated aliases'
         ->assertSuccessful();
 
     expect(file_get_contents($this->files['app']))->toContain(CMS_JS_IMPORT);
+});
+
+it('warns instead of failing when frontend.js is missing', function () {
+    unlink($this->files['frontend']);
+    unset($this->files['frontend']);
+
+    $this->artisan('cms:setup')
+        ->expectsQuestion('Default rich-text editor', 'jodit')
+        ->expectsOutputToContain('resources/js/frontend.js not found')
+        ->assertSuccessful();
+});
+
+it('ships the search box in the frontend bundle only', function () {
+    $js = dirname(__DIR__, 2).'/resources/js';
+
+    expect(file_get_contents("{$js}/cms-frontend.js"))->toContain("Alpine.data('cmsSearchBox'")
+        ->not->toContain('sortablejs')
+        ->and(file_get_contents("{$js}/cms.js"))->not->toContain('cmsSearchBox');
 });

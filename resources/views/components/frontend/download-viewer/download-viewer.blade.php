@@ -1,6 +1,6 @@
 @if($download)
 <div class="cms-download-viewer">
-    <nav class="cms-breadcrumb" aria-label="breadcrumb">
+    <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
             <li class="cms-breadcrumb__item"><a href="{{ $indexUrl }}" class="cms-breadcrumb__link">{{ __('cms::labels.downloads') }}</a></li>
@@ -31,7 +31,7 @@
                 @endif
             </div>
             <div class="cms-download-item__info">
-                <p class="cms-download-item__name">{{ $file->translate('title') ?: ($file->file?->original_name ?? $file->file?->filename ?? 'File') }}</p>
+                <p class="cms-download-item__name">{{ $file->translate('title') ?: ($file->file?->original_name ?? $file->file?->filename ?? __('cms::labels.file')) }}</p>
                 @if($file->translate('description'))
                 <p class="cms-download-item__desc">{{ $file->translate('description') }}</p>
                 @endif

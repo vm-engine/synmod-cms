@@ -7,6 +7,7 @@ namespace VmEngine\Cms\Traits;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Support\Str;
 use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsTranslation;
 use VmEngine\Cms\Support\CmsLocale;
@@ -104,6 +105,30 @@ trait HasTranslations
     public function translatedMetaTitle(): string
     {
         return $this->translate('meta_title', fallback: false) ?: (string) $this->translate('title');
+    }
+
+    /**
+     * <meta name="description">: this locale's own meta_description, else its
+     * (fallback-resolved) excerpt/description as plain text (160 chars) —
+     * never the default language's meta_description on a translated page.
+     */
+    public function translatedMetaDescription(): ?string
+    {
+        $meta = $this->translate('meta_description', fallback: false);
+
+        if ($meta !== null && trim($meta) !== '') {
+            return $meta;
+        }
+
+        foreach (array_intersect(['excerpt', 'description'], $this->translatableFields()) as $field) {
+            $text = trim((string) preg_replace('/\s+/', ' ', strip_tags((string) $this->translate($field))));
+
+            if ($text !== '') {
+                return Str::limit($text, 160);
+            }
+        }
+
+        return null;
     }
 
     /**

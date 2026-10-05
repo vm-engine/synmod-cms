@@ -36,6 +36,11 @@ new class extends Component
         return $this->album?->translatedMetaTitle() ?? '';
     }
 
+    public function description(): ?string
+    {
+        return $this->album?->translatedMetaDescription();
+    }
+
     public function render()
     {
         $template = FrontendViewResolver::view(
@@ -45,6 +50,7 @@ new class extends Component
 
         return view($template, ['album' => $this->album])
             ->title($this->title())
+            ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->album?->resolveCustomLayout()));
     }
 };
