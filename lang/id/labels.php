@@ -441,4 +441,7 @@ return [
     'consent_accept' => 'Terima',
     'consent_reject' => 'Tolak',
     'consent_settings' => 'Pengaturan cookie',
+    'feed_articles' => 'Artikel',
+    'feed_downloads' => 'Unduhan',
+    'feed_gallery' => 'Galeri',
 ];

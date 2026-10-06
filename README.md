@@ -22,6 +22,7 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 - **Rich-text editor** — Jodit (default) or TinyMCE, switchable at runtime from **CMS → Settings** (`/admin/cms/settings`, `cms.settings` ACL); both integrate with the FM file picker for images and file links. Output is sanitized by the `cms_rte` purifier profile regardless of editor.
 - **HTML Sanitization** — rich-text bodies/descriptions (articles, pages, categories) are cleaned with the strict `cms_rte` Purifier profile (`config/cms-purifier.php`, merged into `purifier.settings.cms_rte`): no event handlers, `<script>`/`<iframe>`; the only inline style allowed is `text-align` on blocks; `http`/`https`/`mailto` URIs only; embedded images and `<video>` must be local (relative or on the app's host — i.e. from the File Manager). Re-clean existing rows with `php artisan cms:sanitize-content [--dry-run]`
 - **Sitemap** — `/sitemap.xml` served by `SitemapController`, includes all published pages, sections, categories, articles, and active normal albums with priority and change frequency metadata
+- **RSS feeds** — RSS 2.0 feeds of public content at `/feed/articles.xml`, `/feed/articles/{section}.xml`, `/feed/downloads.xml` and `/feed/gallery.xml` (20 newest items, guest visibility only), localized under `/{locale}/feed/…` when multi-language is on; `<x-cms::feed-links />` adds the autodiscovery `<link>` tags
 - **Activity Logging** — every backend create/update/delete/reorder is logged via `CmsActivityLogger`, recording only the diff of changed fields on updates
 - **Frontend Livewire Components** — semantic BEM-style components for page, section, category, article, gallery index, album, and menu rendering; all resolved automatically via the fallback routing system
 - **Widget Blade Components** — 8 embeddable `<x-cms::widget.*>` components for use anywhere in your layout, most supporting `template`/`card` overrides for full custom markup (see [Widget Components](#widget-components))
@@ -778,6 +779,23 @@ Defined in `module.json` and registered via Synapse's ACL system.
 The sitemap is served at `/sitemap.xml` by `SitemapController` registered in `routes/web.override.php` (no module URL prefix). The response sets `Content-Type: application/xml` and `Cache-Control: public, max-age=3600`.
 
 `cms:setup` (or its deprecated alias `cms:patch-resources`) adds `Sitemap: {APP_URL}/sitemap.xml` to the host's static `public/robots.txt` (created if missing; an existing `Sitemap:` line is left alone).
+
+---
+
+## RSS Feeds
+
+| Feed | URL | Items |
+|---|---|---|
+| Articles | `/feed/articles.xml` | published articles of published sections, newest `published_at` first |
+| Section | `/feed/articles/{section-slug}.xml` | the same, one section (404 unless the section is published and public) |
+| Downloads | `/feed/downloads.xml` | active download categories, newest first |
+| Gallery | `/feed/gallery.xml` | active normal albums (no banners), newest first |
+
+Only content a guest can see is listed (`CmsAccessService::applyVisibleScope($query, null)`), capped at 20 items, served as `application/rss+xml` with `Cache-Control: public, max-age=3600`. Each item carries title, link/guid, description (`translatedMetaDescription()`), `pubDate`, section/category as `<category>` and the cover image as `<enclosure>`.
+
+Unprefixed feeds use the CMS primary locale. When multi-language is on, `/{locale}/feed/…` serves translated titles, descriptions and links — those routes are registered only then, so run `php artisan route:clear` after toggling multi-language if routes are cached.
+
+Autodiscovery: `<x-cms::feed-links />` in `<head>` links the three site feeds, plus the current section's feed on section, category and article pages. `cms:setup` / `cms:patch-resources` appends it to the active theme's `layouts/partials/cms-head.blade.php` (warns if the partial is missing). Feed logic lives in `CmsFeedService`, routes in `routes/web.override.php`.
 
 ---
 

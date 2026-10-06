@@ -13,8 +13,9 @@ use function Laravel\Prompts\select;
  * Wires CMS assets into the host app and picks the default rich-text editor:
  * cms.js (admin: editors, sortable) into app.js, cms-frontend.js (public:
  * search box) and the synapse components (datepicker in the custom field
- * filters) into frontend.js, and the sitemap into public/robots.txt. Both
- * editors are always wired so the choice can change later from CMS settings.
+ * filters) into frontend.js, the sitemap into public/robots.txt, and the RSS
+ * feed links into the theme's cms-head partial. Both editors are always wired
+ * so the choice can change later from CMS settings.
  */
 class SetupCommand extends Command
 {
@@ -35,6 +36,8 @@ class SetupCommand extends Command
     private const TINYMCE_TARGET = "\n                    // TinyMCE (synmod-cms) — static assets (skins, themes, icons, plugins)"
         ."\n                    { src: 'node_modules/tinymce', dest: 'tinymce' },";
 
+    private const FEED_LINKS = '{{-- CMS: RSS feed autodiscovery --}}'.PHP_EOL.'<x-cms::feed-links />';
+
     public function handle(): int
     {
         $this->patchEntry('app.js', self::CMS_JS_IMPORT, 'synmod-cms/resources/js/cms.js');
@@ -43,6 +46,7 @@ class SetupCommand extends Command
         $this->removeLegacySynappsImport();
         $this->patchViteConfig();
         $this->patchRobots();
+        $this->patchFeedLinks();
 
         $driver = (string) select(
             label: 'Default rich-text editor',
@@ -157,6 +161,31 @@ class SetupCommand extends Command
         $sitemap = rtrim((string) config('app.url'), '/').'/sitemap.xml';
         file_put_contents($path, rtrim($contents).PHP_EOL.PHP_EOL.'Sitemap: '.$sitemap.PHP_EOL);
         $this->line("  robots.txt — Sitemap: {$sitemap} added");
+    }
+
+    /**
+     * Advertise the RSS feeds in the active theme's CMS head partial (appended,
+     * so it lands after the hreflang / analytics tags).
+     */
+    private function patchFeedLinks(): void
+    {
+        $path = theme_path('layouts/partials/cms-head.blade.php');
+        $contents = $this->read($path);
+
+        if ($contents === null) {
+            $this->warn('  cms-head.blade.php not found — add <x-cms::feed-links /> to your layout <head> manually');
+
+            return;
+        }
+
+        if (str_contains($contents, '<x-cms::feed-links')) {
+            $this->line('  cms-head.blade.php — feed links already set (skipped)');
+
+            return;
+        }
+
+        file_put_contents($path, rtrim($contents).PHP_EOL.self::FEED_LINKS.PHP_EOL);
+        $this->line('  cms-head.blade.php — RSS feed links added');
     }
 
     private function read(string $path): ?string

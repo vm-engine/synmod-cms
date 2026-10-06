@@ -120,6 +120,7 @@ Since v1.1.7, all queries/writes outside the model itself go through these — n
 - **`CmsFallbackService`** — fallback route management (observers only)
 - **`CmsMenuService`** — `buildTree('position')` eager-loads 3 levels for frontend rendering
 - **`CmsSitemapService`** — generates `/sitemap.xml` XML; called by `SitemapController`
+- **`CmsFeedService`** — RSS 2.0 feeds (articles, per-section, downloads, gallery), guest visibility only; called by `FeedController` and `<x-cms::feed-links />`
 - **`CmsSearchIndexer`** / **`CmsSearchService`** — public search index (`cms_searchables`) write/read paths. The index is written ONLY via `CmsFallbackService::syncX/forgetX` (routed content) and the album-image/download-file observers — never from forms. URLs are stored as locale-prefixed paths. `cms:search-reindex` rebuilds it. Settings: `module.json` → `config('synapps.modules.cms.search.*')`.
 - **Public search UI** — `cms::frontend.search-results` (fallback route via `CmsFallbackService::syncSearchPage()`, registered by `cms:search-reindex`) and `cms::frontend.search-box` (`cmsSearchBox` Alpine in `cms.js`). Popular terms (`CmsSearchTermService`) are recorded ONLY by the search page, only with results, once per session. The search templates render `CmsSearchable` rows (already localized), so they're exempt from the frontend translate() guard. In the view, resolve `$this->results` before reading `$this->rateLimited` (the limiter sets it while computing).
 
@@ -127,7 +128,7 @@ Since v1.1.7, all queries/writes outside the model itself go through these — n
 
 - `routes/web.php` — standard module routes (must exist even if empty)
 - `routes/web.backend.php` — all admin routes under `/admin/cms/`
-- `routes/web.override.php` — `/sitemap.xml` (no module prefix)
+- `routes/web.override.php` — `/sitemap.xml` and the RSS feeds `/feed/*.xml` (no module prefix; `{locale}/feed/*` copies only when multi-language is on)
 
 ### ACL Structure
 

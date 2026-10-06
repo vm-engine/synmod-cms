@@ -23,6 +23,8 @@ beforeEach(function () {
     mkdir($this->basePath.'/resources/js', 0755, true);
     mkdir($this->basePath.'/synapps/resources/js', 0755, true);
     mkdir($this->basePath.'/public', 0755, true);
+    mkdir($this->basePath.'/synapps/resources/themes/default/layouts/partials', 0755, true);
+    config(['synapps.apps.themes.active' => 'default']);
 
     $this->files = [
         'app' => $this->basePath.'/resources/js/app.js',
@@ -30,11 +32,13 @@ beforeEach(function () {
         'vite' => $this->basePath.'/vite.config.js',
         'synapps' => $this->basePath.'/synapps/resources/js/synapps.js',
         'robots' => $this->basePath.'/public/robots.txt',
+        'head' => $this->basePath.'/synapps/resources/themes/default/layouts/partials/cms-head.blade.php',
     ];
 
     file_put_contents($this->files['app'], "import '../../synapps/resources/js/synapps-app.js';\n");
     file_put_contents($this->files['frontend'], "import '../../synapps/resources/js/synapps-frontend.js';\n");
     file_put_contents($this->files['robots'], "User-agent: *\nDisallow:\n");
+    file_put_contents($this->files['head'], "<x-cms::hreflang />\n<x-cms::analytics-head />\n");
     file_put_contents($this->files['synapps'], "import './synapse-components.js';\n".LEGACY_IMPORT."\n");
     file_put_contents($this->files['vite'], <<<'JS'
         export default defineConfig({
@@ -159,4 +163,23 @@ it('leaves an existing sitemap directive alone', function () {
     $this->artisan('cms:patch-resources')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
 
     expect(file_get_contents($this->files['robots']))->toBe("User-agent: *\nSitemap: https://cdn.example.com/map.xml\n");
+});
+
+it('adds the feed links to the theme head partial once', function () {
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+
+    expect(file_get_contents($this->files['head']))->toBe(
+        "<x-cms::hreflang />\n<x-cms::analytics-head />\n{{-- CMS: RSS feed autodiscovery --}}\n<x-cms::feed-links />\n"
+    );
+});
+
+it('warns when the theme head partial is missing', function () {
+    unlink($this->files['head']);
+    unset($this->files['head']);
+
+    $this->artisan('cms:setup')
+        ->expectsQuestion('Default rich-text editor', 'jodit')
+        ->expectsOutputToContain('add <x-cms::feed-links /> to your layout <head> manually')
+        ->assertSuccessful();
 });

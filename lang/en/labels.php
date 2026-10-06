@@ -441,4 +441,7 @@ return [
     'consent_accept' => 'Accept',
     'consent_reject' => 'Reject',
     'consent_settings' => 'Cookie settings',
+    'feed_articles' => 'Articles',
+    'feed_downloads' => 'Downloads',
+    'feed_gallery' => 'Gallery',
 ];
