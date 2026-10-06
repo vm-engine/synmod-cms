@@ -120,3 +120,92 @@ document.addEventListener('alpine:init', () => {
         },
     }));
 });
+
+// <x-cms::form-layout> — long CMS editors. Submits via $wire.save(); on a
+// validation failure, opens the collapsed panel holding the first error and
+// focuses it. While $wire.form differs from its load-time snapshot, warns
+// before a reload/close or a wire:navigate away. Comparing the whole form
+// state (not DOM input events) also catches Jodit, file-picker, adv-select
+// and custom-var changes, which never fire `input` on the form.
+document.addEventListener('alpine:init', () => {
+    Alpine.data('cmsForm', (confirmMessage) => ({
+        snapshot: null,
+        saving: false,
+
+        init() {
+            this.$nextTick(() => {
+                this.snapshot = this.serialize();
+            });
+            this.onBeforeUnload = (event) => {
+                if (this.isDirty) {
+                    event.preventDefault();
+                    event.returnValue = '';
+                }
+            };
+            this.onNavigate = (event) => {
+                if (this.isDirty && !window.confirm(confirmMessage)) {
+                    event.preventDefault();
+                }
+            };
+            window.addEventListener('beforeunload', this.onBeforeUnload);
+            document.addEventListener('livewire:navigate', this.onNavigate);
+        },
+
+        destroy() {
+            window.removeEventListener('beforeunload', this.onBeforeUnload);
+            document.removeEventListener('livewire:navigate', this.onNavigate);
+        },
+
+        serialize() {
+            return JSON.stringify(this.$wire.form);
+        },
+
+        get isDirty() {
+            return !this.saving && this.snapshot !== null && this.serialize() !== this.snapshot;
+        },
+
+        async submit() {
+            this.saving = true;
+            try {
+                await this.$wire.save();
+            } catch (error) {
+                // Request failed (network/500): re-arm the guard, edits are still unsaved.
+                this.saving = false;
+                throw error;
+            }
+            await this.$nextTick();
+            // No error rendered → the save succeeded and a redirect is under way;
+            // keep `saving` so the guard doesn't block it.
+            if (this.revealFirstError()) {
+                this.saving = false;
+            }
+        },
+
+        // Focus the first inline error (opening its collapsed panel), or the
+        // summary when the failing field has no inline @error. False = no errors.
+        revealFirstError() {
+            const error = this.$root.querySelector('.form-error');
+            const summary = this.$root.querySelector('[data-cms-error-summary]');
+            if (!error) {
+                if (!summary) {
+                    return false;
+                }
+                summary.scrollIntoView({ block: 'start', behavior: 'smooth' });
+                summary.focus({ preventScroll: true });
+                return true;
+            }
+            const collapsible = error.closest('.syn-panel[x-data]');
+            if (collapsible) {
+                Alpine.$data(collapsible).open = true;
+            }
+            this.$nextTick(() => {
+                const field = error.parentElement.querySelector('input:not([type=hidden]), textarea, select, [tabindex]');
+                error.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                if (field) {
+                    field.focus({ preventScroll: true });
+                }
+            });
+            return true;
+        },
+    }));
+});

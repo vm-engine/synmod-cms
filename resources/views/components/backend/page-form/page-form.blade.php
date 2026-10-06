@@ -1,125 +1,191 @@
 <div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $pageId ? 'false' : 'true' }})">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit.prevent="save">
-        <div class="space-y-5 sm:space-y-6">
-
-            {{-- Main Content --}}
-            <x-synapse-panel :title="__('cms::labels.page_content')">
-                <div class="syn-panel-body space-y-4 p-5 sm:p-6">
-                    <x-cms::locale-tabs :values="$form->translations" />
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label required"
-                            for="title"
-                        >{{ __('cms::labels.title') }}</label>
-                        <input
-                            class="form-input @error('form.title') has-error @enderror"
-                            id="title"
-                            type="text"
-                            wire:model.blur="form.title"
-                            @blur="handleTitleBlur($event.target.value)"
-                        />
-                        @error('form.title')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <x-cms::translation-input
-                        field="title"
-                        :label="__('cms::labels.title')"
-                        :placeholder="$form->title"
+    <x-cms::form-layout
+        :back="backend_route('cms.page.index')"
+        can="cms.page.create|cms.page.update"
+    >
+        {{-- Main Content --}}
+        <x-synapse-panel :title="__('cms::labels.page_content')">
+            <div class="syn-panel-body space-y-4 p-5 sm:p-6">
+                <x-cms::locale-tabs :values="$form->translations" />
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label required"
+                        for="title"
+                    >{{ __('cms::labels.title') }}</label>
+                    <input
+                        class="form-input @error('form.title') has-error @enderror"
+                        id="title"
+                        type="text"
+                        wire:model.blur="form.title"
+                        @blur="handleTitleBlur($event.target.value)"
                     />
-
-                    <div>
-                        <label
-                            class="form-label required"
-                            for="slug"
-                        >{{ __('cms::labels.slug') }}</label>
-                        <div class="input-group">
-                            <input
-                                class="form-input @error('form.slug') has-error @enderror grow"
-                                id="slug"
-                                type="text"
-                                @input="autoSlug = false"
-                                wire:model.live="form.slug"
-                            />
-                            <button
-                                class="input-group-item right btn"
-                                type="button"
-                                title="{{ __('cms::labels.fill_from_title') }}"
-                                @click="fillSlugFromTitle()"
-                            >
-                                <span class="fa-solid fa-wand-magic-sparkles"></span>
-                            </button>
-                        </div>
-                        @error('form.slug')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                        <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.slug_hint') }}</p>
-                    </div>
-
-                    <div>
-                        <label
-                            class="form-label"
-                            for="parent_id"
-                        >{{ __('cms::labels.parent_page') }}</label>
-                        <x-synapse-adv-select
-                            wire-model="form.parent_id"
-                            :live="true"
-                            :options="$this->parentOptions"
-                            :disabled="$parentLocked"
-                        />
-                        @if ($parentLocked)
-                            <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.parent_locked') }}</p>
-                        @endif
-                    </div>
-
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="excerpt"
-                        >{{ __('cms::labels.excerpt') }}</label>
-                        <textarea
-                            class="form-input"
-                            id="excerpt"
-                            rows="3"
-                            wire:model="form.excerpt"
-                        ></textarea>
-                    </div>
-                    <x-cms::translation-input
-                        field="excerpt"
-                        type="textarea"
-                        :label="__('cms::labels.excerpt')"
-                        :placeholder="Str::limit($form->excerpt, 120)"
-                    />
-
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="body"
-                        >{{ __('cms::labels.body') }}</label>
-                        <x-cms::rte
-                            name="form.body"
-                            :value="$form->body"
-                            height="400"
-                        />
-                        @error('form.body')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-                    <x-cms::translation-input
-                        field="body"
-                        type="rte"
-                        :label="__('cms::labels.body')"
-                        :height="400"
-                        :values="$form->translations"
-                    />
+                    @error('form.title')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
                 </div>
-            </x-synapse-panel>
+                <x-cms::translation-input
+                    field="title"
+                    :label="__('cms::labels.title')"
+                    :placeholder="$form->title"
+                />
 
+                <div>
+                    <label
+                        class="form-label required"
+                        for="slug"
+                    >{{ __('cms::labels.slug') }}</label>
+                    <div class="input-group">
+                        <input
+                            class="form-input @error('form.slug') has-error @enderror grow"
+                            id="slug"
+                            type="text"
+                            @input="autoSlug = false"
+                            wire:model.live="form.slug"
+                        />
+                        <button
+                            class="input-group-item right btn"
+                            type="button"
+                            title="{{ __('cms::labels.fill_from_title') }}"
+                            @click="fillSlugFromTitle()"
+                        >
+                            <span class="fa-solid fa-wand-magic-sparkles"></span>
+                        </button>
+                    </div>
+                    @error('form.slug')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                    <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.slug_hint') }}</p>
+                </div>
+
+                <div>
+                    <label
+                        class="form-label"
+                        for="parent_id"
+                    >{{ __('cms::labels.parent_page') }}</label>
+                    <x-synapse-adv-select
+                        wire-model="form.parent_id"
+                        :live="true"
+                        :options="$this->parentOptions"
+                        :disabled="$parentLocked"
+                    />
+                    @if ($parentLocked)
+                        <p class="mt-1 text-xs text-gray-400">{{ __('cms::labels.parent_locked') }}</p>
+                    @endif
+                </div>
+
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="excerpt"
+                    >{{ __('cms::labels.excerpt') }}</label>
+                    <textarea
+                        class="form-input"
+                        id="excerpt"
+                        rows="3"
+                        wire:model="form.excerpt"
+                    ></textarea>
+                </div>
+                <x-cms::translation-input
+                    field="excerpt"
+                    type="textarea"
+                    :label="__('cms::labels.excerpt')"
+                    :placeholder="Str::limit($form->excerpt, 120)"
+                />
+
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="body"
+                    >{{ __('cms::labels.body') }}</label>
+                    <x-cms::rte
+                        name="form.body"
+                        :value="$form->body"
+                        height="400"
+                    />
+                    @error('form.body')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="body"
+                    type="rte"
+                    :label="__('cms::labels.body')"
+                    :height="400"
+                    :values="$form->translations"
+                />
+            </div>
+        </x-synapse-panel>
+
+        {{-- SEO --}}
+        <x-synapse-panel
+            :title="__('cms::labels.seo')"
+            collapsible
+            collapsed
+        >
+            <div class="syn-panel-body space-y-4 p-5 sm:p-6">
+                <x-cms::locale-tabs :values="$form->translations" />
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="meta_title"
+                    >{{ __('cms::labels.meta_title') }}</label>
+                    <input
+                        class="form-input @error('form.meta_title') has-error @enderror"
+                        id="meta_title"
+                        type="text"
+                        wire:model="form.meta_title"
+                    />
+                    @error('form.meta_title')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="meta_title"
+                    :label="__('cms::labels.meta_title')"
+                    :placeholder="$form->meta_title"
+                />
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="meta_description"
+                    >{{ __('cms::labels.meta_description') }}</label>
+                    <textarea
+                        class="form-input @error('form.meta_description') has-error @enderror"
+                        id="meta_description"
+                        rows="3"
+                        wire:model="form.meta_description"
+                    ></textarea>
+                    @error('form.meta_description')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="meta_description"
+                    type="textarea"
+                    :label="__('cms::labels.meta_description')"
+                    :placeholder="Str::limit($form->meta_description, 120)"
+                />
+                <div>
+                    <label class="form-label">{{ __('cms::labels.og_image') }}</label>
+                    <livewire:fm::file-picker
+                        wire:model="form.og_image"
+                        accept="image/*"
+                        pickerKey="page-og"
+                        wire:key="page-fm-og"
+                    />
+                    @error('form.og_image')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </x-synapse-panel>
+
+        <x-slot:sidebar>
             {{-- Publishing --}}
             <x-synapse-panel :title="__('cms::labels.publishing')">
-                <div class="syn-panel-body grid gap-4 p-5 sm:grid-cols-2 sm:p-6">
+                <div class="syn-panel-body grid gap-4 p-5 @md:grid-cols-2 sm:p-6">
                     <div>
                         <label
                             class="form-label required"
@@ -141,19 +207,10 @@
                                 class="form-label"
                                 for="published_at"
                             >{{ __('cms::labels.publish_date') }}</label>
-                            @php
-                                $now = $form->published_at = now()->format('Y-m-d H:i');
-                                $flatpickr = json_encode([
-                                    'enableTime' => true,
-                                    'time_24hr' => true,
-                                    'dateFormat' => 'Y-m-d H:i',
-                                    'defaultDate' => $now,
-                                ]);
-                            @endphp
                             <x-synapse-datepicker
                                 id="published_at"
                                 wire:model="form.published_at"
-                                :flatpickr="$flatpickr"
+                                :flatpickr="json_encode(['enableTime' => true, 'time_24hr' => true, 'dateFormat' => 'Y-m-d H:i'])"
                             />
                         </div>
                     @endif
@@ -247,58 +304,9 @@
                     </div>
                 </div>
             </x-synapse-panel>
+        </x-slot:sidebar>
 
-            {{-- SEO --}}
-            <x-synapse-panel :title="__('cms::labels.seo')">
-                <div class="syn-panel-body space-y-4 p-5 sm:p-6">
-                    <x-cms::locale-tabs :values="$form->translations" />
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="meta_title"
-                        >{{ __('cms::labels.meta_title') }}</label>
-                        <input
-                            class="form-input"
-                            id="meta_title"
-                            type="text"
-                            wire:model="form.meta_title"
-                        />
-                    </div>
-                    <x-cms::translation-input
-                        field="meta_title"
-                        :label="__('cms::labels.meta_title')"
-                        :placeholder="$form->meta_title"
-                    />
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="meta_description"
-                        >{{ __('cms::labels.meta_description') }}</label>
-                        <textarea
-                            class="form-input"
-                            id="meta_description"
-                            rows="3"
-                            wire:model="form.meta_description"
-                        ></textarea>
-                    </div>
-                    <x-cms::translation-input
-                        field="meta_description"
-                        type="textarea"
-                        :label="__('cms::labels.meta_description')"
-                        :placeholder="Str::limit($form->meta_description, 120)"
-                    />
-                    <div>
-                        <label class="form-label">{{ __('cms::labels.og_image') }}</label>
-                        <livewire:fm::file-picker
-                            wire:model="form.og_image"
-                            accept="image/*"
-                            pickerKey="page-og"
-                            wire:key="page-fm-og"
-                        />
-                    </div>
-                </div>
-            </x-synapse-panel>
-
+        <x-slot:after>
             @include('cms::components.backend.partials._custom-rendering-card', [
                 'fields' => [
                     [
@@ -318,72 +326,40 @@
                 ],
             ])
 
-        </div>
-
-        {{-- Custom field definitions (dev only) --}}
-        @isDev
-            <div class="card mt-6">
-                <div class="card-body flex items-start gap-3">
-                    <x-synapse-toggler
-                        id="allow_child_create"
-                        wire:model="form.allow_child_create"
-                        :inline="true"
-                        :checked="$form->allow_child_create"
-                        activeColor="green"
-                    />
-                    <div>
-                        <span class="text-sm">{{ __('cms::labels.allow_child_create') }}</span>
-                        <p class="form-help">{{ __('cms::labels.allow_child_create_help') }}</p>
+            {{-- Custom field definitions (dev only) --}}
+            @isDev
+                <div class="card">
+                    <div class="card-body flex items-start gap-3">
+                        <x-synapse-toggler
+                            id="allow_child_create"
+                            wire:model="form.allow_child_create"
+                            :inline="true"
+                            :checked="$form->allow_child_create"
+                            activeColor="green"
+                        />
+                        <div>
+                            <span class="text-sm">{{ __('cms::labels.allow_child_create') }}</span>
+                            <p class="form-help">{{ __('cms::labels.allow_child_create_help') }}</p>
+                        </div>
                     </div>
                 </div>
-            </div>
-            @if ($form->parent_id === null)
-                @include('cms::components.backend.partials._field-schema-manager')
-                @include('cms::components.backend.partials._media-gallery-toggle', ['help' => __('cms::labels.media_gallery_enable_page_help')])
-            @endif
-        @endisDev
+                @if ($form->parent_id === null)
+                    @include('cms::components.backend.partials._field-schema-manager')
+                    @include('cms::components.backend.partials._media-gallery-toggle', ['help' => __('cms::labels.media_gallery_enable_page_help')])
+                @endif
+            @endisDev
 
-        {{-- Custom field values --}}
-        <div class="mt-6">
+            {{-- Custom field values --}}
             <x-cms::custom-field-inputs :schema="$form->inputFieldSchema()" />
-        </div>
 
-        {{-- Custom Variables --}}
-        <livewire:cms::backend.custom-var-manager
-            wire:model="form.customVars"
-            :allow-add="$form->customVarAllowAdd"
-            wire:key="cvm-page-{{ $pageId ?? 'new' }}"
-        />
-
-        {{-- Fixed Action Bar --}}
-        <div class="syn-form-action-bar">
-            <a
-                class="btn secondary"
-                href="{{ backend_route('cms.page.index') }}"
-                wire:navigate
-            >
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
-            </a>
-            @canAccess('cms.page.create|cms.page.update')
-            <button
-                class="btn primary"
-                type="submit"
-                wire:loading.attr="disabled"
-            >
-                <span
-                    class="fa-solid fa-floppy-disk"
-                    wire:loading.remove
-                ></span>
-                <span
-                    class="fa-solid fa-circle-notch fa-spin"
-                    wire:loading
-                ></span>
-                {{ __('cms::labels.save') }}
-            </button>
-            @endcanAccess
-        </div>
-        <div class="h-16"></div>
-    </form>
+            {{-- Custom Variables --}}
+            <livewire:cms::backend.custom-var-manager
+                wire:model="form.customVars"
+                :allow-add="$form->customVarAllowAdd"
+                wire:key="cvm-page-{{ $pageId ?? 'new' }}"
+            />
+        </x-slot:after>
+    </x-cms::form-layout>
 
     @if ($this->mediaGalleriesAvailable)
         <div class="mb-20">

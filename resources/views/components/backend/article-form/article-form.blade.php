@@ -1,141 +1,207 @@
 <div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $articleId ? 'false' : 'true' }})">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
-    <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit.prevent="save">
-        <div class="space-y-5 sm:space-y-6">
-
-            {{-- Article Content --}}
-            <x-synapse-panel :title="__('cms::labels.article_content')">
-                <div class="syn-panel-body p-5 sm:p-6 space-y-4">
-                    <x-cms::locale-tabs :values="$form->translations" />
-                    <div class="grid sm:grid-cols-2 gap-4">
-                        <div>
-                            <label class="form-label required">{{ __('cms::labels.section') }}</label>
-                            <input
-                                type="hidden"
-                                wire:model="form.section_id"
-                            />
-                            <p
-                                class="form-input bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-default">
-                                {{ $this->sectionName }}</p>
-                        </div>
-                        <div>
-                            <label
-                                class="form-label"
-                                for="category_id"
-                            >{{ __('cms::labels.category') }}</label>
-                            <x-synapse-adv-select
-                                wire-model="form.category_id"
-                                :live="true"
-                                :options="$this->categoryOptions"
-                            />
-                        </div>
-                    </div>
-
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label required"
-                            for="title"
-                        >{{ __('cms::labels.title') }}</label>
+    <x-cms::form-layout
+        :back="backend_route('cms.section.article.index', ['sectionId' => $sectionId])"
+        can="cms.article.create|cms.article.update"
+    >
+        {{-- Article Content --}}
+        <x-synapse-panel :title="__('cms::labels.article_content')">
+            <div class="syn-panel-body p-5 sm:p-6 space-y-4">
+                <x-cms::locale-tabs :values="$form->translations" />
+                <div class="grid sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="form-label required">{{ __('cms::labels.section') }}</label>
                         <input
-                            class="form-input @error('form.title') has-error @enderror"
-                            id="title"
-                            type="text"
-                            wire:model.blur="form.title"
-                            @blur="handleTitleBlur($event.target.value)"
+                            type="hidden"
+                            wire:model="form.section_id"
                         />
-                        @error('form.title')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
+                        <p
+                            class="form-input bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 cursor-default">
+                            {{ $this->sectionName }}</p>
                     </div>
-                    <x-cms::translation-input
-                        field="title"
-                        :label="__('cms::labels.title')"
-                        :placeholder="$form->title"
-                    />
-
                     <div>
                         <label
-                            class="form-label required"
-                            for="slug"
-                        >{{ __('cms::labels.slug') }}</label>
-                        <div class="input-group">
-                            <input
-                                class="form-input grow @error('form.slug') has-error @enderror"
-                                id="slug"
-                                type="text"
-                                @input="autoSlug = false"
-                                wire:model.live="form.slug"
-                            />
-                            <button
-                                class="input-group-item right btn"
-                                type="button"
-                                @click="fillSlugFromTitle()"
-                                title="{{ __('cms::labels.fill_from_title') }}"
-                            >
-                                <span class="fa-solid fa-wand-magic-sparkles"></span>
-                            </button>
-                        </div>
-                        @error('form.slug')
-                            <p class="form-error">{{ $message }}</p>
-                        @enderror
-                    </div>
-
-                    <div x-show="isPrimary()">
-                        <label
                             class="form-label"
-                            for="excerpt"
-                        >{{ __('cms::labels.excerpt') }}</label>
-                        <textarea
-                            class="form-input"
-                            id="excerpt"
-                            rows="3"
-                            wire:model="form.excerpt"
-                        ></textarea>
-                    </div>
-                    <x-cms::translation-input
-                        field="excerpt"
-                        type="textarea"
-                        :label="__('cms::labels.excerpt')"
-                        :placeholder="Str::limit($form->excerpt, 120)"
-                    />
-
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="body"
-                        >{{ __('cms::labels.body') }}</label>
-                        <x-cms::rte
-                            name="form.body"
-                            :value="$form->body"
-                            height="500"
-                        />
-                    </div>
-                    <x-cms::translation-input
-                        field="body"
-                        type="rte"
-                        :label="__('cms::labels.body')"
-                        :height="500"
-                        :values="$form->translations"
-                    />
-
-                    <div>
-                        <label class="form-label">{{ __('cms::labels.tags') }}</label>
+                            for="category_id"
+                        >{{ __('cms::labels.category') }}</label>
                         <x-synapse-adv-select
-                            wire-model="form.tag_ids"
-                            :multiple="true"
-                            :allow-create="true"
-                            search-method="searchTags"
-                            load-method="loadTags"
-                            placeholder="{{ __('cms::labels.tags_placeholder') }}"
+                            wire-model="form.category_id"
+                            :live="true"
+                            :options="$this->categoryOptions"
                         />
                     </div>
                 </div>
-            </x-synapse-panel>
 
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label required"
+                        for="title"
+                    >{{ __('cms::labels.title') }}</label>
+                    <input
+                        class="form-input @error('form.title') has-error @enderror"
+                        id="title"
+                        type="text"
+                        wire:model.blur="form.title"
+                        @blur="handleTitleBlur($event.target.value)"
+                    />
+                    @error('form.title')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="title"
+                    :label="__('cms::labels.title')"
+                    :placeholder="$form->title"
+                />
+
+                <div>
+                    <label
+                        class="form-label required"
+                        for="slug"
+                    >{{ __('cms::labels.slug') }}</label>
+                    <div class="input-group">
+                        <input
+                            class="form-input grow @error('form.slug') has-error @enderror"
+                            id="slug"
+                            type="text"
+                            @input="autoSlug = false"
+                            wire:model.live="form.slug"
+                        />
+                        <button
+                            class="input-group-item right btn"
+                            type="button"
+                            @click="fillSlugFromTitle()"
+                            title="{{ __('cms::labels.fill_from_title') }}"
+                        >
+                            <span class="fa-solid fa-wand-magic-sparkles"></span>
+                        </button>
+                    </div>
+                    @error('form.slug')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="excerpt"
+                    >{{ __('cms::labels.excerpt') }}</label>
+                    <textarea
+                        class="form-input"
+                        id="excerpt"
+                        rows="3"
+                        wire:model="form.excerpt"
+                    ></textarea>
+                </div>
+                <x-cms::translation-input
+                    field="excerpt"
+                    type="textarea"
+                    :label="__('cms::labels.excerpt')"
+                    :placeholder="Str::limit($form->excerpt, 120)"
+                />
+
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="body"
+                    >{{ __('cms::labels.body') }}</label>
+                    <x-cms::rte
+                        name="form.body"
+                        :value="$form->body"
+                        height="500"
+                    />
+                </div>
+                <x-cms::translation-input
+                    field="body"
+                    type="rte"
+                    :label="__('cms::labels.body')"
+                    :height="500"
+                    :values="$form->translations"
+                />
+
+                <div>
+                    <label class="form-label">{{ __('cms::labels.tags') }}</label>
+                    <x-synapse-adv-select
+                        wire-model="form.tag_ids"
+                        :multiple="true"
+                        :allow-create="true"
+                        search-method="searchTags"
+                        load-method="loadTags"
+                        placeholder="{{ __('cms::labels.tags_placeholder') }}"
+                    />
+                </div>
+            </div>
+        </x-synapse-panel>
+
+        {{-- SEO --}}
+        <x-synapse-panel
+            :title="__('cms::labels.seo')"
+            collapsible
+            collapsed
+        >
+            <div class="syn-panel-body p-5 sm:p-6 space-y-4">
+                <x-cms::locale-tabs :values="$form->translations" />
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="meta_title"
+                    >{{ __('cms::labels.meta_title') }}</label>
+                    <input
+                        class="form-input @error('form.meta_title') has-error @enderror"
+                        id="meta_title"
+                        type="text"
+                        wire:model="form.meta_title"
+                    />
+                    @error('form.meta_title')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="meta_title"
+                    :label="__('cms::labels.meta_title')"
+                    :placeholder="$form->meta_title"
+                />
+                <div x-show="isPrimary()">
+                    <label
+                        class="form-label"
+                        for="meta_description"
+                    >{{ __('cms::labels.meta_description') }}</label>
+                    <textarea
+                        class="form-input @error('form.meta_description') has-error @enderror"
+                        id="meta_description"
+                        rows="3"
+                        wire:model="form.meta_description"
+                    ></textarea>
+                    @error('form.meta_description')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+                <x-cms::translation-input
+                    field="meta_description"
+                    type="textarea"
+                    :label="__('cms::labels.meta_description')"
+                    :placeholder="Str::limit($form->meta_description, 120)"
+                />
+                <div>
+                    <label class="form-label">{{ __('cms::labels.og_image') }}</label>
+                    <livewire:fm::file-picker
+                        wire:model="form.og_image"
+                        accept="image/*"
+                        pickerKey="article-og"
+                        wire:key="article-fm-og"
+                    />
+                    @error('form.og_image')
+                        <p class="form-error">{{ $message }}</p>
+                    @enderror
+                </div>
+            </div>
+        </x-synapse-panel>
+
+        <x-slot:sidebar>
             {{-- Publishing --}}
             <x-synapse-panel :title="__('cms::labels.publishing')">
-                <div class="syn-panel-body p-5 sm:p-6 grid sm:grid-cols-2 gap-4">
+                <div class="syn-panel-body grid gap-4 p-5 @md:grid-cols-2 sm:p-6">
                     <div>
                         <label
                             class="form-label required"
@@ -202,7 +268,7 @@
                             wire:key="article-fm-cover"
                         />
                     </div>
-                    <div class="flex items-center gap-3 pt-6">
+                    <div class="flex items-center gap-3 @md:pt-6">
                         <x-synapse-toggler
                             id="is_featured"
                             wire:model="form.is_featured"
@@ -241,58 +307,9 @@
                 'withManagers' => false,
                 'inheritedValue' => $this->inheritedVisibility,
             ])
+        </x-slot:sidebar>
 
-            {{-- SEO --}}
-            <x-synapse-panel :title="__('cms::labels.seo')">
-                <div class="syn-panel-body p-5 sm:p-6 space-y-4">
-                    <x-cms::locale-tabs :values="$form->translations" />
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="meta_title"
-                        >{{ __('cms::labels.meta_title') }}</label>
-                        <input
-                            class="form-input"
-                            id="meta_title"
-                            type="text"
-                            wire:model="form.meta_title"
-                        />
-                    </div>
-                    <x-cms::translation-input
-                        field="meta_title"
-                        :label="__('cms::labels.meta_title')"
-                        :placeholder="$form->meta_title"
-                    />
-                    <div x-show="isPrimary()">
-                        <label
-                            class="form-label"
-                            for="meta_description"
-                        >{{ __('cms::labels.meta_description') }}</label>
-                        <textarea
-                            class="form-input"
-                            id="meta_description"
-                            rows="3"
-                            wire:model="form.meta_description"
-                        ></textarea>
-                    </div>
-                    <x-cms::translation-input
-                        field="meta_description"
-                        type="textarea"
-                        :label="__('cms::labels.meta_description')"
-                        :placeholder="Str::limit($form->meta_description, 120)"
-                    />
-                    <div>
-                        <label class="form-label">{{ __('cms::labels.og_image') }}</label>
-                        <livewire:fm::file-picker
-                            wire:model="form.og_image"
-                            accept="image/*"
-                            pickerKey="article-og"
-                            wire:key="article-fm-og"
-                        />
-                    </div>
-                </div>
-            </x-synapse-panel>
-
+        <x-slot:after>
             @include('cms::components.backend.partials._custom-rendering-card', [
                 'fields' => [
                     [
@@ -311,48 +328,18 @@
                     ],
                 ],
             ])
-        </div>
 
-        {{-- Custom field values --}}
-        <div class="mt-6">
+            {{-- Custom field values --}}
             <x-cms::custom-field-inputs :schema="$form->inputFieldSchema()" />
-        </div>
 
-        {{-- Custom Variables --}}
-        <livewire:cms::backend.custom-var-manager
-            wire:model="form.customVars"
-            :allow-add="$form->customVarAllowAdd"
-            wire:key="cvm-article-{{ $articleId ?? 'new' }}"
-        />
-
-        <div class="syn-form-action-bar">
-            <a
-                class="btn secondary"
-                href="{{ backend_route('cms.section.article.index', ['sectionId' => $sectionId]) }}"
-                wire:navigate
-            >
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
-            </a>
-            @canAccess('cms.article.create|cms.article.update')
-            <button
-                class="btn primary"
-                type="submit"
-                wire:loading.attr="disabled"
-            >
-                <span
-                    class="fa-solid fa-floppy-disk"
-                    wire:loading.remove
-                ></span>
-                <span
-                    class="fa-solid fa-circle-notch fa-spin"
-                    wire:loading
-                ></span>
-                {{ __('cms::labels.save') }}
-            </button>
-            @endcanAccess
-        </div>
-        <div class="h-16"></div>
-    </form>
+            {{-- Custom Variables --}}
+            <livewire:cms::backend.custom-var-manager
+                wire:model="form.customVars"
+                :allow-add="$form->customVarAllowAdd"
+                wire:key="cvm-article-{{ $articleId ?? 'new' }}"
+            />
+        </x-slot:after>
+    </x-cms::form-layout>
 
     @if ($this->mediaGalleriesAvailable)
         <div class="mb-20">

@@ -115,6 +115,14 @@ new class extends Component
         $this->form->refreshCustomFields();
     }
 
+    /** Default the publish date when switching to scheduled (was mutated in Blade on every render). */
+    public function updatedFormStatus(string $status): void
+    {
+        if ($status === 'scheduled' && $this->form->published_at === '') {
+            $this->form->published_at = now()->format('Y-m-d H:i');
+        }
+    }
+
     #[On('custom-var-allow-add-changed')]
     public function onCustomVarAllowAddChanged(bool $value): void
     {
