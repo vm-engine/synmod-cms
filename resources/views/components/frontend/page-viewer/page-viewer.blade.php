@@ -26,7 +26,7 @@
         @endif
 
         <div class="cms-page__body">
-            {!! $page->translate('body') !!}
+            {!! $page->renderWithMediaGalleries('body') !!}
         </div>
     </article>
 

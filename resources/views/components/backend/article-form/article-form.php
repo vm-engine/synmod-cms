@@ -132,6 +132,13 @@ new class extends Component
         return app(CmsArticleService::class)->getTagSuggestionMap();
     }
 
+    /** Whether the article's section has media galleries on (manager, or a save-first hint). */
+    #[Computed()]
+    public function mediaGalleriesAvailable(): bool
+    {
+        return (new CmsArticle(['section_id' => $this->form->section_id]))->mediaGalleriesEnabled();
+    }
+
     #[Computed()]
     public function breadcrumbs(): Breadcrumbs
     {

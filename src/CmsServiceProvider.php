@@ -6,6 +6,7 @@ namespace VmEngine\Cms;
 
 use Illuminate\Support\ServiceProvider;
 use VmEngine\Cms\Console\Commands\PatchResourcesCommand;
+use VmEngine\Cms\Console\Commands\PruneMediaGalleriesCommand;
 use VmEngine\Cms\Console\Commands\SanitizeContentCommand;
 use VmEngine\Cms\Console\Commands\SearchReindexCommand;
 use VmEngine\Cms\Console\Commands\SetupCommand;
@@ -59,6 +60,7 @@ class CmsServiceProvider extends ServiceProvider
                 PatchResourcesCommand::class,
                 SanitizeContentCommand::class,
                 SearchReindexCommand::class,
+                PruneMediaGalleriesCommand::class,
             ]);
         }
 

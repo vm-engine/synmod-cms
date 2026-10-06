@@ -10,6 +10,7 @@ use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsDownloadFile;
+use VmEngine\Cms\Models\CmsMediaGalleryImage;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
@@ -222,7 +223,8 @@ describe('Translatable models', function () {
         'album' => [CmsAlbum::class, ['title', 'description', 'meta_title', 'meta_description'], []],
         'album image' => [CmsAlbumImage::class, ['title', 'caption'], []],
         'download' => [CmsDownload::class, ['title', 'description', 'meta_title', 'meta_description'], []],
-        'download file' => [CmsDownloadFile::class, ['title', 'description'], []],
+        'download file' => [CmsDownloadFile::class, ['title', 'description'], ['description']],
+        'media gallery image' => [CmsMediaGalleryImage::class, ['caption'], []],
         'menu item' => [CmsMenuItem::class, ['label'], []],
     ]);
 

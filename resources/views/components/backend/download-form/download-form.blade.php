@@ -186,6 +186,7 @@
         {{-- Custom field definitions (dev only) --}}
         @isDev
             @include('cms::components.backend.partials._field-schema-manager')
+            @include('cms::components.backend.partials._media-gallery-toggle', ['help' => __('cms::labels.media_gallery_enable_download_help')])
         @endisDev
 
         {{-- Custom field values --}}

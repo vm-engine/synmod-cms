@@ -42,16 +42,20 @@
                         :placeholder="$form->title"
                     />
                     <div x-show="isPrimary()">
-                        <label class="form-label" for="file_description">{{ __('cms::labels.description') }}</label>
-                        <textarea class="form-input" id="file_description" rows="4" wire:model="form.description"></textarea>
+                        <label class="form-label">{{ __('cms::labels.description') }}</label>
+                        <x-cms::rte
+                            name="form.description"
+                            :value="$form->description"
+                            height="250"
+                        />
                         @error('form.description') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
                     <x-cms::translation-input
                         field="description"
-                        type="textarea"
+                        type="rte"
                         :label="__('cms::labels.description')"
-                        :rows="4"
-                        :placeholder="Str::limit($form->description, 120)"
+                        :height="250"
+                        :values="$form->translations"
                     />
                 </div>
             </div>
@@ -77,4 +81,13 @@
         </div>
         <div class="h-16"></div>
     </form>
+
+    @if ($form->file->mediaGalleriesEnabled())
+        <div class="content-area mb-20 max-w-2xl">
+            <livewire:cms::backend.media-gallery-manager
+                :owner="$form->file"
+                wire:key="mgm-dlfile-{{ $fileId }}"
+            />
+        </div>
+    @endif
 </div>

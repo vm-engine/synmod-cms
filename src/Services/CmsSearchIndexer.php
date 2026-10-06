@@ -197,7 +197,7 @@ class CmsSearchIndexer
      */
     public static function plainText(?string $html): string
     {
-        $text = html_entity_decode(strip_tags((string) $html), ENT_QUOTES | ENT_HTML5);
+        $text = html_entity_decode(strip_tags(CmsMediaGalleryRenderer::strip((string) $html)), ENT_QUOTES | ENT_HTML5);
 
         return trim((string) preg_replace('/\s+/u', ' ', str_replace("\u{A0}", ' ', $text)));
     }

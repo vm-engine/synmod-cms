@@ -12,6 +12,7 @@ use VmEngine\Cms\Factories\CmsDownloadFileFactory;
 use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
 use VmEngine\Cms\Traits\HasCustomFields;
+use VmEngine\Cms\Traits\HasMediaGalleries;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Fm\Models\FmFile;
 use VmEngine\Synapse\Traits\WithDeleteToken;
@@ -33,9 +34,11 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
 class CmsDownloadFile extends Model implements CustomFieldContent, TranslatableContent
 {
     use HasCustomFields;
-
     /** @use HasFactory<CmsDownloadFileFactory> */
     use HasFactory;
+
+    use HasMediaGalleries;
+
     use HasTranslations;
     use WithDeleteToken;
 
@@ -66,6 +69,14 @@ class CmsDownloadFile extends Model implements CustomFieldContent, TranslatableC
     public function translatableFields(): array
     {
         return ['title', 'description'];
+    }
+
+    /**
+     * @return list<string>
+     */
+    public function translatableHtmlFields(): array
+    {
+        return ['description'];
     }
 
     /**

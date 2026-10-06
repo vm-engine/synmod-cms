@@ -11,6 +11,7 @@ use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\HasFieldSchema;
+use VmEngine\Cms\Traits\HasMediaGalleryFlag;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class SectionFormObject extends Form
@@ -18,6 +19,7 @@ class SectionFormObject extends Form
     use HasAccessFields;
     use HasCustomFieldValues;
     use HasFieldSchema;
+    use HasMediaGalleryFlag;
     use HasTranslationFields;
 
     public ?CmsSection $section = null;
@@ -93,6 +95,7 @@ class SectionFormObject extends Form
 
         $this->fillTranslations($section);
         $this->fillFieldSchema($section);
+        $this->fillMediaGalleryFlag($section);
         $this->fillCustomFields($section, $section);
         $this->fillAccess($section, $section, 'cms.article.section.update', CmsVisibility::Public);
     }
@@ -174,6 +177,7 @@ class SectionFormObject extends Form
                 'items_per_page' => $this->items_per_page,
                 'custom_var' => $this->customVars,
                 'custom_var_allow_add' => $this->customVarAllowAdd,
+                ...$this->mediaGalleryConfig($this->section),
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,

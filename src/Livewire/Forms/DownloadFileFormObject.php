@@ -45,7 +45,7 @@ class DownloadFileFormObject extends Form
     {
         $rules = [
             'title' => 'nullable|string|max:255',
-            'description' => 'nullable|string|max:2000',
+            'description' => 'nullable|string|max:65535',
             'customVars' => 'array',
             'customVars.*.key' => 'required|string|max:100|regex:/^[a-z0-9_]+$/',
             'customVars.*.label' => 'nullable|string|max:255',

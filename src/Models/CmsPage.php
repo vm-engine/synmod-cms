@@ -21,6 +21,7 @@ use VmEngine\Cms\Support\TranslatableContent;
 use VmEngine\Cms\Traits\DefinesCustomFields;
 use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasCustomFields;
+use VmEngine\Cms\Traits\HasMediaGalleries;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -53,11 +54,12 @@ class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent,
 {
     use DefinesCustomFields;
     use HasCmsAccess;
-
     use HasCustomFields;
-
     /** @use HasFactory<CmsPageFactory> */
     use HasFactory;
+
+    use HasMediaGalleries;
+
     use HasTranslations;
     use WithDeleteToken;
 

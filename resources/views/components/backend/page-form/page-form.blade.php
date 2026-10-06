@@ -301,6 +301,7 @@
         @isDev
             @if ($form->parent_id === null)
                 @include('cms::components.backend.partials._field-schema-manager')
+                @include('cms::components.backend.partials._media-gallery-toggle', ['help' => __('cms::labels.media_gallery_enable_page_help')])
             @endif
         @endisDev
 
@@ -345,6 +346,19 @@
         </div>
         <div class="h-16"></div>
     </form>
+
+    @if ($this->mediaGalleriesAvailable)
+        <div class="mb-20">
+            @if ($pageId)
+                <livewire:cms::backend.media-gallery-manager
+                    :owner="$form->page"
+                    wire:key="mgm-page-{{ $pageId }}"
+                />
+            @else
+                <p class="form-help mt-6">{{ __('cms::labels.media_galleries_save_first') }}</p>
+            @endif
+        </div>
+    @endif
 </div>
 
 <script nonce="{{ csp_nonce() }}">

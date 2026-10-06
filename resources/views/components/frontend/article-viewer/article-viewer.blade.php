@@ -57,7 +57,7 @@
         @endif
 
         <div class="cms-article__body">
-            {!! $article->translate('body') !!}
+            {!! $article->renderWithMediaGalleries('body') !!}
         </div>
     </article>
 </div>

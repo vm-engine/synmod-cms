@@ -450,6 +450,16 @@ import '../../synapps/resources/js/synapse-components.js';
 
 The default theme styles the bar in `themes/default/css/cms.css` (`.cms-field-filters*`).
 
+## Media Galleries
+
+Small inline image galleries placed in the middle of rich-text content.
+
+- **Enable (dev only):** turn on *Enable media galleries* on a **root page** (covers that page and every child page), a **section** (its articles) or a **download** (its files). Stored as `config['media_gallery']`; non-dev saves never change it.
+- **Manage:** the page, article and download-file forms show a **Media Galleries** panel once the item is saved. Each gallery has a title, a key (unique per item), a layout (`slider` or `grid`) and FM images with per-locale captions. Copy its tag, e.g. `[gallery:intro-shots]`, and paste it into the body/description. A tag alone in a paragraph replaces the whole `<p>`.
+- **Render:** templates output `{!! $page->renderWithMediaGalleries('body') !!}` (articles: `body`, download files: `description`). Unknown keys, empty galleries and disabled features render nothing. Use `CmsMediaGalleryRenderer::strip($html)` wherever content is shown as plain text.
+- **Cleanup:** deleting a page, article or download file deletes its galleries. Deleting a section or download removes its articles/files by FK cascade, which fires no events and leaves their galleries orphaned. Run `php artisan cms:prune-media-galleries` (`--dry-run` lists them first) to delete those, with their images and caption translations.
+- **Theme:** override `cms::components.frontend.partials._media-gallery-slider` / `_media-gallery-grid` (vendor view override). The slider reuses the banner slider's `cmsBannerSlider` Alpine component and `.cms-banner-slider*` styles; extra styles are `.cms-media-gallery*`.
+
 ## Custom View & Layout Overrides
 
 Every content type can override its rendered Blade view and/or layout on a per-record basis via `custom_view` / `custom_layout` columns, editable from a "Custom Rendering" card on each admin form. Sections and categories additionally expose a scoped override for the content they contain (`custom_category_view`, `custom_article_view`).

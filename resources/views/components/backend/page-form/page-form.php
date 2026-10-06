@@ -8,6 +8,7 @@ use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\PageFormObject;
+use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Traits\WithAccessPicker;
@@ -130,6 +131,14 @@ new class extends Component
         $parent = $this->form->parent_id ? app(CmsPageService::class)->findById($this->form->parent_id) : null;
 
         return $parent ? app(CmsAccessService::class)->effectiveVisibility($parent)->label() : null;
+    }
+
+    /** Whether this page's root has media galleries on (manager, or a save-first hint). */
+    #[Computed()]
+    public function mediaGalleriesAvailable(): bool
+    {
+        return (new CmsPage(['parent_id' => $this->form->parent_id]))->mediaGalleriesEnabled()
+            || ($this->form->page !== null && $this->form->page->mediaGalleriesEnabled());
     }
 
     #[Computed()]

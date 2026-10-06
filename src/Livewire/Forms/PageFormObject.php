@@ -11,6 +11,7 @@ use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\HasFieldSchema;
+use VmEngine\Cms\Traits\HasMediaGalleryFlag;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class PageFormObject extends Form
@@ -18,6 +19,7 @@ class PageFormObject extends Form
     use HasAccessFields;
     use HasCustomFieldValues;
     use HasFieldSchema;
+    use HasMediaGalleryFlag;
     use HasTranslationFields;
 
     public ?CmsPage $page = null;
@@ -91,6 +93,7 @@ class PageFormObject extends Form
         $this->fillTranslations($page);
         $this->fillAccess($page, $page, 'cms.page.update', CmsVisibility::Public);
         $this->fillFieldSchema($page);
+        $this->fillMediaGalleryFlag($page);
         $this->fillCustomFields($page, $page);
     }
 
@@ -211,6 +214,7 @@ class PageFormObject extends Form
                 'children_layout' => $this->children_layout,
                 'custom_var' => $this->customVars,
                 'custom_var_allow_add' => $this->customVarAllowAdd,
+                ...($this->parent_id === null ? $this->mediaGalleryConfig($this->page) : []),
             ],
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,

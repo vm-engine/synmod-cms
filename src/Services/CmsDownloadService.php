@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
+use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsDownloadFile;
 
@@ -157,7 +158,7 @@ class CmsDownloadService
             'download_id' => $downloadId,
             'file_id' => $data['file_id'],
             'title' => $data['title'] ?? null,
-            'description' => $data['description'] ?? null,
+            'description' => isset($data['description']) ? Purifier::clean($data['description'], 'cms_rte') : null,
             'sort_order' => $maxOrder + 1,
             'config' => $data['config'] ?? [],
         ]);
@@ -172,6 +173,10 @@ class CmsDownloadService
      */
     public function updateFile(CmsDownloadFile $file, array $data): CmsDownloadFile
     {
+        if (isset($data['description'])) {
+            $data['description'] = Purifier::clean($data['description'], 'cms_rte');
+        }
+
         $oldData = $file->toArray();
         $file->update($data);
         $this->logger->logUpdate('download_file', $file, $oldData);

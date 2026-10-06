@@ -20,6 +20,7 @@ use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
 use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasCustomFields;
+use VmEngine\Cms\Traits\HasMediaGalleries;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -56,11 +57,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
 class CmsArticle extends Model implements CustomFieldContent, TranslatableContent
 {
     use HasCmsAccess;
-
     use HasCustomFields;
-
     /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
+
+    use HasMediaGalleries;
+
     use HasTranslations;
     use WithDeleteToken;
 

@@ -35,7 +35,7 @@
             <div class="cms-download-item__info">
                 <p class="cms-download-item__name">{{ $file->translate('title') ?: ($file->file?->original_name ?? $file->file?->filename ?? __('cms::labels.file')) }}</p>
                 @if($file->translate('description'))
-                <p class="cms-download-item__desc">{{ $file->translate('description') }}</p>
+                <div class="cms-download-item__desc">{!! $file->renderWithMediaGalleries('description') !!}</div>
                 @endif
                 @if($file->file)
                 <p class="cms-download-item__meta">

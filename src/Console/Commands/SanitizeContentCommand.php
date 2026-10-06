@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\DB;
 use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Models\CmsDownloadFile;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
 
@@ -27,6 +28,7 @@ class SanitizeContentCommand extends Command
         CmsPage::class => 'body',
         CmsSection::class => 'description',
         CmsCategory::class => 'description',
+        CmsDownloadFile::class => 'description',
     ];
 
     public function handle(): int

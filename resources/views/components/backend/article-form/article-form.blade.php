@@ -333,6 +333,19 @@
         </div>
         <div class="h-16"></div>
     </form>
+
+    @if ($this->mediaGalleriesAvailable)
+        <div class="mb-20">
+            @if ($articleId)
+                <livewire:cms::backend.media-gallery-manager
+                    :owner="$form->article"
+                    wire:key="mgm-article-{{ $articleId }}"
+                />
+            @else
+                <p class="form-help mt-6">{{ __('cms::labels.media_galleries_save_first') }}</p>
+            @endif
+        </div>
+    @endif
 </div>
 
 <script nonce="{{ csp_nonce() }}">

@@ -11,6 +11,7 @@ use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\HasFieldSchema;
+use VmEngine\Cms\Traits\HasMediaGalleryFlag;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class DownloadFormObject extends Form
@@ -18,6 +19,7 @@ class DownloadFormObject extends Form
     use HasAccessFields;
     use HasCustomFieldValues;
     use HasFieldSchema;
+    use HasMediaGalleryFlag;
     use HasTranslationFields;
 
     public ?CmsDownload $download = null;
@@ -65,6 +67,7 @@ class DownloadFormObject extends Form
 
         $this->fillTranslations($download);
         $this->fillFieldSchema($download);
+        $this->fillMediaGalleryFlag($download);
         $this->fillCustomFields($download, $download);
         $this->fillAccess($download, $download, 'cms.download.category.update', CmsVisibility::Public);
     }
@@ -138,7 +141,7 @@ class DownloadFormObject extends Form
             'meta_description' => $this->meta_description ?: null,
             'custom_view' => $this->custom_view ?: null,
             'custom_layout' => $this->custom_layout ?: null,
-            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
+            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd, ...$this->mediaGalleryConfig($this->download)],
         ];
     }
 
