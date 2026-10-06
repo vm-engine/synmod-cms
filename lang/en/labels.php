@@ -393,4 +393,5 @@ return [
     'media_gallery_not_image' => 'Please pick an image file.',
     'media_gallery_captions_saved' => 'Captions saved.',
     'media_gallery_save_captions' => 'Save Captions',
+    'order_saved' => 'Order saved.',
 ];

@@ -7,6 +7,7 @@ namespace VmEngine\Cms\Services;
 use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Facades\DB;
 use InvalidArgumentException;
 use Mews\Purifier\Facades\Purifier;
 use VmEngine\Cms\Models\CmsPage;
@@ -102,6 +103,47 @@ class CmsPageService
             ->get();
 
         return $tree;
+    }
+
+    /**
+     * Direct children of $parentId (null = root pages), in display order.
+     *
+     * @return Collection<int, CmsPage>
+     */
+    public function siblingsOf(?int $parentId): Collection
+    {
+        return $this->childrenOfQuery($parentId)
+            ->orderBy('sort_order')
+            ->get();
+    }
+
+    /**
+     * Persist a new sibling order under $parentId (null = root pages). Ids that are not
+     * direct children of $parentId are ignored, so a page can never change parent here.
+     *
+     * @param  array<int, int>  $ids
+     */
+    public function reorderChildren(?int $parentId, array $ids): void
+    {
+        DB::transaction(function () use ($parentId, $ids): void {
+            foreach (array_values($ids) as $order => $id) {
+                $this->childrenOfQuery($parentId)
+                    ->whereKey($id)
+                    ->update(['sort_order' => $order]);
+            }
+        });
+
+        $this->logger->logReorder('page', 'children', ($parentId !== null ? CmsPage::find($parentId) : null) ?? new CmsPage, $ids);
+    }
+
+    /**
+     * @return Builder<CmsPage>
+     */
+    private function childrenOfQuery(?int $parentId): Builder
+    {
+        return $parentId === null
+            ? CmsPage::query()->whereNull('parent_id')
+            : CmsPage::query()->where('parent_id', $parentId);
     }
 
     /**

@@ -393,4 +393,5 @@ return [
     'media_gallery_not_image' => 'Silakan pilih file gambar.',
     'media_gallery_captions_saved' => 'Keterangan disimpan.',
     'media_gallery_save_captions' => 'Simpan Keterangan',
+    'order_saved' => 'Urutan disimpan.',
 ];

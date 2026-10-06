@@ -58,7 +58,10 @@
                                 default => 'gray',
                             };
                         @endphp
-                        <tbody>
+                        <tbody
+                            wire:key="page-rows-{{ $this->isSearching ? 'search' : 'tree' }}"
+                            @unless ($this->isSearching) x-data="cmsSortablePageTree()" @endunless
+                        >
                             @if ($this->isSearching)
                                 {{-- Flat search results --}}
                                 @forelse($this->pageList as $page)
@@ -132,8 +135,19 @@
                                 {{-- Tree view --}}
                                 @forelse($this->pageList as $root)
                                     {{-- Root (grandparent) row --}}
-                                    <tr>
-                                        <td class="font-medium">{{ $root->title }}<x-cms::locale-badges :model="$root" /></td>
+                                    <tr
+                                        data-page-id="{{ $root->id }}"
+                                        data-sort-group="root"
+                                        wire:key="page-row-{{ $root->id }}"
+                                    >
+                                        <td class="font-medium">
+                                            <span class="flex items-center gap-1.5">
+                                                @if ($this->sortableGroups['root'] ?? false)
+                                                    <span class="drag-handle cursor-grab text-gray-400" data-root-handle><span class="fa-solid fa-grip-vertical"></span></span>
+                                                @endif
+                                                {{ $root->title }}<x-cms::locale-badges :model="$root" />
+                                            </span>
+                                        </td>
                                         <td><code class="text-xs">{{ $root->full_slug }}</code></td>
                                         <td>
                                             <x-synapse-badge :color="$statusColor($root->status)">
@@ -187,11 +201,19 @@
                                     </tr>
                                     @foreach ($root->children as $child)
                                         {{-- Child (parent) row — indented --}}
-                                        <tr class="bg-gray-50/50 dark:bg-white/[0.02]">
+                                        <tr
+                                            class="bg-gray-50/50 dark:bg-white/[0.02]"
+                                            data-page-id="{{ $child->id }}"
+                                            data-sort-group="{{ $root->id }}"
+                                            wire:key="page-row-{{ $child->id }}"
+                                        >
                                             <td>
                                                 <span
                                                     class="flex items-center gap-1.5 pl-5 text-gray-500 dark:text-gray-400"
                                                 >
+                                                    @if ($this->sortableGroups[$root->id] ?? false)
+                                                        <span class="drag-handle cursor-grab text-gray-400"><span class="fa-solid fa-grip-vertical"></span></span>
+                                                    @endif
                                                     <span
                                                         class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
                                                     {{ $child->title }}<x-cms::locale-badges :model="$child" />
@@ -251,11 +273,19 @@
                                         </tr>
                                         @foreach ($child->children as $grandchild)
                                             {{-- Grandchild row — further indented, no "+" button --}}
-                                            <tr class="bg-gray-50/80 dark:bg-white/[0.04]">
+                                            <tr
+                                                class="bg-gray-50/80 dark:bg-white/[0.04]"
+                                                data-page-id="{{ $grandchild->id }}"
+                                                data-sort-group="{{ $child->id }}"
+                                                wire:key="page-row-{{ $grandchild->id }}"
+                                            >
                                                 <td>
                                                     <span
                                                         class="flex items-center gap-1.5 pl-10 text-gray-400 dark:text-gray-500"
                                                     >
+                                                        @if ($this->sortableGroups[$child->id] ?? false)
+                                                            <span class="drag-handle cursor-grab text-gray-400"><span class="fa-solid fa-grip-vertical"></span></span>
+                                                        @endif
                                                         <span
                                                             class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
                                                         {{ $grandchild->title }}<x-cms::locale-badges :model="$grandchild" />
@@ -336,3 +366,35 @@
         </div>
     </x-synapse-drawer>
 </div>
+
+<script nonce="{{ csp_nonce() }}">
+    (() => {
+        const register = () => {
+            // One Sortable for the whole tree; rows only move within their sibling group
+            // (data-sort-group = parent id or "root"), so a page never changes parent.
+            Alpine.data('cmsSortablePageTree', () => ({
+                init() {
+                    new Sortable(this.$el, {
+                        animation: 150,
+                        handle: '.drag-handle',
+                        draggable: 'tr[data-sort-group]',
+                        onMove: (evt) => evt.related.dataset.sortGroup === evt.dragged.dataset.sortGroup,
+                        onEnd: (evt) => {
+                            if (evt.oldIndex === evt.newIndex) {
+                                return;
+                            }
+                            const group = evt.item.dataset.sortGroup;
+                            const ids = Array.from(this.$el.querySelectorAll(`tr[data-sort-group="${group}"]`))
+                                .map(el => parseInt(el.dataset.pageId));
+                            this.$wire.updateOrder(group === 'root' ? null : parseInt(group), ids);
+                        }
+                    });
+                }
+            }));
+        };
+        document.addEventListener('alpine:init', register);
+        if (window.Alpine) {
+            register();
+        }
+    })();
+</script>

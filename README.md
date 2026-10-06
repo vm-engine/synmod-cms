@@ -471,6 +471,10 @@ Per-page settings stored in `cms_pages.config`:
 | Child Pages Display | `children_display` | `none` | `none`, `cards` (card grid + field filters) or `one_page` (each published child's title and body rendered below as `<section id="cms-child-{slug}">`; sub-menu links become anchors). Child URLs keep working. Legacy `show_children: true` reads as `cards`. |
 | Allow non-dev users to add child pages | `allow_child_create` | on | **Dev only.** When off, non-devs get no "add child" button, a 403 on the form, and the page is left out of the parent dropdown. Existing children stay editable. Read with `$page->acceptsChildrenFromCurrentUser()`. |
 
+### Sorting pages
+
+Sibling pages are reordered by dragging the grip handle on their row in the backend page list. A page can only be dropped among its siblings, never under another parent, so URLs never change. Handles appear only for groups with 2 or more pages that you can update in full; root pages are dev-only and locked while a status filter is active, and search results have no handles. Backed by `CmsPageService::siblingsOf()` / `reorderChildren()` (logged as `cms.page.{id}.reorder_children`).
+
 ## Article Display Options
 
 Set on the **section** (`cms_sections.config`), overridable per **article** (`cms_articles.config`):
@@ -605,7 +609,7 @@ $articles = $service->getPublishedArticlesInSectionForWidget(sectionId: $section
 $service->createArticle($data, $tagInputs, auth()->id());   // wrapped in DB::transaction
 ```
 
-`CmsArticleService` additionally owns `CmsSection`, `CmsCategory`, and `CmsTag` queries/writes (there's no separate service for those). `CmsGalleryService` owns both `CmsAlbum` and `CmsAlbumImage` — including `reorderImagesInAlbum()` and the auto-cover logic (`applyAutoCoverOnImageCreate`/`recomputeCoverOnImageDelete`) that used to live in `CmsAlbumImageObserver`. `CmsDownloadService` owns both `CmsDownload` and `CmsDownloadFile`, including `reorderFilesInDownload()`.
+`CmsArticleService` additionally owns `CmsSection`, `CmsCategory`, and `CmsTag` queries/writes (there's no separate service for those). `CmsGalleryService` owns both `CmsAlbum` and `CmsAlbumImage` — including `reorderImagesInAlbum()` and the auto-cover logic (`applyAutoCoverOnImageCreate`/`recomputeCoverOnImageDelete`) that used to live in `CmsAlbumImageObserver`. `CmsDownloadService` owns both `CmsDownload` and `CmsDownloadFile`, including `reorderFilesInDownload()`. `CmsPageService::reorderChildren($parentId, $ids)` reorders sibling pages (`null` = root pages) and ignores ids under another parent.
 
 Every service constructor injects `CmsActivityLogger` (see below) and calls it internally from every write method — you don't need to log activity yourself when using these services.
 
