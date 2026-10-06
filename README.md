@@ -44,7 +44,7 @@ This is a private package, not published on Packagist — add its VCS repository
         }
     ],
     "require": {
-        "vm-engine/synmod-cms": "^1.1"
+        "vm-engine/synmod-cms": "^2.0"
     }
 }
 ```

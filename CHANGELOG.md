@@ -5,7 +5,15 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.0.0] - Unreleased
+## [2.0.0] - 2026-10-06
+
+**Breaking:**
+- Requires `vm-engine/synapse` ^3.0, `vm-engine/synapps-auth` ^3.0, `vm-engine/synapps-fallback` ^2.0 and `vm-engine/synmod-fm` ^2.0. Stay on 1.x (`v1` branch) for Synapse 2.x.
+- Downloads: `access` → `visibility` (private downloads become *protected*); `DownloadAccess` enum and `CmsDownload::publicAccess()` removed (use `CmsVisibility` / `visibleTo()`); `CmsDownloadService::getFrontendList()` lost its `$includePrivate` argument.
+- Search index and sitemap now list only effectively public content.
+- Published/overridden backend and frontend views must be re-published (semantic CSS, `adv-select`, CSP-safe Alpine, Phosphor icons, `<x-cms::form-layout>`).
+
+**Upgrade:** `php artisan migrate` (translations, searchables, custom fields, access control, galleries), then `php artisan cms:setup` (replaces `cms:patch-resources`/`mod-cms:patch-resources`, now deprecated aliases; also runs `cms:search-reindex`), then `npm run build`.
 
 ### Added
 - **Long-form editor layout** — the page, article, section, category, download and album forms now share `<x-cms::form-layout>`: content on the left with a settings sidebar (Publishing, Access, Page/Display Settings) from the `xl` breakpoint, stacked on smaller screens (sidebar panels use container queries). SEO and Custom Rendering start collapsed. A failed save shows an error summary on top and focuses the first invalid field, opening its collapsed panel. An **Unsaved changes** indicator in the Save bar and a leave guard (reload/close and `wire:navigate`) protect edits. Download, album, section and category forms are split into Info / Publishing / SEO panels; sections get a **Display Settings** panel. SEO and custom view/layout fields now show inline validation errors. New `cmsForm` Alpine helper in `cms.js`. Upgrade: `npm run build`.
