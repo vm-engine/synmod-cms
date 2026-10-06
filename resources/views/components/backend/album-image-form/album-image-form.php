@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\AlbumImageFormObject;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
@@ -14,8 +16,10 @@ new class extends Component
 {
     public AlbumImageFormObject $form;
 
+    #[Locked]
     public int $albumId;
 
+    #[Locked]
     public int $imageId;
 
     public function mount(int $albumId, int $id): void
@@ -24,6 +28,7 @@ new class extends Component
         $this->imageId = $id;
 
         $image = app(CmsGalleryService::class)->findAlbumImageOrFailInAlbum($albumId, $id);
+        app(CmsAccessService::class)->authorizeManage($image, 'cms.gallery.image.update');
         $this->form->setImage($image);
 
         synav()->setActiveMenu('cms.gallery');
@@ -36,6 +41,11 @@ new class extends Component
 
     public function save(): void
     {
+        app(CmsAccessService::class)->authorizeManage(
+            app(CmsGalleryService::class)->findAlbumImageOrFailInAlbum($this->albumId, $this->imageId),
+            'cms.gallery.image.update',
+        );
+
         $this->form->update();
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_updated'));
         $this->redirect(backend_route('cms.album.images', ['albumId' => $this->albumId]), navigate: true);

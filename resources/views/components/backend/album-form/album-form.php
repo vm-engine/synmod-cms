@@ -3,17 +3,23 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Livewire\Forms\AlbumFormObject;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\WithAccessPicker;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithAccessPicker;
+
     public AlbumFormObject $form;
 
+    #[Locked]
     public ?int $albumId = null;
 
     public function mount(?int $id = null): void
@@ -22,7 +28,10 @@ new class extends Component
 
         if ($id) {
             $album = app(CmsGalleryService::class)->findAlbumOrFailById($id);
+            app(CmsAccessService::class)->authorizeManage($album, app(CmsAccessService::class)->abilityFor($album, 'update'));
             $this->form->setAlbum($album);
+        } else {
+            $this->form->initAccessForNew();
         }
 
         synav()->setActiveMenu('cms.gallery');
@@ -36,6 +45,8 @@ new class extends Component
     public function save(): void
     {
         if ($this->albumId) {
+            $album = app(CmsGalleryService::class)->findAlbumOrFailById($this->albumId);
+            app(CmsAccessService::class)->authorizeManage($album, app(CmsAccessService::class)->abilityFor($album, 'update'));
             $this->form->update();
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.album_updated'));
         } else {

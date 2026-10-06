@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Services;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use InvalidArgumentException;
@@ -43,7 +44,9 @@ class CmsPageService
      */
     public function findPublishedByFullSlug(string $fullSlug, array $with = []): ?CmsPage
     {
-        return CmsPage::with($with)->published()->where('full_slug', $fullSlug)->first();
+        $page = CmsPage::with($with)->published()->where('full_slug', $fullSlug)->first();
+
+        return $page !== null && app(CmsAccessService::class)->canView($page, auth()->user()) ? $page : null;
     }
 
     /**
@@ -138,7 +141,8 @@ class CmsPageService
             ->limit($limit)
             ->get();
 
-        return $children;
+        // ponytail: filtered after LIMIT, so hidden pages can shorten the list
+        return app(CmsAccessService::class)->filterVisiblePages($children);
     }
 
     /**
@@ -153,7 +157,7 @@ class CmsPageService
             ->limit($limit)
             ->get();
 
-        return $descendants;
+        return app(CmsAccessService::class)->filterVisiblePages($descendants);
     }
 
     /**
@@ -221,7 +225,7 @@ class CmsPageService
             ->all();
     }
 
-    public function deleteByToken(string $token): CmsPage
+    public function deleteByToken(string $token, ?Closure $authorize = null): CmsPage
     {
         $id = CmsPage::validateDeleteToken($token);
         if (! $id) {
@@ -229,6 +233,8 @@ class CmsPageService
         }
 
         $page = CmsPage::findOrFail($id);
+
+        $authorize?->__invoke($page);
         $this->logger->logDelete('page', $page);
         $page->delete();
 

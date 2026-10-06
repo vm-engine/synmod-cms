@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsPageFactory;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -28,6 +30,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $excerpt
  * @property string|null $cover_image
  * @property string $status
+ * @property CmsVisibility $visibility
  * @property Carbon|null $published_at
  * @property int $sort_order
  * @property array<string, mixed>|null $config
@@ -44,9 +47,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsPage extends Model implements TranslatableContent
 {
+    use HasCmsAccess;
+
     /** @use HasFactory<CmsPageFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -61,6 +65,7 @@ class CmsPage extends Model implements TranslatableContent
         'excerpt',
         'cover_image',
         'status',
+        'visibility',
         'published_at',
         'sort_order',
         'config',
@@ -73,6 +78,7 @@ class CmsPage extends Model implements TranslatableContent
     ];
 
     protected $casts = [
+        'visibility' => CmsVisibility::class,
         'published_at' => 'datetime',
         'config' => 'array',
         'sort_order' => 'integer',

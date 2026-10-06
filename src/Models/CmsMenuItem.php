@@ -122,13 +122,14 @@ class CmsMenuItem extends Model implements TranslatableContent
         };
     }
 
-    private function resolveContentUrl(): string
+    /** The content model this item links to, or null for url/list items and missing targets. */
+    public function resolveTarget(): ?Model
     {
         if ($this->target_id === null) {
-            return '#';
+            return null;
         }
 
-        $target = match ($this->target_type) {
+        return match ($this->target_type) {
             'page' => CmsPage::find($this->target_id),
             'section' => CmsSection::find($this->target_id),
             'category' => CmsCategory::with('section')->find($this->target_id),
@@ -138,6 +139,11 @@ class CmsMenuItem extends Model implements TranslatableContent
             'download' => CmsDownload::find($this->target_id),
             default => null,
         };
+    }
+
+    private function resolveContentUrl(): string
+    {
+        $target = $this->resolveTarget();
 
         if ($target === null) {
             return '#';

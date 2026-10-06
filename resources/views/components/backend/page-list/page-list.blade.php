@@ -1,6 +1,7 @@
 <div x-data="{ pageName: '{{ $this->title() }}', drawerOpen: false }">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
+
     <x-synapse-confirm-dialog />
 
     <div class="space-y-5 sm:space-y-6">
@@ -71,7 +72,7 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                @canAccess('cms.page.create')
+                                                @if ($this->canManage($page, 'cms.page.create'))
                                                 @if ($page->getDepth() < 2)
                                                     <a
                                                         class="btn-icon success has-tooltip group"
@@ -83,8 +84,8 @@
                                                             class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                     </a>
                                                 @endif
-                                                @endcanAccess
-                                                @canAccess('cms.page.update')
+                                                @endif
+                                                @if ($this->canManage($page, 'cms.page.update'))
                                                 <a
                                                     class="btn-icon warning has-tooltip group"
                                                     href="{{ backend_route('cms.page.form', ['id' => $page->id]) }}"
@@ -93,8 +94,8 @@
                                                     <span class="fa-solid fa-edit"></span>
                                                     <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                 </a>
-                                                @endcanAccess
-                                                @canAccess('cms.page.delete')
+                                                @endif
+                                                @if ($this->canManage($page, 'cms.page.delete'))
                                                 <button
                                                     class="btn-icon danger has-tooltip group"
                                                     data-token="{{ $page->delete_token }}"
@@ -113,7 +114,7 @@
                                                     <span class="fa-solid fa-trash"></span>
                                                     <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                 </button>
-                                                @endcanAccess
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -141,7 +142,7 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                @canAccess('cms.page.create')
+                                                @if ($this->canManage($root, 'cms.page.create'))
                                                 <a
                                                     class="btn-icon success has-tooltip group"
                                                     href="{{ backend_route('cms.page.form', ['parentId' => $root->id]) }}"
@@ -150,8 +151,8 @@
                                                     <span class="fa-solid fa-plus"></span>
                                                     <span class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                 </a>
-                                                @endcanAccess
-                                                @canAccess('cms.page.update')
+                                                @endif
+                                                @if ($this->canManage($root, 'cms.page.update'))
                                                 <a
                                                     class="btn-icon warning has-tooltip group"
                                                     href="{{ backend_route('cms.page.form', ['id' => $root->id]) }}"
@@ -160,8 +161,8 @@
                                                     <span class="fa-solid fa-edit"></span>
                                                     <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                 </a>
-                                                @endcanAccess
-                                                @canAccess('cms.page.delete')
+                                                @endif
+                                                @if ($this->canManage($root, 'cms.page.delete'))
                                                 <button
                                                     class="btn-icon danger has-tooltip group"
                                                     data-token="{{ $root->delete_token }}"
@@ -180,7 +181,7 @@
                                                     <span class="fa-solid fa-trash"></span>
                                                     <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                 </button>
-                                                @endcanAccess
+                                                @endif
                                             </div>
                                         </td>
                                     </tr>
@@ -204,7 +205,7 @@
                                             </td>
                                             <td>
                                                 <div class="text-center">
-                                                    @canAccess('cms.page.create')
+                                                    @if ($this->canManage($child, 'cms.page.create'))
                                                     <a
                                                         class="btn-icon success has-tooltip group"
                                                         href="{{ backend_route('cms.page.form', ['parentId' => $child->id]) }}"
@@ -214,8 +215,8 @@
                                                         <span
                                                             class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                     </a>
-                                                    @endcanAccess
-                                                    @canAccess('cms.page.update')
+                                                    @endif
+                                                    @if ($this->canManage($child, 'cms.page.update'))
                                                     <a
                                                         class="btn-icon warning has-tooltip group"
                                                         href="{{ backend_route('cms.page.form', ['id' => $child->id]) }}"
@@ -224,8 +225,8 @@
                                                         <span class="fa-solid fa-edit"></span>
                                                         <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                     </a>
-                                                    @endcanAccess
-                                                    @canAccess('cms.page.delete')
+                                                    @endif
+                                                    @if ($this->canManage($child, 'cms.page.delete'))
                                                     <button
                                                         class="btn-icon danger has-tooltip group"
                                                         data-token="{{ $child->delete_token }}"
@@ -244,7 +245,7 @@
                                                         <span class="fa-solid fa-trash"></span>
                                                         <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                     </button>
-                                                    @endcanAccess
+                                                    @endif
                                                 </div>
                                             </td>
                                         </tr>
@@ -268,7 +269,7 @@
                                                 </td>
                                                 <td>
                                                     <div class="text-center">
-                                                        @canAccess('cms.page.update')
+                                                        @if ($this->canManage($grandchild, 'cms.page.update'))
                                                         <a
                                                             class="btn-icon warning has-tooltip group"
                                                             href="{{ backend_route('cms.page.form', ['id' => $grandchild->id]) }}"
@@ -277,8 +278,8 @@
                                                             <span class="fa-solid fa-edit"></span>
                                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                         </a>
-                                                        @endcanAccess
-                                                        @canAccess('cms.page.delete')
+                                                        @endif
+                                                        @if ($this->canManage($grandchild, 'cms.page.delete'))
                                                         <button
                                                             class="btn-icon danger has-tooltip group"
                                                             data-token="{{ $grandchild->delete_token }}"
@@ -297,7 +298,7 @@
                                                             <span class="fa-solid fa-trash"></span>
                                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                         </button>
-                                                        @endcanAccess
+                                                        @endif
                                                     </div>
                                                 </td>
                                             </tr>

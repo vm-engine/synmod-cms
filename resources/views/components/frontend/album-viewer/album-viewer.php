@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
@@ -22,6 +23,8 @@ new class extends Component
             $album_id,
             ['images.file'],
         );
+
+        app(CmsAccessService::class)->authorizeView($this->album);
 
         // Derive the gallery index URL by stripping /{album-slug} from the current path
         $path = ltrim(request()->getPathInfo(), '/');

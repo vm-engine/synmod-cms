@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
-use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
@@ -59,7 +58,8 @@ class CmsSearchIndexer
             return;
         }
 
-        if ($model instanceof CmsDownload && $model->access === DownloadAccess::Private) {
+        // Shared index: only content every visitor may see.
+        if (! app(CmsAccessService::class)->isPublic($model)) {
             $this->forget($model);
 
             return;

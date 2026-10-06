@@ -6,14 +6,17 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsSection;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
 new class extends Component
 {
-    use RemembersQueryParams, WithPagination;
+    use RemembersQueryParams, WithCmsAccessChecks, WithPagination;
 
     public ?int $sectionId = null;
 
@@ -83,7 +86,10 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            app(CmsArticleService::class)->deleteArticleByToken($token);
+            app(CmsArticleService::class)->deleteArticleByToken(
+                $token,
+                fn (CmsArticle $item) => app(CmsAccessService::class)->authorizeManage($item, 'cms.article.delete'),
+            );
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 

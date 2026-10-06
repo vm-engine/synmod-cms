@@ -73,9 +73,7 @@
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        @if (
-                                            ($album->type->value === 'normal' && can_access('cms.gallery.album.update')) ||
-                                                ($album->type->value === 'banner' && can_access('cms.gallery.banner.update')))
+                                        @if ($this->canManageAction($album, 'update'))
                                             <a
                                                 class="btn-icon warning has-tooltip group"
                                                 href="{{ backend_route('cms.album.form', ['id' => $album->id]) }}"
@@ -95,9 +93,7 @@
                                             <span class="tooltip">{{ __('cms::labels.manage_images') }}</span>
                                         </a>
                                         @endcanAccess
-                                        @if (
-                                            ($album->type->value === 'normal' && can_access('cms.gallery.album.delete')) ||
-                                                ($album->type->value === 'banner' && can_access('cms.gallery.banner.delete')))
+                                        @if ($this->canManageAction($album, 'delete'))
                                             <button
                                                 class="btn-icon danger has-tooltip group"
                                                 data-token="{{ $album->delete_token }}"

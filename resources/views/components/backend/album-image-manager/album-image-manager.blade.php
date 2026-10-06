@@ -5,7 +5,7 @@
     <div class="space-y-5 sm:space-y-6">
 
         {{-- Add image --}}
-        @canAccess('cms.gallery.image.create')
+        @if ($this->canManage($this->album, 'cms.gallery.image.create'))
         <x-synapse-panel :title="__('cms::labels.add_image')">
             <div class="syn-panel-body p-5 sm:p-6">
                 <div class="grid gap-4 sm:grid-cols-3">
@@ -63,7 +63,7 @@
                 />
             </div>
         </x-synapse-panel>
-        @endcanAccess
+        @endif
 
         {{-- Image grid --}}
         <x-synapse-panel :title="__('cms::labels.images') . ' (' . $this->images->count() . ')'">
@@ -95,7 +95,7 @@
                             <div class="truncate px-2 py-1 text-xs">{{ $image->title }}</div>
                         @endif
                         <div class="absolute right-1 top-1 hidden gap-1 group-hover:flex">
-                            @canAccess('cms.gallery.image.delete')
+                            @if ($this->canManage($this->album, 'cms.gallery.image.delete'))
                             <button
                                 class="btn xs danger"
                                 type="button"
@@ -117,8 +117,8 @@
                             >
                                 <span class="fa-solid fa-trash"></span>
                             </button>
-                            @endcanAccess
-                            @canAccess('cms.gallery.image.update')
+                            @endif
+                            @if ($this->canManage($this->album, 'cms.gallery.image.update'))
                             <a
                                 class="btn xs secondary"
                                 href="{{ backend_route('cms.album.image.form', ['albumId' => $albumId, 'id' => $image->id]) }}"
@@ -127,7 +127,7 @@
                             >
                                 <span class="fa-solid fa-pen"></span>
                             </a>
-                            @endcanAccess
+                            @endif
                             <span
                                 class="btn xs secondary cursor-grab"
                                 title="Drag to reorder"

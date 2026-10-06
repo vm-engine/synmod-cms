@@ -5,6 +5,7 @@ declare(strict_types=1);
 use Livewire\Component;
 use Livewire\WithPagination;
 use VmEngine\Cms\Models\CmsCategory;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
@@ -23,6 +24,8 @@ new class extends Component
             $category_id,
             ['section'],
         );
+
+        app(CmsAccessService::class)->authorizeView($this->category);
     }
 
     public function title(): string

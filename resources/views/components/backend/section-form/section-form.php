@@ -3,16 +3,22 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\SectionFormObject;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\WithAccessPicker;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithAccessPicker;
+
     public SectionFormObject $form;
 
+    #[Locked]
     public ?int $sectionId = null;
 
     public function mount(?int $id = null): void
@@ -21,7 +27,10 @@ new class extends Component
 
         if ($id) {
             $section = app(CmsArticleService::class)->findSectionOrFailById($id);
+            app(CmsAccessService::class)->authorizeManage($section, 'cms.article.section.update');
             $this->form->setSection($section);
+        } else {
+            $this->form->initAccessForNew();
         }
 
         synav()->setActiveMenu('cms.section');
@@ -37,6 +46,10 @@ new class extends Component
     public function save(): void
     {
         if ($this->sectionId) {
+            app(CmsAccessService::class)->authorizeManage(
+                app(CmsArticleService::class)->findSectionOrFailById($this->sectionId),
+                'cms.article.section.update',
+            );
             $this->form->update();
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.section_updated'));
         } else {

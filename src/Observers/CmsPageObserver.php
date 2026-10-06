@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VmEngine\Cms\Observers;
 
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsFallbackService;
 
 class CmsPageObserver
@@ -13,13 +14,16 @@ class CmsPageObserver
 
     public function created(CmsPage $page): void
     {
+        app(CmsAccessService::class)->forgetPageTree();
         $this->fallback->syncPage($page);
     }
 
     public function updated(CmsPage $page): void
     {
-        // If full_slug changed, we need to re-sync descendants too
-        if ($page->wasChanged('full_slug')) {
+        app(CmsAccessService::class)->forgetPageTree();
+
+        // Slug, parent or visibility changes affect every descendant's route/index entry
+        if ($page->wasChanged(['full_slug', 'parent_id', 'visibility'])) {
             $this->fallback->syncPageDescendants($page);
         }
 
@@ -28,6 +32,7 @@ class CmsPageObserver
 
     public function deleted(CmsPage $page): void
     {
+        app(CmsAccessService::class)->forgetPageTree();
         $this->fallback->forgetPage($page);
     }
 }

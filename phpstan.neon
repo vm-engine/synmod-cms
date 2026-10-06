@@ -8,3 +8,10 @@ parameters:
     tmpDir: build/phpstan
     excludePaths:
         - src/Models/CmsScoutSearchable.php
+    ignoreErrors:
+        # Livewire helper traits used only by MFC components (resources/views/components/**), which sit outside the analysed paths
+        -
+            identifier: trait.unused
+            paths:
+                - src/Traits/WithAccessPicker.php
+                - src/Traits/WithCmsAccessChecks.php

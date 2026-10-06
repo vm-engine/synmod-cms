@@ -3,10 +3,12 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\DownloadFileFormObject;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
@@ -14,8 +16,10 @@ new class extends Component
 {
     public DownloadFileFormObject $form;
 
+    #[Locked]
     public int $downloadId;
 
+    #[Locked]
     public int $fileId;
 
     public function mount(int $downloadId, int $id): void
@@ -24,6 +28,7 @@ new class extends Component
         $this->fileId = $id;
 
         $file = app(CmsDownloadService::class)->findFileOrFailInDownload($downloadId, $id);
+        app(CmsAccessService::class)->authorizeManage($file, 'cms.download.file.update');
         $this->form->setFile($file);
 
         synav()->setActiveMenu('cms.download');
@@ -36,6 +41,11 @@ new class extends Component
 
     public function save(): void
     {
+        app(CmsAccessService::class)->authorizeManage(
+            app(CmsDownloadService::class)->findFileOrFailInDownload($this->downloadId, $this->fileId),
+            'cms.download.file.update',
+        );
+
         $this->form->update();
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_updated'));
         $this->redirect(backend_route('cms.download.files', ['downloadId' => $this->downloadId]), navigate: true);

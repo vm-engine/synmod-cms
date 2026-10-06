@@ -100,7 +100,7 @@ describe('Indexing routed content', function () {
         $download = CmsDownload::factory()->create();
         CmsAlbum::factory()->create(['type' => 'banner', 'status' => 'active']);
 
-        $download->update(['access' => 'private']);
+        $download->update(['visibility' => 'protected']);
 
         expect(CmsSearchable::count())->toBe(0);
     });
@@ -193,7 +193,7 @@ describe('Indexing items', function () {
         expect(CmsSearchable::where('searchable_type', 'download_file')->where('locale', 'en')->value('url'))
             ->toBe("/en/downloads/forms#file-{$file->id}");
 
-        $download->update(['access' => 'private']);
+        $download->update(['visibility' => 'protected']);
 
         expect(CmsSearchable::where('searchable_type', 'download_file')->count())->toBe(0);
     });

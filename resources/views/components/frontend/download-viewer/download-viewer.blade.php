@@ -10,9 +10,9 @@
 
     <header class="cms-download-viewer__header">
         <h1 class="cms-download-viewer__title">{{ $download->translate('title') }}</h1>
-        @if($download->access->value === 'private')
+        @if($download->visibility->value !== 'public')
         <span class="cms-download-viewer__badge cms-download-viewer__badge--private">
-            <span class="fa-solid fa-lock"></span> {{ $download->access->label() }}
+            <span class="fa-solid fa-lock"></span> {{ $download->visibility->label() }}
         </span>
         @endif
         @if($download->translate('description'))

@@ -7,7 +7,7 @@
         <x-synapse-panel :title="__('cms::labels.article_list')">
             <x-slot:toolbar>
                 @if ($sectionId)
-                    @canAccess('cms.article.create')
+                    @if ($this->section && $this->canManage($this->section, 'cms.article.create'))
                     <a
                         class="btn primary w-full justify-center sm:w-auto"
                         href="{{ backend_route('cms.section.article.form', ['sectionId' => $sectionId]) }}"
@@ -15,7 +15,7 @@
                     >
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </a>
-                    @endcanAccess
+                    @endif
                 @endif
                 <x-synapse-search-box
                     :placeholder="__('cms::labels.search')"
@@ -118,7 +118,7 @@
                                 <td>{{ $article->created_at->format('d M Y') }}</td>
                                 <td>
                                     <div class="text-center">
-                                        @canAccess('cms.article.update')
+                                        @if ($this->canManage($article, 'cms.article.update'))
                                         <a
                                             class="btn-icon warning has-tooltip group"
                                             href="{{ backend_route('cms.section.article.edit', ['sectionId' => $article->section_id, 'id' => $article->id]) }}"
@@ -127,8 +127,8 @@
                                             <span class="fa-solid fa-edit"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
-                                        @endcanAccess
-                                        @canAccess('cms.article.delete')
+                                        @endif
+                                        @if ($this->canManage($article, 'cms.article.delete'))
                                         <button
                                             class="btn-icon danger has-tooltip group"
                                             data-token="{{ $article->delete_token }}"
@@ -147,7 +147,7 @@
                                             <span class="fa-solid fa-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
-                                        @endcanAccess
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

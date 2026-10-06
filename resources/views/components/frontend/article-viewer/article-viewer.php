@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
@@ -20,6 +21,8 @@ new class extends Component
             $article_id,
             ['section', 'category', 'tags', 'creator'],
         );
+
+        app(CmsAccessService::class)->authorizeView($this->article);
     }
 
     public function title(): string

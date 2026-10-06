@@ -182,6 +182,13 @@
                 </div>
             </x-synapse-panel>
 
+            {{-- Access --}}
+            @include('cms::components.backend.partials._access-panel', [
+                'withInherit' => $this->form->parent_id !== null,
+                'withManagers' => true,
+                'inheritedValue' => $this->inheritedVisibility,
+            ])
+
             {{-- Page Settings --}}
             <x-synapse-panel :title="__('cms::labels.page_settings')">
                 <div class="syn-panel-body space-y-3 p-5 sm:p-6">

@@ -13,9 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
-use VmEngine\Cms\Enums\DownloadAccess;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsDownloadFactory;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -26,7 +27,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $description
  * @property string|null $cover_image
  * @property string $status
- * @property DownloadAccess $access
+ * @property CmsVisibility $visibility
  * @property int $sort_order
  * @property string|null $meta_title
  * @property string|null $meta_description
@@ -40,9 +41,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsDownload extends Model implements TranslatableContent
 {
+    use HasCmsAccess;
+
     /** @use HasFactory<CmsDownloadFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -54,7 +56,7 @@ class CmsDownload extends Model implements TranslatableContent
         'description',
         'cover_image',
         'status',
-        'access',
+        'visibility',
         'sort_order',
         'meta_title',
         'meta_description',
@@ -65,7 +67,7 @@ class CmsDownload extends Model implements TranslatableContent
     ];
 
     protected $casts = [
-        'access' => DownloadAccess::class,
+        'visibility' => CmsVisibility::class,
         'sort_order' => 'integer',
         'config' => 'array',
     ];
@@ -90,15 +92,6 @@ class CmsDownload extends Model implements TranslatableContent
     protected function active(Builder $builder): void
     {
         $builder->where('status', 'active');
-    }
-
-    /**
-     * @param  Builder<CmsDownload>  $builder
-     */
-    #[Scope]
-    protected function publicAccess(Builder $builder): void
-    {
-        $builder->where('access', DownloadAccess::Public->value);
     }
 
     /**

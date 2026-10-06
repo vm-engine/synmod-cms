@@ -13,8 +13,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsSectionFactory;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -25,6 +27,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $description
  * @property string|null $cover_image
  * @property string $status
+ * @property CmsVisibility $visibility
  * @property int $sort_order
  * @property array<string, mixed>|null $config
  * @property string|null $meta_title
@@ -42,9 +45,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsSection extends Model implements TranslatableContent
 {
+    use HasCmsAccess;
+
     /** @use HasFactory<CmsSectionFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -56,6 +60,7 @@ class CmsSection extends Model implements TranslatableContent
         'description',
         'cover_image',
         'status',
+        'visibility',
         'sort_order',
         'config',
         'meta_title',
@@ -69,6 +74,7 @@ class CmsSection extends Model implements TranslatableContent
     ];
 
     protected $casts = [
+        'visibility' => CmsVisibility::class,
         'config' => 'array',
         'sort_order' => 'integer',
     ];

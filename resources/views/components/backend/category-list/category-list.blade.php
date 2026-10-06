@@ -11,7 +11,7 @@
                         {{ __('cms::labels.category_list') }}</h3>
                 </div>
                 <div class="flex flex-col gap-3 px-5 pb-4 sm:my-auto sm:flex-row sm:items-center sm:pb-0">
-                    @canAccess('cms.article.category.create')
+                    @if ($this->section && $this->canManage($this->section, 'cms.article.category.create'))
                     <a
                         class="btn primary w-full justify-center sm:w-auto"
                         href="{{ backend_route('cms.category.form', ['sectionId' => $sectionId]) }}"
@@ -19,7 +19,7 @@
                     >
                         <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
                     </a>
-                    @endcanAccess
+                    @endif
                     <div class="input-group w-full sm:w-auto">
                         <input
                             class="form-input w-full grow p-2"
@@ -78,7 +78,7 @@
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        @canAccess('cms.article.category.update')
+                                        @if ($this->canManage($category, 'cms.article.category.update'))
                                         <a
                                             class="btn-icon warning has-tooltip group"
                                             href="{{ backend_route('cms.category.edit', ['sectionId' => $sectionId, 'id' => $category->id]) }}"
@@ -87,8 +87,8 @@
                                             <span class="fa-solid fa-edit"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
-                                        @endcanAccess
-                                        @canAccess('cms.article.category.delete')
+                                        @endif
+                                        @if ($this->canManage($category, 'cms.article.category.delete'))
                                         <button
                                             class="btn-icon danger has-tooltip group"
                                             data-token="{{ $category->delete_token }}"
@@ -107,7 +107,7 @@
                                             <span class="fa-solid fa-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
-                                        @endcanAccess
+                                        @endif
                                     </div>
                                 </td>
                             </tr>

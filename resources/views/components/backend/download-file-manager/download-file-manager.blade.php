@@ -5,7 +5,7 @@
     <div class="space-y-5 sm:space-y-6">
 
         {{-- Add file --}}
-        @canAccess('cms.download.file.create')
+        @if ($this->canManage($this->download, 'cms.download.file.create'))
         <x-synapse-panel :title="__('cms::labels.add_file')">
             <div class="syn-panel-body p-5 sm:p-6">
                 <div class="grid gap-4 sm:grid-cols-2">
@@ -62,7 +62,7 @@
                 />
             </div>
         </x-synapse-panel>
-        @endcanAccess
+        @endif
 
         {{-- File list --}}
         <x-synapse-panel :title="__('cms::labels.files') . ' (' . $this->files->count() . ')'">
@@ -103,7 +103,7 @@
                             @endif
                         </div>
                         <div class="flex items-center gap-1 flex-none">
-                            @canAccess('cms.download.file.update')
+                            @if ($this->canManage($this->download, 'cms.download.file.update'))
                             <a
                                 class="btn-icon warning has-tooltip group"
                                 href="{{ backend_route('cms.download.file.form', ['downloadId' => $downloadId, 'id' => $file->id]) }}"
@@ -112,8 +112,8 @@
                                 <span class="fa-solid fa-edit"></span>
                                 <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                             </a>
-                            @endcanAccess
-                            @canAccess('cms.download.file.delete')
+                            @endif
+                            @if ($this->canManage($this->download, 'cms.download.file.delete'))
                             <button
                                 class="btn-icon danger has-tooltip group"
                                 data-id="{{ $file->id }}"
@@ -133,7 +133,7 @@
                                 <span class="fa-solid fa-trash"></span>
                                 <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                             </button>
-                            @endcanAccess
+                            @endif
                         </div>
                     </div>
                 @empty

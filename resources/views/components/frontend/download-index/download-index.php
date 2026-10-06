@@ -24,7 +24,7 @@ new class extends Component
 
     public function render()
     {
-        $downloads = app(CmsDownloadService::class)->getFrontendList(includePrivate: auth()->check());
+        $downloads = app(CmsDownloadService::class)->getFrontendList();
 
         $template = FrontendViewResolver::view(
             $this->custom_view,

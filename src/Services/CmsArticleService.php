@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Services;
 
+use Closure;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
@@ -72,6 +73,7 @@ class CmsArticleService
     public function paginatePublishedArticlesInSection(int $sectionId, string $orderBy, string $orderDir, int $perPage): LengthAwarePaginator
     {
         return CmsArticle::published()
+            ->visibleTo()
             ->where('section_id', $sectionId)
             ->with(['category', 'tags'])
             ->orderBy($orderBy, $this->normalizeDirection($orderDir))
@@ -85,6 +87,7 @@ class CmsArticleService
     public function paginatePublishedArticlesInCategory(int $categoryId, string $orderBy, string $orderDir, int $perPage): LengthAwarePaginator
     {
         return CmsArticle::published()
+            ->visibleTo()
             ->where('category_id', $categoryId)
             ->with(['section', 'tags'])
             ->orderBy($orderBy, $this->normalizeDirection($orderDir))
@@ -99,7 +102,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesForWidget(string $sort, int $limit): Collection
     {
-        $query = CmsArticle::with(['section', 'category'])->published();
+        $query = CmsArticle::with(['section', 'category'])->published()->visibleTo();
         $this->applyWidgetSort($query, $sort);
 
         /** @var Collection<int, CmsArticle> $articles */
@@ -113,7 +116,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesInSectionForWidget(?int $sectionId, string $sort, int $limit): Collection
     {
-        $query = CmsArticle::with(['category'])->published();
+        $query = CmsArticle::with(['category'])->published()->visibleTo();
 
         if ($sectionId !== null) {
             $query->where('section_id', $sectionId);
@@ -132,7 +135,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesInCategoryForWidget(?int $sectionId, ?int $categoryId, string $sort, int $limit): Collection
     {
-        $query = CmsArticle::published();
+        $query = CmsArticle::published()->visibleTo();
 
         if ($sectionId !== null) {
             $query->where('section_id', $sectionId);
@@ -156,7 +159,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesByTagsForWidget(array $tagIds, string $match, string $sort, int $limit): Collection
     {
-        $query = CmsArticle::with(['section', 'category'])->published();
+        $query = CmsArticle::with(['section', 'category'])->published()->visibleTo();
 
         if (! empty($tagIds)) {
             if ($match === 'all') {
@@ -271,7 +274,7 @@ class CmsArticleService
         });
     }
 
-    public function deleteArticleByToken(string $token): CmsArticle
+    public function deleteArticleByToken(string $token, ?Closure $authorize = null): CmsArticle
     {
         $id = CmsArticle::validateDeleteToken($token);
         if (! $id) {
@@ -279,6 +282,8 @@ class CmsArticleService
         }
 
         $article = CmsArticle::findOrFail($id);
+
+        $authorize?->__invoke($article);
         $this->logger->logDelete('article', $article);
         $article->delete();
 
@@ -316,7 +321,7 @@ class CmsArticleService
      */
     public function findPublishedSectionBySlug(string $slug, array $with = []): ?CmsSection
     {
-        return CmsSection::with($with)->published()->where('slug', $slug)->first();
+        return CmsSection::with($with)->published()->visibleTo()->where('slug', $slug)->first();
     }
 
     /**
@@ -410,7 +415,7 @@ class CmsArticleService
         return $section;
     }
 
-    public function deleteSectionByToken(string $token): CmsSection
+    public function deleteSectionByToken(string $token, ?Closure $authorize = null): CmsSection
     {
         $id = CmsSection::validateDeleteToken($token);
         if (! $id) {
@@ -418,6 +423,8 @@ class CmsArticleService
         }
 
         $section = CmsSection::findOrFail($id);
+
+        $authorize?->__invoke($section);
         $this->logger->logDelete('section', $section);
         $section->delete();
 
@@ -549,7 +556,7 @@ class CmsArticleService
         return $category;
     }
 
-    public function deleteCategoryByToken(string $token): CmsCategory
+    public function deleteCategoryByToken(string $token, ?Closure $authorize = null): CmsCategory
     {
         $id = CmsCategory::validateDeleteToken($token);
         if (! $id) {
@@ -557,6 +564,8 @@ class CmsArticleService
         }
 
         $category = CmsCategory::findOrFail($id);
+
+        $authorize?->__invoke($category);
         $this->logger->logDelete('category', $category);
         $category->delete();
 

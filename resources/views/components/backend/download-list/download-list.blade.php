@@ -42,7 +42,7 @@
                                 <p>{{ __('cms::labels.title') }}</p>
                             </th>
                             <th>
-                                <p>{{ __('cms::labels.access') }}</p>
+                                <p>{{ __('cms::access.visibility') }}</p>
                             </th>
                             <th>
                                 <p>{{ __('cms::labels.files') }}</p>
@@ -61,11 +61,11 @@
                                 <td>{{ $this->downloadList->firstItem() + $i }}</td>
                                 <td>{{ $download->title }}</td>
                                 <td>
-                                    <x-synapse-badge :color="$download->access->value === 'private' ? 'warning' : 'gray'">
+                                    <x-synapse-badge :color="$download->visibility->value !== 'public' ? 'warning' : 'gray'">
                                         <span
-                                            class="fa-solid {{ $download->access->value === 'private' ? 'fa-lock' : 'fa-lock-open' }} mr-1 text-[10px]"
+                                            class="fa-solid {{ $download->visibility->value !== 'public' ? 'fa-lock' : 'fa-lock-open' }} mr-1 text-[10px]"
                                         ></span>
-                                        {{ $download->access->label() }}
+                                        {{ $download->visibility->label() }}
                                     </x-synapse-badge>
                                 </td>
                                 <td>{{ $download->files_count }}</td>
@@ -76,7 +76,7 @@
                                 </td>
                                 <td>
                                     <div class="text-center">
-                                        @canAccess('cms.download.category.update')
+                                        @if ($this->canManage($download, 'cms.download.category.update'))
                                         <a
                                             class="btn-icon warning has-tooltip group"
                                             href="{{ backend_route('cms.download.form', ['id' => $download->id]) }}"
@@ -85,7 +85,7 @@
                                             <span class="fa-solid fa-edit"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
-                                        @endcanAccess
+                                        @endif
                                         @canAccess('cms.download.file.read|cms.download.file.update')
                                         <a
                                             class="btn-icon info has-tooltip group"
@@ -96,7 +96,7 @@
                                             <span class="tooltip">{{ __('cms::labels.manage_files') }}</span>
                                         </a>
                                         @endcanAccess
-                                        @canAccess('cms.download.category.delete')
+                                        @if ($this->canManage($download, 'cms.download.category.delete'))
                                         <button
                                             class="btn-icon danger has-tooltip group"
                                             data-token="{{ $download->delete_token }}"
@@ -115,7 +115,7 @@
                                             <span class="fa-solid fa-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
-                                        @endcanAccess
+                                        @endif
                                     </div>
                                 </td>
                             </tr>
@@ -152,11 +152,11 @@
     @php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
     <x-synapse-drawer :title="$drawerTitle">
         <div class="mb-6">
-            <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.access') }}</label>
+            <label class="mb-2 block text-sm font-medium">{{ __('cms::access.visibility') }}</label>
             <x-synapse-adv-select
-                wire-model="filterAccess"
+                wire-model="filterVisibility"
                 :live="true"
-                :options="$this->accessOptions"
+                :options="$this->visibilityOptions"
             />
         </div>
         <div class="mb-6">

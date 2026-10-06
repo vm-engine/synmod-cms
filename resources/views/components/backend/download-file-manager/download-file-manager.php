@@ -3,14 +3,20 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithCmsAccessChecks;
+
+    #[Locked]
     public int $downloadId;
 
     public ?int $newFileId = null;
@@ -41,6 +47,8 @@ new class extends Component
     #[On('fm:file-selected')]
     public function onFileSelected(string $url, string $path, int $fileId, string $key = ''): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->download, 'cms.download.file.create');
+
         if ($key === '' || $key === 'download-add') {
             $this->newFileId = $fileId;
             $this->newFileUrl = $url;
@@ -55,6 +63,8 @@ new class extends Component
 
     public function addFile(): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->download, 'cms.download.file.create');
+
         $this->validate([
             'newFileUrl' => 'required|string',
             'newFileId' => 'required|integer|exists:fm_files,id',
@@ -75,6 +85,8 @@ new class extends Component
 
     public function deleteFile(int $id): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->download, 'cms.download.file.delete');
+
         app(CmsDownloadService::class)->deleteFileInDownload($this->downloadId, $id);
         unset($this->files);
         $this->dispatch('synapse-confirmed');
@@ -83,6 +95,8 @@ new class extends Component
 
     public function updateOrder(array $ids): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->download, 'cms.download.file.update');
+
         app(CmsDownloadService::class)->reorderFilesInDownload($this->downloadId, $ids);
         unset($this->files);
     }

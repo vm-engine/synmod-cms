@@ -215,6 +215,13 @@
                 </div>
             </x-synapse-panel>
 
+            {{-- Access --}}
+            @include('cms::components.backend.partials._access-panel', [
+                'withInherit' => true,
+                'withManagers' => false,
+                'inheritedValue' => $this->inheritedVisibility,
+            ])
+
             {{-- SEO --}}
             <x-synapse-panel :title="__('cms::labels.seo')">
                 <div class="syn-panel-body p-5 sm:p-6 space-y-4">

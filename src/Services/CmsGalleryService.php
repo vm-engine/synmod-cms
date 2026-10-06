@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Services;
 
+use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -39,7 +40,7 @@ class CmsGalleryService
      */
     public function findActiveAlbumBySlug(string $slug, array $with = []): ?CmsAlbum
     {
-        return CmsAlbum::with($with)->where('slug', $slug)->active()->first();
+        return CmsAlbum::with($with)->where('slug', $slug)->active()->visibleTo()->first();
     }
 
     /**
@@ -47,7 +48,7 @@ class CmsGalleryService
      */
     public function findActiveBannerAlbumBySlug(string $slug, array $with = []): ?CmsAlbum
     {
-        return CmsAlbum::with($with)->where('slug', $slug)->banner()->active()->first();
+        return CmsAlbum::with($with)->where('slug', $slug)->banner()->active()->visibleTo()->first();
     }
 
     /**
@@ -57,7 +58,7 @@ class CmsGalleryService
     public function getActiveNormalAlbums(array $with = []): Collection
     {
         /** @var Collection<int, CmsAlbum> $albums */
-        $albums = CmsAlbum::with($with)->active()->normal()->orderBy('sort_order')->get();
+        $albums = CmsAlbum::with($with)->active()->normal()->visibleTo()->orderBy('sort_order')->get();
 
         return $albums;
     }
@@ -125,7 +126,7 @@ class CmsGalleryService
         return $album;
     }
 
-    public function deleteAlbumByToken(string $token): CmsAlbum
+    public function deleteAlbumByToken(string $token, ?Closure $authorize = null): CmsAlbum
     {
         $id = CmsAlbum::validateDeleteToken($token);
         if (! $id) {
@@ -133,6 +134,8 @@ class CmsGalleryService
         }
 
         $album = CmsAlbum::findOrFail($id);
+
+        $authorize?->__invoke($album);
         $this->logger->logDelete('album', $album);
         $album->delete();
 

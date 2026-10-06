@@ -84,7 +84,7 @@
                                     </td>
                                     <td>
                                         <div class="text-center">
-                                            @canAccess('cms.article.section.update')
+                                            @if ($this->canManage($section, 'cms.article.section.update'))
                                             <a
                                                 class="btn-icon warning has-tooltip group"
                                                 href="{{ backend_route('cms.section.form', ['id' => $section->id]) }}"
@@ -93,7 +93,7 @@
                                                 <span class="fa-solid fa-edit"></span>
                                                 <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                             </a>
-                                            @endcanAccess
+                                            @endif
                                             @canAccess('cms.article.section.read')
                                             <a
                                                 class="btn-icon secondary has-tooltip group"
@@ -114,7 +114,7 @@
                                                 <span class="tooltip">{{ __('cms::labels.view_articles') }}</span>
                                             </a>
                                             @endcanAccess
-                                            @canAccess('cms.article.section.delete')
+                                            @if ($this->canManage($section, 'cms.article.section.delete'))
                                             <button
                                                 class="btn-icon danger has-tooltip group"
                                                 data-token="{{ $section->delete_token }}"
@@ -133,7 +133,7 @@
                                                 <span class="fa-solid fa-trash"></span>
                                                 <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                             </button>
-                                            @endcanAccess
+                                            @endif
                                         </div>
                                     </td>
                                 </tr>

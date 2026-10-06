@@ -21,7 +21,7 @@ class CmsDownloadFactory extends Factory
             'slug' => Str::slug($title),
             'description' => $this->faker->sentence(),
             'status' => 'active',
-            'access' => 'public',
+            'visibility' => 'public',
             'sort_order' => rand(0, 10),
         ];
     }
@@ -31,8 +31,8 @@ class CmsDownloadFactory extends Factory
         return $this->state(['status' => 'inactive']);
     }
 
-    public function private(): static
+    public function protected(): static
     {
-        return $this->state(['access' => 'private']);
+        return $this->state(['visibility' => 'protected']);
     }
 }

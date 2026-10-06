@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsPageService;
+use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class PageFormObject extends Form
 {
+    use HasAccessFields;
     use HasTranslationFields;
 
     public ?CmsPage $page = null;
@@ -82,6 +85,13 @@ class PageFormObject extends Form
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($page);
+        $this->fillAccess($page, $page, 'cms.page.update', CmsVisibility::Public);
+    }
+
+    /** Access panel defaults for a new page (root, or child of $parent). */
+    public function initAccessForNew(?CmsPage $parent): void
+    {
+        $this->fillAccess(null, $parent, 'cms.page.create', $parent ? CmsVisibility::Inherit : CmsVisibility::Public);
     }
 
     /**
@@ -101,14 +111,23 @@ class PageFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->translationRules($rules, new CmsPage)];
+        return [
+            ...$rules,
+            ...$this->accessRules(allowInherit: $this->parent_id !== null),
+            ...$this->translationRules($rules, new CmsPage),
+        ];
     }
 
     public function store(int $createdBy): CmsPage
     {
         $this->validate();
 
-        $page = $this->saveWithTranslations(fn () => app(CmsPageService::class)->create($this->toData(), $createdBy));
+        $parent = $this->parentPage();
+        $page = $this->saveWithTranslations(fn () => app(CmsPageService::class)->create(
+            [...$this->toData(), ...$this->accessData($parent, 'cms.page.create')],
+            $createdBy,
+        ));
+        $this->saveAccess($page, $parent, 'cms.page.create', withManagers: true);
 
         $this->reset();
 
@@ -119,7 +138,16 @@ class PageFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsPageService::class)->update($this->page, $this->toData()));
+        $this->saveWithTranslations(fn () => app(CmsPageService::class)->update(
+            $this->page,
+            [...$this->toData(), ...$this->accessData($this->page, 'cms.page.update')],
+        ));
+        $this->saveAccess($this->page, $this->page, 'cms.page.update', withManagers: true);
+    }
+
+    private function parentPage(): ?CmsPage
+    {
+        return $this->parent_id ? app(CmsPageService::class)->findById($this->parent_id) : null;
     }
 
     /**

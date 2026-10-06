@@ -31,9 +31,9 @@
             @endif
             <div class="cms-download-card__body">
                 <div class="cms-download-card__meta">
-                    @if($download->access->value === 'private')
+                    @if($download->visibility->value !== 'public')
                     <span class="cms-download-card__badge cms-download-card__badge--private">
-                        <span class="fa-solid fa-lock"></span> {{ $download->access->label() }}
+                        <span class="fa-solid fa-lock"></span> {{ $download->visibility->label() }}
                     </span>
                     @endif
                 </div>

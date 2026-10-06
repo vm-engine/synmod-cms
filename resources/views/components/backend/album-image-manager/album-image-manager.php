@@ -3,14 +3,20 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithCmsAccessChecks;
+
+    #[Locked]
     public int $albumId;
 
     public string $newImageUrl = '';
@@ -41,6 +47,8 @@ new class extends Component
     #[On('fm:file-selected')]
     public function onFileSelected(string $url, string $path, int $fileId, string $key = ''): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->album, 'cms.gallery.image.create');
+
         if ($key === '' || $key === 'album-add') {
             $this->newFileId = $fileId;
         }
@@ -54,6 +62,8 @@ new class extends Component
 
     public function addImage(): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->album, 'cms.gallery.image.create');
+
         $this->validate([
             'newImageUrl' => 'required|string',
             'newFileId' => 'required|integer|exists:fm_files,id',
@@ -74,6 +84,8 @@ new class extends Component
 
     public function deleteImage(int $id): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->album, 'cms.gallery.image.delete');
+
         app(CmsGalleryService::class)->deleteImageInAlbum($this->albumId, $id);
         unset($this->images);
         $this->dispatch('synapse-confirmed');
@@ -82,6 +94,8 @@ new class extends Component
 
     public function updateOrder(array $ids): void
     {
+        app(CmsAccessService::class)->authorizeManage($this->album, 'cms.gallery.image.update');
+
         app(CmsGalleryService::class)->reorderImagesInAlbum($this->albumId, $ids);
         unset($this->images);
     }

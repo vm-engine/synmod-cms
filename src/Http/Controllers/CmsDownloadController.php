@@ -4,28 +4,28 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Http\Controllers;
 
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Routing\Controller;
 use Illuminate\Support\Facades\Storage;
 use Symfony\Component\HttpFoundation\StreamedResponse;
-use VmEngine\Cms\Enums\DownloadAccess;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
 
 class CmsDownloadController extends Controller
 {
-    public function __construct(private readonly CmsDownloadService $downloads) {}
+    public function __construct(
+        private readonly CmsDownloadService $downloads,
+        private readonly CmsAccessService $access,
+    ) {}
 
-    public function __invoke(int $id): StreamedResponse|RedirectResponse
+    public function __invoke(int $id): StreamedResponse
     {
         $downloadFile = $this->downloads->findFileOrFailById($id, ['download', 'file']);
 
         // Ensure the parent download is active
         abort_if($downloadFile->download->status !== 'active', 404);
 
-        // Enforce private access
-        if ($downloadFile->download->access === DownloadAccess::Private && ! auth()->check()) {
-            return redirect()->route('auth.login');
-        }
+        // Guests are redirected to login, other unauthorized users get a 404
+        $this->access->authorizeView($downloadFile->download);
 
         $fmFile = $downloadFile->file;
 

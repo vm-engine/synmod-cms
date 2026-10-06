@@ -3,17 +3,22 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
-use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Livewire\Forms\DownloadFormObject;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\WithAccessPicker;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithAccessPicker;
+
     public DownloadFormObject $form;
 
+    #[Locked]
     public ?int $downloadId = null;
 
     public function mount(?int $id = null): void
@@ -22,7 +27,10 @@ new class extends Component
 
         if ($id) {
             $download = app(CmsDownloadService::class)->findOrFailById($id);
+            app(CmsAccessService::class)->authorizeManage($download, 'cms.download.category.update');
             $this->form->setDownload($download);
+        } else {
+            $this->form->initAccessForNew();
         }
 
         synav()->setActiveMenu('cms.download');
@@ -36,6 +44,8 @@ new class extends Component
     public function save(): void
     {
         if ($this->downloadId) {
+            $download = app(CmsDownloadService::class)->findOrFailById($this->downloadId);
+            app(CmsAccessService::class)->authorizeManage($download, 'cms.download.category.update');
             $this->form->update();
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.download_updated'));
         } else {
@@ -49,12 +59,6 @@ new class extends Component
     public function onCustomVarAllowAddChanged(bool $value): void
     {
         $this->form->customVarAllowAdd = $value;
-    }
-
-    #[Computed()]
-    public function accessOptions(): array
-    {
-        return DownloadAccess::options();
     }
 
     #[Computed()]

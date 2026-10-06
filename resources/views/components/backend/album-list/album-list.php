@@ -6,13 +6,16 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
 new class extends Component
 {
-    use RemembersQueryParams, WithPagination;
+    use RemembersQueryParams, WithCmsAccessChecks, WithPagination;
 
     #[Url()]
     public string $q = '';
@@ -69,7 +72,10 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            app(CmsGalleryService::class)->deleteAlbumByToken($token);
+            app(CmsGalleryService::class)->deleteAlbumByToken(
+                $token,
+                fn (CmsAlbum $item) => app(CmsAccessService::class)->authorizeManage($item, app(CmsAccessService::class)->abilityFor($item, 'delete')),
+            );
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 

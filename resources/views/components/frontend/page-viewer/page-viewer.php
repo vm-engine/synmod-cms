@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
@@ -20,6 +21,10 @@ new class extends Component
             $page_id,
             ['parent', 'children' => fn ($q) => $q->published()],
         );
+
+        $access = app(CmsAccessService::class);
+        $access->authorizeView($this->page);
+        $this->page->setRelation('children', $access->filterVisiblePages($this->page->children));
     }
 
     public function title(): string

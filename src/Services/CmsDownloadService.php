@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace VmEngine\Cms\Services;
 
+use Closure;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
@@ -34,7 +35,7 @@ class CmsDownloadService
     }
 
     /**
-     * @param  array{q?: string, status?: string, access?: string}  $filters
+     * @param  array{q?: string, status?: string, visibility?: string}  $filters
      * @return LengthAwarePaginator<int, CmsDownload>
      */
     public function paginate(array $filters, string $sort, string $direction, int $perPage): LengthAwarePaginator
@@ -49,28 +50,22 @@ class CmsDownloadService
             $query->where('status', $filters['status']);
         }
 
-        if (! empty($filters['access'])) {
-            $query->where('access', $filters['access']);
+        if (! empty($filters['visibility'])) {
+            $query->where('visibility', $filters['visibility']);
         }
 
         return $query->orderBy($sort, $this->normalizeDirection($direction))->paginate($perPage)->onEachSide(1);
     }
 
     /**
-     * Frontend list (active downloads, optionally restricted to public-only for guests).
+     * Frontend list: active downloads the current visitor may see.
      *
      * @return Collection<int, CmsDownload>
      */
-    public function getFrontendList(bool $includePrivate): Collection
+    public function getFrontendList(): Collection
     {
-        $query = CmsDownload::withCount('files')->active()->orderBy('sort_order');
-
-        if (! $includePrivate) {
-            $query->publicAccess();
-        }
-
         /** @var Collection<int, CmsDownload> $downloads */
-        $downloads = $query->get();
+        $downloads = CmsDownload::withCount('files')->active()->visibleTo()->orderBy('sort_order')->get();
 
         return $downloads;
     }
@@ -99,7 +94,7 @@ class CmsDownloadService
         return $download;
     }
 
-    public function deleteDownloadByToken(string $token): CmsDownload
+    public function deleteDownloadByToken(string $token, ?Closure $authorize = null): CmsDownload
     {
         $id = CmsDownload::validateDeleteToken($token);
         if (! $id) {
@@ -107,6 +102,8 @@ class CmsDownloadService
         }
 
         $download = CmsDownload::findOrFail($id);
+
+        $authorize?->__invoke($download);
         $this->logger->logDelete('download', $download);
         $download->delete();
 

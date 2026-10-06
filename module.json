@@ -247,6 +247,13 @@
             "read": 1,
             "update": 1,
             "delete": 1
+        },
+        "access": {
+            "label": "__cms::acl.access",
+            "create": 0,
+            "read": 0,
+            "update": 1,
+            "delete": 0
         }
     }
 }

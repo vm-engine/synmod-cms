@@ -184,6 +184,13 @@
                     ],
                 ],
             ])
+
+            {{-- Access --}}
+            @include('cms::components.backend.partials._access-panel', [
+                'withInherit' => false,
+                'withManagers' => true,
+                'inheritedValue' => null,
+            ])
         </div>
 
         {{-- Custom Variables --}}

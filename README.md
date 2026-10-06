@@ -26,6 +26,7 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 - **Frontend Livewire Components** — semantic BEM-style components for page, section, category, article, gallery index, album, and menu rendering; all resolved automatically via the fallback routing system
 - **Widget Blade Components** — 8 embeddable `<x-cms::widget.*>` components for use anywhere in your layout, most supporting `template`/`card` overrides for full custom markup (see [Widget Components](#widget-components))
 - **Granular ACL** — CRUD permissions per resource and sub-resource (`cms.article.section`, `cms.gallery.album`, etc.)
+- **Content access control** — Public / Protected / Private (selected users or roles) frontend visibility with page and article inheritance, plus per-item managers lists (page subtrees, sections, albums, downloads) on top of the module ACL. Edited from each form's **Access** panel (`cms.access.update`); entries a dev adds are locked for everyone else
 
 ---
 
@@ -629,6 +630,7 @@ Defined in `module.json` and registered via Synapse's ACL system.
 | `cms.menu` | create, read, update, delete | Menus and menu items |
 | `cms.tag` | create, read, update, delete | Tags |
 | `cms.settings` | read, update | CMS-wide settings |
+| `cms.access` | update | Edit an item's Access panel (visibility, viewers, managers); only on items the user can manage |
 
 `cms.gallery` itself has no CRUD actions — permissions are always checked at the sub-permission level (`album`, `banner`, `image`).
 

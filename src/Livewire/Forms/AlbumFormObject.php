@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class AlbumFormObject extends Form
 {
+    use HasAccessFields;
     use HasTranslationFields;
 
     public ?CmsAlbum $album = null;
@@ -60,6 +64,13 @@ class AlbumFormObject extends Form
         $this->customVarAllowAdd = ($album->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($album);
+        $this->fillAccess($album, $album, app(CmsAccessService::class)->abilityFor($this->album, 'update'), CmsVisibility::Public);
+    }
+
+    /** Access panel defaults for a new item. */
+    public function initAccessForNew(): void
+    {
+        $this->fillAccess(null, null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create', CmsVisibility::Public);
     }
 
     /**
@@ -79,14 +90,16 @@ class AlbumFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->translationRules($rules, new CmsAlbum)];
+        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsAlbum)];
     }
 
     public function store(int $createdBy): CmsAlbum
     {
         $this->validate();
 
-        $album = $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->createAlbum($this->toData(), $createdBy));
+        $album = $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->createAlbum([...$this->toData(), ...$this->accessData(null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create')], $createdBy));
+
+        $this->saveAccess($album, null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create', withManagers: true);
 
         $this->reset();
 
@@ -97,7 +110,9 @@ class AlbumFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->updateAlbum($this->album, $this->toData()));
+        $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->updateAlbum($this->album, [...$this->toData(), ...$this->accessData($this->album, app(CmsAccessService::class)->abilityFor($this->album, 'update'))]));
+
+        $this->saveAccess($this->album, $this->album, app(CmsAccessService::class)->abilityFor($this->album, 'update'), withManagers: true);
     }
 
     /**

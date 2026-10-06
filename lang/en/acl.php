@@ -20,4 +20,5 @@ return [
     'tag' => 'Tags',
     'settings' => 'CMS Settings',
     'search_term' => 'Search Terms',
+    'access' => 'Content Access Settings',
 ];

@@ -3,18 +3,25 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\ArticleFormObject;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\WithAccessPicker;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithAccessPicker;
+
     public ArticleFormObject $form;
 
+    #[Locked]
     public ?int $articleId = null;
 
+    #[Locked]
     public int $sectionId;
 
     public function mount(int $sectionId, ?int $id = null): void
@@ -22,11 +29,19 @@ new class extends Component
         $this->sectionId = $sectionId;
         $this->articleId = $id;
 
+        $service = app(CmsArticleService::class);
+        $access = app(CmsAccessService::class);
+        $section = $service->findSectionOrFailById($sectionId);
+
         if ($id) {
-            $article = app(CmsArticleService::class)->findArticleOrFailById($id, ['tags']);
+            $article = $service->findArticleOrFailById($id, ['tags']);
+            abort_unless($article->section_id === $sectionId, 404);
+            $access->authorizeManage($article, 'cms.article.update');
             $this->form->setArticle($article);
         } else {
+            $access->authorizeManage($section, 'cms.article.create');
             $this->form->section_id = $sectionId;
+            $this->form->initAccessForNew($section);
         }
 
         synav()->setActiveMenu('cms.section');
@@ -41,6 +56,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizeSave();
+
         if ($this->articleId) {
             $this->form->update(auth()->id());
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.article_updated'));
@@ -49,6 +66,23 @@ new class extends Component
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.article_created'));
         }
         $this->redirect(backend_route('cms.section.article.index', ['sectionId' => $this->sectionId]), navigate: true);
+    }
+
+    /** Re-check on save; the article always stays in the route's section. */
+    private function authorizeSave(): void
+    {
+        $service = app(CmsArticleService::class);
+        $access = app(CmsAccessService::class);
+
+        if ($this->articleId) {
+            $article = $service->findArticleOrFailById($this->articleId);
+            abort_unless($article->section_id === $this->sectionId, 404);
+            $access->authorizeManage($article, 'cms.article.update');
+        } else {
+            $access->authorizeManage($service->findSectionOrFailById($this->sectionId), 'cms.article.create');
+        }
+
+        $this->form->section_id = $this->sectionId;
     }
 
     #[On('custom-var-allow-add-changed')]
@@ -65,6 +99,14 @@ new class extends Component
     public function loadTags(array $ids): array
     {
         return app(CmsArticleService::class)->loadTagOptions($ids);
+    }
+
+    #[Computed()]
+    public function inheritedVisibility(): ?string
+    {
+        $section = app(CmsArticleService::class)->findSectionById($this->sectionId);
+
+        return $section ? app(CmsAccessService::class)->effectiveVisibility($section)->label() : null;
     }
 
     #[Computed()]

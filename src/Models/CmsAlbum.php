@@ -14,8 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\AlbumType;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsAlbumFactory;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -27,6 +29,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $cover_image
  * @property AlbumType $type
  * @property string $status
+ * @property CmsVisibility $visibility
  * @property int $sort_order
  * @property string|null $meta_title
  * @property string|null $meta_description
@@ -40,9 +43,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsAlbum extends Model implements TranslatableContent
 {
+    use HasCmsAccess;
+
     /** @use HasFactory<CmsAlbumFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -55,6 +59,7 @@ class CmsAlbum extends Model implements TranslatableContent
         'cover_image',
         'type',
         'status',
+        'visibility',
         'sort_order',
         'meta_title',
         'meta_description',
@@ -65,6 +70,7 @@ class CmsAlbum extends Model implements TranslatableContent
     ];
 
     protected $casts = [
+        'visibility' => CmsVisibility::class,
         'type' => AlbumType::class,
         'sort_order' => 'integer',
         'config' => 'array',

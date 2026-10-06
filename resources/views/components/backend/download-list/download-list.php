@@ -6,13 +6,17 @@ use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use Livewire\WithPagination;
+use VmEngine\Cms\Enums\CmsVisibility;
+use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
 new class extends Component
 {
-    use RemembersQueryParams, WithPagination;
+    use RemembersQueryParams, WithCmsAccessChecks, WithPagination;
 
     #[Url()]
     public string $q = '';
@@ -21,7 +25,7 @@ new class extends Component
     public string $filterStatus = '';
 
     #[Url()]
-    public string $filterAccess = '';
+    public string $filterVisibility = '';
 
     #[Url()]
     public int $limit = 15;
@@ -39,7 +43,7 @@ new class extends Component
 
     protected function rememberedParams(): array
     {
-        return ['q', 'filterStatus', 'filterAccess'];
+        return ['q', 'filterStatus', 'filterVisibility'];
     }
 
     public function title(): string
@@ -69,7 +73,10 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            app(CmsDownloadService::class)->deleteDownloadByToken($token);
+            app(CmsDownloadService::class)->deleteDownloadByToken(
+                $token,
+                fn (CmsDownload $item) => app(CmsAccessService::class)->authorizeManage($item, 'cms.download.category.delete'),
+            );
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 
@@ -85,7 +92,7 @@ new class extends Component
     public function downloadList()
     {
         return app(CmsDownloadService::class)->paginate(
-            filters: ['q' => $this->q, 'status' => $this->filterStatus, 'access' => $this->filterAccess],
+            filters: ['q' => $this->q, 'status' => $this->filterStatus, 'visibility' => $this->filterVisibility],
             sort: $this->sort,
             direction: $this->sortDirection,
             perPage: $this->limit,
@@ -103,12 +110,11 @@ new class extends Component
     }
 
     #[Computed()]
-    public function accessOptions(): array
+    public function visibilityOptions(): array
     {
         return [
             ['value' => '', 'label' => '-- All --'],
-            ['value' => 'public', 'label' => 'Public'],
-            ['value' => 'private', 'label' => 'Private'],
+            ...CmsVisibility::options(),
         ];
     }
 

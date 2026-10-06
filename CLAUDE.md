@@ -135,7 +135,15 @@ Permissions follow the `cms.resource[.sub][action]` pattern. Key permissions:
 - `cms.page`, `cms.page.publish`
 - `cms.article`, `cms.article.publish`, `cms.article.section`, `cms.article.category`
 - `cms.gallery.album`, `cms.gallery.banner`, `cms.gallery.image` (no top-level `cms.gallery` CRUD)
-- `cms.menu`, `cms.tag`, `cms.download.category`, `cms.download.file`, `cms.settings`
+- `cms.menu`, `cms.tag`, `cms.download.category`, `cms.download.file`, `cms.settings`, `cms.search_term`, `cms.access` (edit Access panel)
+
+### Access Control (visibility + managers)
+
+`CmsAccessService` (request-scoped) is the single source of truth. Content models with a `visibility` column use `HasCmsAccess`; both lists live in `cms_access_grants` (`ability` view|manage, `principal_type` user|role, `is_base` = added by a dev, removable only by devs).
+
+- **Frontend**: new viewers call `CmsAccessService::authorizeView($model)` in `mount()` (guest → login, others → 404); new listing queries add `->visibleTo()` (sections, articles, albums, downloads); pages are filtered in PHP with `filterVisiblePages()` because they inherit. Search index and sitemap use `isPublic()`.
+- **Backend**: global ACL plus the item's managers list (empty = ACL only). Call `authorizeManage($scope, $ability)` in `mount()`, `save()` and every mutating action, and lock ids with `#[Locked]`. Use `abilityFor($model, $action)` when the ability depends on the model (e.g. album vs banner). Delete-by-token methods take an `$authorize` closure. List views call `$this->canManage(...)` / `canManageAction(...)` from the `WithCmsAccessChecks` trait. Never resolve services in Blade.
+- **Forms**: form objects `use HasAccessFields` (`fillAccess()`, `accessRules()`, `accessData()`, `saveAccess()`), components `use WithAccessPicker`, view includes `cms::components.backend.partials._access-panel`. Editing needs dev or `cms.access.update` plus manage rights, and is re-checked server-side on save.
 
 ### Translations
 

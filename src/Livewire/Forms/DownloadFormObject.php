@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class DownloadFormObject extends Form
 {
+    use HasAccessFields;
     use HasTranslationFields;
 
     public ?CmsDownload $download = null;
@@ -24,8 +27,6 @@ class DownloadFormObject extends Form
     public string $cover_image = '';
 
     public string $status = 'active';
-
-    public string $access = 'public';
 
     public int $sort_order = 0;
 
@@ -50,7 +51,6 @@ class DownloadFormObject extends Form
         $this->description = $download->description ?? '';
         $this->cover_image = $download->cover_image ?? '';
         $this->status = $download->status;
-        $this->access = $download->access->value;
         $this->sort_order = $download->sort_order;
         $this->meta_title = $download->meta_title ?? '';
         $this->meta_description = $download->meta_description ?? '';
@@ -60,6 +60,13 @@ class DownloadFormObject extends Form
         $this->customVarAllowAdd = ($download->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($download);
+        $this->fillAccess($download, $download, 'cms.download.category.update', CmsVisibility::Public);
+    }
+
+    /** Access panel defaults for a new item. */
+    public function initAccessForNew(): void
+    {
+        $this->fillAccess(null, null, 'cms.download.category.create', CmsVisibility::Public);
     }
 
     /**
@@ -71,7 +78,6 @@ class DownloadFormObject extends Form
             'title' => 'required|string|max:255',
             'slug' => 'required|string|max:255|regex:/^[a-z0-9-]+$/',
             'status' => 'required|in:active,inactive',
-            'access' => 'required|in:public,private',
             'sort_order' => 'integer|min:0',
             'meta_title' => 'nullable|string|max:255',
             'meta_description' => 'nullable|string|max:500',
@@ -79,14 +85,16 @@ class DownloadFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->translationRules($rules, new CmsDownload)];
+        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsDownload)];
     }
 
     public function store(int $createdBy): CmsDownload
     {
         $this->validate();
 
-        $download = $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->createDownload($this->toData(), $createdBy));
+        $download = $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->createDownload([...$this->toData(), ...$this->accessData(null, 'cms.download.category.create')], $createdBy));
+
+        $this->saveAccess($download, null, 'cms.download.category.create', withManagers: true);
 
         $this->reset();
 
@@ -97,7 +105,9 @@ class DownloadFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->updateDownload($this->download, $this->toData()));
+        $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->updateDownload($this->download, [...$this->toData(), ...$this->accessData($this->download, 'cms.download.category.update')]));
+
+        $this->saveAccess($this->download, $this->download, 'cms.download.category.update', withManagers: true);
     }
 
     /**
@@ -111,7 +121,6 @@ class DownloadFormObject extends Form
             'description' => $this->description ?: null,
             'cover_image' => $this->cover_image ?: null,
             'status' => $this->status,
-            'access' => $this->access,
             'sort_order' => $this->sort_order,
             'meta_title' => $this->meta_title ?: null,
             'meta_description' => $this->meta_description ?: null,

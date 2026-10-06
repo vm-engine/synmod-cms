@@ -96,17 +96,6 @@
                         </div>
                         <div>
                             <label
-                                class="form-label required"
-                                for="access"
-                            >{{ __('cms::labels.access') }}</label>
-                            <x-synapse-adv-select
-                                wire-model="form.access"
-                                :live="true"
-                                :options="$this->accessOptions"
-                            />
-                        </div>
-                        <div>
-                            <label
                                 class="form-label"
                                 for="sort_order"
                             >{{ __('cms::labels.sort_order') }}</label>
@@ -184,6 +173,13 @@
                         'placeholder' => 'home::layouts.my-layout',
                     ],
                 ],
+            ])
+
+            {{-- Access --}}
+            @include('cms::components.backend.partials._access-panel', [
+                'withInherit' => false,
+                'withManagers' => true,
+                'inheritedValue' => null,
             ])
         </div>
 

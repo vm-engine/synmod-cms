@@ -114,7 +114,7 @@ describe('Create Article', function () {
             ]);
     });
 
-    it('validates section_id exists', function () {
+    it('ignores a tampered section_id and keeps the route section', function () {
         Livewire::actingAs($this->user)
             ->test('cms::backend.article-form', ['sectionId' => $this->section->id])
             ->set('form.section_id', 99999)
@@ -122,7 +122,9 @@ describe('Create Article', function () {
             ->set('form.slug', 'test')
             ->set('form.status', 'draft')
             ->call('save')
-            ->assertHasErrors(['form.section_id' => 'exists']);
+            ->assertHasNoErrors();
+
+        expect(CmsArticle::where('slug', 'test')->value('section_id'))->toBe($this->section->id);
     });
 
     it('can create article with tags', function () {

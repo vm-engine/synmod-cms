@@ -3,8 +3,8 @@
 declare(strict_types=1);
 
 use Livewire\Component;
-use VmEngine\Cms\Enums\DownloadAccess;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Support\FrontendViewResolver;
 
@@ -21,10 +21,7 @@ new class extends Component
         $this->download_id = $download_id;
         $this->download = app(CmsDownloadService::class)->findActiveOrFailById($download_id, ['files.file']);
 
-        // Enforce private access
-        if ($this->download->access === DownloadAccess::Private && ! auth()->check()) {
-            redirect()->route('auth.login')->send();
-        }
+        app(CmsAccessService::class)->authorizeView($this->download);
 
         // Derive the download index URL by stripping /{download-slug} from the current path
         $path = ltrim(request()->getPathInfo(), '/');

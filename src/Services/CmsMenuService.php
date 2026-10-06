@@ -72,7 +72,7 @@ class CmsMenuService
             ->with('children.children')
             ->get();
 
-        return $items->whereNull('parent_id')->values();
+        return $this->pruneHidden($items->whereNull('parent_id')->values());
     }
 
     /**
@@ -88,7 +88,33 @@ class CmsMenuService
             ->orderBy('sort_order')
             ->get();
 
-        return $this->nestItems($items, null);
+        return $this->pruneHidden($this->nestItems($items, null));
+    }
+
+    /**
+     * Drop items (with their subtree) whose target the visitor can't view.
+     * ponytail: resolveTarget() is one query per item — eager-load by type if menus grow large.
+     *
+     * @param  Collection<int, CmsMenuItem>  $items
+     * @return Collection<int, CmsMenuItem>
+     */
+    private function pruneHidden(Collection $items): Collection
+    {
+        $access = app(CmsAccessService::class);
+        $user = auth()->user();
+
+        return $items
+            ->filter(function (CmsMenuItem $item) use ($access, $user): bool {
+                $target = $item->resolveTarget();
+
+                return $target === null || $access->canView($target, $user);
+            })
+            ->each(function (CmsMenuItem $item): void {
+                if ($item->relationLoaded('children')) {
+                    $item->setRelation('children', $this->pruneHidden($item->children));
+                }
+            })
+            ->values();
     }
 
     /**

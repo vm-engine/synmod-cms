@@ -6,13 +6,16 @@ use Illuminate\Support\Collection;
 use Livewire\Attributes\Computed;
 use Livewire\Attributes\Url;
 use Livewire\Component;
+use VmEngine\Cms\Models\CmsPage;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
+use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 use VmEngine\Synapse\Traits\RemembersQueryParams;
 
 new class extends Component
 {
-    use RemembersQueryParams;
+    use RemembersQueryParams, WithCmsAccessChecks;
 
     #[Url()]
     public string $q = '';
@@ -38,7 +41,10 @@ new class extends Component
     public function delete(string $token): void
     {
         try {
-            app(CmsPageService::class)->deleteByToken($token);
+            app(CmsPageService::class)->deleteByToken(
+                $token,
+                fn (CmsPage $page) => app(CmsAccessService::class)->authorizeManage($page, 'cms.page.delete'),
+            );
         } catch (Exception $e) {
             $this->dispatch('notify', variant: 'danger', title: 'Error', message: $e->getMessage());
 

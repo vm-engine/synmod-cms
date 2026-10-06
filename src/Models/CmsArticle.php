@@ -14,8 +14,10 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\ArticleStatus;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsArticleFactory;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCmsAccess;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -29,6 +31,7 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property string|null $excerpt
  * @property string|null $cover_image
  * @property ArticleStatus $status
+ * @property CmsVisibility $visibility
  * @property Carbon|null $published_at
  * @property Carbon|null $expires_at
  * @property bool $is_featured
@@ -50,9 +53,10 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  */
 class CmsArticle extends Model implements TranslatableContent
 {
+    use HasCmsAccess;
+
     /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -67,6 +71,7 @@ class CmsArticle extends Model implements TranslatableContent
         'excerpt',
         'cover_image',
         'status',
+        'visibility',
         'published_at',
         'expires_at',
         'is_featured',
@@ -83,6 +88,7 @@ class CmsArticle extends Model implements TranslatableContent
     ];
 
     protected $casts = [
+        'visibility' => CmsVisibility::class,
         'status' => ArticleStatus::class,
         'config' => 'array',
         'published_at' => 'datetime',

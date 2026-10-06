@@ -20,4 +20,5 @@ return [
     'tag' => 'Tag',
     'settings' => 'Pengaturan CMS',
     'search_term' => 'Kata Pencarian',
+    'access' => 'Pengaturan Akses Konten',
 ];

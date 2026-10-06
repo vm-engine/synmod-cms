@@ -5,12 +5,16 @@ declare(strict_types=1);
 namespace VmEngine\Cms\Livewire\Forms;
 
 use Livewire\Form;
+use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Traits\HasAccessFields;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class ArticleFormObject extends Form
 {
+    use HasAccessFields;
     use HasTranslationFields;
 
     public ?CmsArticle $article = null;
@@ -82,6 +86,13 @@ class ArticleFormObject extends Form
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($article);
+        $this->fillAccess($article, $article, 'cms.article.update', CmsVisibility::Inherit);
+    }
+
+    /** Access panel defaults for a new item. */
+    public function initAccessForNew(CmsSection $section): void
+    {
+        $this->fillAccess(null, $section, 'cms.article.create', CmsVisibility::Inherit);
     }
 
     /**
@@ -106,14 +117,16 @@ class ArticleFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->translationRules($rules, new CmsArticle)];
+        return [...$rules, ...$this->accessRules(allowInherit: true), ...$this->translationRules($rules, new CmsArticle)];
     }
 
     public function store(int $createdBy): CmsArticle
     {
         $this->validate();
 
-        $article = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createArticle($this->toData(), $this->tag_ids, $createdBy));
+        $article = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createArticle([...$this->toData(), ...$this->accessData($this->sectionModel(), 'cms.article.create')], $this->tag_ids, $createdBy));
+
+        $this->saveAccess($article, $this->sectionModel(), 'cms.article.create', withManagers: false);
 
         $this->reset();
 
@@ -124,7 +137,14 @@ class ArticleFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateArticle($this->article, $this->toData(), $this->tag_ids, $updatedBy));
+        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateArticle($this->article, [...$this->toData(), ...$this->accessData($this->article, 'cms.article.update')], $this->tag_ids, $updatedBy));
+
+        $this->saveAccess($this->article, $this->article, 'cms.article.update', withManagers: false);
+    }
+
+    private function sectionModel(): CmsSection
+    {
+        return app(CmsArticleService::class)->findSectionOrFailById($this->section_id);
     }
 
     /**

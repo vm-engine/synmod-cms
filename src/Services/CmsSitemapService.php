@@ -14,6 +14,8 @@ use VmEngine\Cms\Support\CmsUrl;
 
 class CmsSitemapService
 {
+    public function __construct(private readonly CmsAccessService $access) {}
+
     public function generate(): string
     {
         $urls = array_merge(
@@ -34,6 +36,7 @@ class CmsSitemapService
     {
         return CmsPage::published()
             ->get()
+            ->filter(fn ($model) => $this->access->isPublic($model))
             ->map(fn (CmsPage $p) => [
                 'path' => CmsUrl::path($p),
                 'lastmod' => $p->updated_at->toAtomString(),
@@ -50,6 +53,7 @@ class CmsSitemapService
     {
         return CmsSection::published()
             ->get()
+            ->filter(fn ($model) => $this->access->isPublic($model))
             ->map(fn (CmsSection $s) => [
                 'path' => CmsUrl::path($s),
                 'lastmod' => $s->updated_at->toAtomString(),
@@ -68,6 +72,7 @@ class CmsSitemapService
             ->with('section')
             ->get()
             ->filter(fn (CmsCategory $c) => $c->section->status === 'published')
+            ->filter(fn ($model) => $this->access->isPublic($model))
             ->map(fn (CmsCategory $c) => [
                 'path' => CmsUrl::path($c),
                 'lastmod' => $c->updated_at->toAtomString(),
@@ -85,6 +90,7 @@ class CmsSitemapService
         return CmsArticle::published()
             ->with(['section', 'category'])
             ->get()
+            ->filter(fn ($model) => $this->access->isPublic($model))
             ->map(function (CmsArticle $a) {
                 return [
                     'path' => CmsUrl::path($a),
@@ -103,6 +109,7 @@ class CmsSitemapService
     {
         return CmsAlbum::active()->normal()
             ->get()
+            ->filter(fn ($model) => $this->access->isPublic($model))
             ->map(fn (CmsAlbum $a) => [
                 'path' => CmsUrl::path($a),
                 'lastmod' => $a->updated_at->toAtomString(),

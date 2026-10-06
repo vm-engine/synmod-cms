@@ -3,18 +3,27 @@
 declare(strict_types=1);
 
 use Livewire\Attributes\Computed;
+use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Attributes\Url;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\PageFormObject;
+use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
+use VmEngine\Cms\Traits\WithAccessPicker;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use WithAccessPicker;
+
     public PageFormObject $form;
 
+    #[Locked]
     public ?int $pageId = null;
+
+    #[Locked]
+    public ?int $originalParentId = null;
 
     public ?int $lockedParentId = null;
 
@@ -27,16 +36,24 @@ new class extends Component
     {
         $this->pageId = $id;
 
+        $access = app(CmsAccessService::class);
+        $service = app(CmsPageService::class);
+
         if ($id) {
-            $page = app(CmsPageService::class)->findOrFailById($id);
+            $page = $service->findOrFailById($id);
+            $access->authorizeManage($page, 'cms.page.update');
+            $this->originalParentId = $page->parent_id;
             $this->form->setPage($page);
         } else {
             // New page: lock parent to whatever was pre-selected (or null for root pages)
             $this->parentLocked = true;
-            if ($this->parentId) {
-                $this->form->parent_id = $this->parentId;
-                $this->lockedParentId = $this->parentId;
+            $parent = $this->parentId ? $service->findOrFailById($this->parentId) : null;
+            if ($parent !== null) {
+                $access->authorizeManage($parent, 'cms.page.create');
+                $this->form->parent_id = $parent->id;
+                $this->lockedParentId = $parent->id;
             }
+            $this->form->initAccessForNew($parent);
         }
 
         synav()->setActiveMenu('cms.page');
@@ -51,6 +68,8 @@ new class extends Component
 
     public function save(): void
     {
+        $this->authorizeSave();
+
         if ($this->pageId) {
             $this->form->update();
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.page_updated'));
@@ -59,6 +78,24 @@ new class extends Component
             $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.page_created'));
         }
         $this->redirect(backend_route('cms.page.index'), navigate: true);
+    }
+
+    /**
+     * Re-check on every save: the page itself, and the parent when it is new or changed.
+     */
+    private function authorizeSave(): void
+    {
+        $access = app(CmsAccessService::class);
+        $service = app(CmsPageService::class);
+
+        if ($this->pageId) {
+            $access->authorizeManage($service->findOrFailById($this->pageId), 'cms.page.update');
+        }
+
+        $parentId = $this->form->parent_id;
+        if ($parentId !== null && ($this->pageId === null || $parentId !== $this->originalParentId)) {
+            $access->authorizeManage($service->findOrFailById($parentId), $this->pageId ? 'cms.page.update' : 'cms.page.create');
+        }
     }
 
     #[On('custom-var-allow-add-changed')]
@@ -70,7 +107,22 @@ new class extends Component
     #[Computed()]
     public function parentOptions(): array
     {
-        return app(CmsPageService::class)->getParentOptions($this->pageId);
+        $access = app(CmsAccessService::class);
+        $service = app(CmsPageService::class);
+
+        return array_values(array_filter(
+            $service->getParentOptions($this->pageId),
+            fn (array $option) => $option['value'] === '' || (int) $option['value'] === $this->form->parent_id
+                || $access->canManage($service->findOrFailById((int) $option['value']), 'cms.page.create'),
+        ));
+    }
+
+    #[Computed()]
+    public function inheritedVisibility(): ?string
+    {
+        $parent = $this->form->parent_id ? app(CmsPageService::class)->findById($this->form->parent_id) : null;
+
+        return $parent ? app(CmsAccessService::class)->effectiveVisibility($parent)->label() : null;
     }
 
     #[Computed()]
