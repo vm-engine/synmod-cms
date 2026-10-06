@@ -1,5 +1,5 @@
 @if($page)
-<div class="cms-page-viewer">
+<div @class(['cms-page-viewer', 'cms-page-viewer--with-submenu' => $this->submenu])>
     @if(($page->config['show_breadcrumb'] ?? true) && $page->parent_id)
     <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
@@ -12,52 +12,84 @@
     </nav>
     @endif
 
-    <article class="cms-page">
-        @if($page->config['show_title'] ?? true)
-        <header class="cms-page__header">
-            <h1 class="cms-page__title">{{ $page->translate('title') }}</h1>
-        </header>
-        @endif
-
-        @if($page->cover_image)
-        <div class="cms-page__cover">
-            <img src="{{ $page->cover_image }}" alt="{{ $page->translate('title') }}" class="cms-page__cover-image" />
-        </div>
-        @endif
-
-        <div class="cms-page__body">
-            {!! $page->renderWithMediaGalleries('body') !!}
-        </div>
-    </article>
-
-    @if($page->config['show_children'] ?? false)
-    <x-cms::field-filters :filter="$fieldFilter" />
+    @if($this->submenu)
+    <nav class="cms-submenu" aria-label="{{ $this->submenu['owner']->translate('title') }}">
+        <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($this->submenu['owner']) }}"
+           @class(['cms-submenu__link', 'cms-submenu__link--overview', 'cms-submenu__link--active' => $this->submenu['owner']->is($page)])
+           @if($this->submenu['owner']->is($page)) aria-current="page" @endif>{{ $this->submenu['owner']->translate('title') }}</a>
+        <ul class="cms-submenu__list">
+            @foreach($this->submenu['items'] as $item)
+            <li>
+                <a href="{{ $this->submenuUrl($this->submenu['owner'], $item) }}"
+                   @class(['cms-submenu__link', 'cms-submenu__link--active' => $item->is($page)])
+                   @if($item->is($page)) aria-current="page" @endif>{{ $item->translate('title') }}</a>
+            </li>
+            @endforeach
+        </ul>
+    </nav>
     @endif
 
-    @if(($page->config['show_children'] ?? false) && $page->children->isNotEmpty())
-    <section class="cms-page__children">
-        <h2 class="cms-page__children-title">{{ __('cms::labels.subpages') }}</h2>
-        <div class="cms-page__children-grid cms-page__children-grid--{{ $page->config['children_layout'] ?? 'grid' }}">
-            @foreach($page->children as $child)
-            <div class="cms-page-card">
-                @if($child->cover_image)
-                <div class="cms-page-card__image">
-                    <img src="{{ $child->cover_image }}" alt="{{ $child->translate('title') }}" loading="lazy" />
-                </div>
-                @endif
-                <div class="cms-page-card__body">
-                    <h3 class="cms-page-card__title">
-                        <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($child) }}" class="cms-page-card__link">{{ $child->translate('title') }}</a>
-                    </h3>
-                    @if($child->translate('excerpt'))
-                    <p class="cms-page-card__excerpt">{{ $child->translate('excerpt') }}</p>
-                    @endif
-                </div>
+    <div class="cms-page-viewer__main">
+        <article class="cms-page">
+            @if($page->config['show_title'] ?? true)
+            <header class="cms-page__header">
+                <h1 class="cms-page__title">{{ $page->translate('title') }}</h1>
+            </header>
+            @endif
+
+            @if(($page->config['show_excerpt'] ?? false) && $page->translate('excerpt'))
+            <p class="cms-page__excerpt">{{ $page->translate('excerpt') }}</p>
+            @endif
+
+            @if($page->cover_image)
+            <div class="cms-page__cover">
+                <img src="{{ $page->cover_image }}" alt="{{ $page->translate('title') }}" class="cms-page__cover-image" />
             </div>
+            @endif
+
+            <div class="cms-page__body">
+                {!! $page->renderWithMediaGalleries('body') !!}
+            </div>
+        </article>
+
+        @if($page->childrenDisplay() === 'cards')
+        <x-cms::field-filters :filter="$fieldFilter" />
+        @endif
+
+        @if($page->childrenDisplay() === 'cards' && $page->children->isNotEmpty())
+        <section class="cms-page__children">
+            <h2 class="cms-page__children-title">{{ __('cms::labels.subpages') }}</h2>
+            <div class="cms-page__children-grid cms-page__children-grid--{{ $page->config['children_layout'] ?? 'grid' }}">
+                @foreach($page->children as $child)
+                <div class="cms-page-card">
+                    @if($child->cover_image)
+                    <div class="cms-page-card__image">
+                        <img src="{{ $child->cover_image }}" alt="{{ $child->translate('title') }}" loading="lazy" />
+                    </div>
+                    @endif
+                    <div class="cms-page-card__body">
+                        <h3 class="cms-page-card__title">
+                            <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($child) }}" class="cms-page-card__link">{{ $child->translate('title') }}</a>
+                        </h3>
+                        @if($child->translate('excerpt'))
+                        <p class="cms-page-card__excerpt">{{ $child->translate('excerpt') }}</p>
+                        @endif
+                    </div>
+                </div>
+                @endforeach
+            </div>
+        </section>
+        @elseif($page->childrenDisplay() === 'one_page' && $page->children->isNotEmpty())
+        <div class="cms-page__sections">
+            @foreach($page->children as $child)
+            <section class="cms-page-section" id="{{ $child->childAnchor() }}">
+                <h2 class="cms-page-section__title">{{ $child->translate('title') }}</h2>
+                <div class="cms-page__body">{!! $child->renderWithMediaGalleries('body') !!}</div>
+            </section>
             @endforeach
         </div>
-    </section>
-    @endif
+        @endif
+    </div>
 </div>
 @else
 <div class="cms-not-found">

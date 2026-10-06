@@ -24,14 +24,16 @@
             <h1 class="cms-article__title">{{ $article->translate('title') }}</h1>
 
             <div class="cms-article__meta">
+                @if($article->showsDate())
                 <time class="cms-article__date" datetime="{{ $article->published_at?->toDateString() }}">
                     {{ $article->published_at?->translatedFormat('d F Y') }}
                 </time>
+                @endif
                 @if($article->read_time > 0)
-                <span class="cms-article__read-time">· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
+                <span class="cms-article__read-time">@if($article->showsDate())· @endif{{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                 @endif
                 @if($article->creator)
-                <span class="cms-article__author">· {{ $article->creator->name }}</span>
+                <span class="cms-article__author">@if($article->showsDate() || $article->read_time > 0)· @endif{{ $article->creator->name }}</span>
                 @endif
             </div>
 
@@ -50,7 +52,7 @@
         </div>
         @endif
 
-        @if($article->translate('excerpt'))
+        @if($article->showsExcerpt() && $article->translate('excerpt'))
         <div class="cms-article__excerpt">
             <p>{{ $article->translate('excerpt') }}</p>
         </div>

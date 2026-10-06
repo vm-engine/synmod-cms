@@ -46,7 +46,14 @@ class PageFormObject extends Form
 
     public bool $show_breadcrumb = true;
 
-    public bool $show_children = false;
+    public string $children_display = 'none';
+
+    public bool $show_submenu = false;
+
+    public bool $show_excerpt = false;
+
+    /** Dev-only; see {@see allowChildCreateConfig()}. */
+    public bool $allow_child_create = true;
 
     public string $children_layout = 'grid';
 
@@ -80,7 +87,10 @@ class PageFormObject extends Form
         $config = $page->config ?? [];
         $this->show_title = $config['show_title'] ?? true;
         $this->show_breadcrumb = $config['show_breadcrumb'] ?? true;
-        $this->show_children = $config['show_children'] ?? false;
+        $this->children_display = $page->childrenDisplay();
+        $this->show_submenu = $config['show_submenu'] ?? false;
+        $this->show_excerpt = $config['show_excerpt'] ?? false;
+        $this->allow_child_create = $config['allow_child_create'] ?? true;
         $this->children_layout = $config['children_layout'] ?? 'grid';
         $this->meta_title = $page->meta_title ?? '';
         $this->meta_description = $page->meta_description ?? '';
@@ -144,6 +154,7 @@ class PageFormObject extends Form
 
         return [
             ...$rules,
+            'children_display' => 'required|in:'.implode(',', CmsPage::CHILDREN_DISPLAYS),
             ...$this->accessRules(allowInherit: $this->parent_id !== null),
             ...($this->parent_id === null ? $this->fieldSchemaRules() : []),
             ...$this->customFieldRules(),
@@ -187,6 +198,12 @@ class PageFormObject extends Form
         $this->saveCustomFields($page);
     }
 
+    /** Non-devs never change the lock: re-write the stored value whatever they post. */
+    private function allowChildCreateConfig(): bool
+    {
+        return is_dev() ? $this->allow_child_create : ($this->page?->config['allow_child_create'] ?? true) !== false;
+    }
+
     private function parentPage(): ?CmsPage
     {
         return $this->parent_id ? app(CmsPageService::class)->findById($this->parent_id) : null;
@@ -210,7 +227,10 @@ class PageFormObject extends Form
             'config' => [
                 'show_title' => $this->show_title,
                 'show_breadcrumb' => $this->show_breadcrumb,
-                'show_children' => $this->show_children,
+                'children_display' => $this->children_display,
+                'show_submenu' => $this->show_submenu,
+                'show_excerpt' => $this->show_excerpt,
+                'allow_child_create' => $this->allowChildCreateConfig(),
                 'children_layout' => $this->children_layout,
                 'custom_var' => $this->customVars,
                 'custom_var_allow_add' => $this->customVarAllowAdd,

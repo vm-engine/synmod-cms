@@ -460,6 +460,29 @@ Small inline image galleries placed in the middle of rich-text content.
 - **Cleanup:** deleting a page, article or download file deletes its galleries. Deleting a section or download removes its articles/files by FK cascade, which fires no events and leaves their galleries orphaned. Run `php artisan cms:prune-media-galleries` (`--dry-run` lists them first) to delete those, with their images and caption translations.
 - **Theme:** override `cms::components.frontend.partials._media-gallery-slider` / `_media-gallery-grid` (vendor view override). The slider reuses the banner slider's `cmsBannerSlider` Alpine component and `.cms-banner-slider*` styles; extra styles are `.cms-media-gallery*`.
 
+## Page Display Options
+
+Per-page settings stored in `cms_pages.config`:
+
+| Setting | Key | Default | Notes |
+|---|---|---|---|
+| Show Excerpt on Detail Page | `show_excerpt` | off | Renders the translated excerpt below the title (`.cms-page__excerpt`). |
+| Show Child Pages as Sub-Menu | `show_submenu` | off | The page shows a menu of its children; its children show the same menu (siblings), current page marked `aria-current="page"`. Sidebar on desktop, stacked on mobile (`.cms-submenu*`). |
+| Child Pages Display | `children_display` | `none` | `none`, `cards` (card grid + field filters) or `one_page` (each published child's title and body rendered below as `<section id="cms-child-{slug}">`; sub-menu links become anchors). Child URLs keep working. Legacy `show_children: true` reads as `cards`. |
+| Allow non-dev users to add child pages | `allow_child_create` | on | **Dev only.** When off, non-devs get no "add child" button, a 403 on the form, and the page is left out of the parent dropdown. Existing children stay editable. Read with `$page->acceptsChildrenFromCurrentUser()`. |
+
+## Article Display Options
+
+Set on the **section** (`cms_sections.config`), overridable per **article** (`cms_articles.config`):
+
+| Setting | Section key (default) | Article override | Applies to |
+|---|---|---|---|
+| Show Timestamp | `show_date` (on) | `show_date`: `null` follow section / `true` / `false` | Article detail, section and category lists, article widgets (widgets also need their own `showDate`) |
+| Show Excerpt on Detail Page | `show_excerpt` (on) | `show_excerpt`: same | Article detail page |
+| Items per page | `items_per_page` (12) | — | Section and category lists |
+
+Resolve with `$article->showsDate()` / `$article->showsExcerpt()` (article override, else section, else on) — custom templates should call these instead of reading `config`.
+
 ## Custom View & Layout Overrides
 
 Every content type can override its rendered Blade view and/or layout on a per-record basis via `custom_view` / `custom_layout` columns, editable from a "Custom Rendering" card on each admin form. Sections and categories additionally expose a scoped override for the content they contain (`custom_category_view`, `custom_article_view`).

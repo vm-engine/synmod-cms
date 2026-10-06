@@ -103,6 +103,16 @@ new class extends Component
         return app(CmsArticleService::class)->loadTagOptions($ids);
     }
 
+    /** @return list<array{value: string, label: string}> */
+    #[Computed()]
+    public function displayOverrideOptions(): array
+    {
+        return array_map(
+            fn (string $key) => ['value' => $key, 'label' => __('cms::labels.display_override_'.$key)],
+            array_keys(ArticleFormObject::DISPLAY_OVERRIDES),
+        );
+    }
+
     #[Computed()]
     public function inheritedVisibility(): ?string
     {

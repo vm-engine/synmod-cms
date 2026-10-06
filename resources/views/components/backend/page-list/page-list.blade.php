@@ -72,7 +72,7 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                @if ($this->canManage($page, 'cms.page.create'))
+                                                @if ($this->canManage($page, 'cms.page.create') && $page->acceptsChildrenFromCurrentUser())
                                                 @if ($page->getDepth() < 2)
                                                     <a
                                                         class="btn-icon success has-tooltip group"
@@ -142,7 +142,7 @@
                                         </td>
                                         <td>
                                             <div class="text-center">
-                                                @if ($this->canManage($root, 'cms.page.create'))
+                                                @if ($this->canManage($root, 'cms.page.create') && $root->acceptsChildrenFromCurrentUser())
                                                 <a
                                                     class="btn-icon success has-tooltip group"
                                                     href="{{ backend_route('cms.page.form', ['parentId' => $root->id]) }}"
@@ -205,7 +205,7 @@
                                             </td>
                                             <td>
                                                 <div class="text-center">
-                                                    @if ($this->canManage($child, 'cms.page.create'))
+                                                    @if ($this->canManage($child, 'cms.page.create') && $child->acceptsChildrenFromCurrentUser())
                                                     <a
                                                         class="btn-icon success has-tooltip group"
                                                         href="{{ backend_route('cms.page.form', ['parentId' => $child->id]) }}"

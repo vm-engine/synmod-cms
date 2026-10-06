@@ -27,7 +27,7 @@
                 <h3 class="cms-article-card__title">
                     <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
                 </h3>
-                @if($showDate && $article->published_at)
+                @if($showDate && $article->showsDate() && $article->published_at)
                 <div class="cms-article-card__meta">
                     <time datetime="{{ $article->published_at->toDateString() }}">
                         {{ $article->published_at->translatedFormat('d F Y') }}

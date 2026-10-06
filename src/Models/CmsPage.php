@@ -55,11 +55,11 @@ class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent,
     use DefinesCustomFields;
     use HasCmsAccess;
     use HasCustomFields;
+
     /** @use HasFactory<CmsPageFactory> */
     use HasFactory;
 
     use HasMediaGalleries;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -92,6 +92,9 @@ class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent,
         'config' => 'array',
         'sort_order' => 'integer',
     ];
+
+    /** Allowed `config.children_display` values. */
+    public const CHILDREN_DISPLAYS = ['none', 'cards', 'one_page'];
 
     protected static function newFactory(): CmsPageFactory
     {
@@ -179,6 +182,27 @@ class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent,
         }
 
         return $depth;
+    }
+
+    /** How children render below the body; falls back to the legacy `show_children` flag. */
+    public function childrenDisplay(): string
+    {
+        $config = $this->config ?? [];
+        $display = $config['children_display'] ?? (($config['show_children'] ?? false) ? 'cards' : 'none');
+
+        return in_array($display, self::CHILDREN_DISPLAYS, true) ? $display : 'none';
+    }
+
+    /** Devs always may; others only while a dev has not locked this page (`allow_child_create`). */
+    public function acceptsChildrenFromCurrentUser(): bool
+    {
+        return is_dev() || ($this->config['allow_child_create'] ?? true) !== false;
+    }
+
+    /** Fragment id for this page's section when its parent renders children as one page. */
+    public function childAnchor(): string
+    {
+        return 'cms-child-'.$this->slug;
     }
 
     public function resolveCustomView(): ?string

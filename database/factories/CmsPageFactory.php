@@ -30,7 +30,7 @@ class CmsPageFactory extends Factory
             'config' => [
                 'show_title' => true,
                 'show_breadcrumb' => true,
-                'show_children' => false,
+                'children_display' => 'none',
                 'children_layout' => 'grid',
             ],
         ];

@@ -131,7 +131,7 @@
                         </div>
                     </div>
 
-                    <div class="grid sm:grid-cols-3 gap-3">
+                    <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
                         <div class="flex items-center gap-3">
                             <x-synapse-toggler
                                 id="show_date"
@@ -161,6 +161,16 @@
                                 activeColor="green"
                             />
                             <span class="text-sm">{{ __('cms::labels.show_thumbnail') }}</span>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <x-synapse-toggler
+                                id="show_excerpt"
+                                wire:model="form.show_excerpt"
+                                :inline="true"
+                                :checked="$form->show_excerpt"
+                                activeColor="green"
+                            />
+                            <span class="text-sm">{{ __('cms::labels.show_excerpt') }}</span>
                         </div>
                     </div>
                 </div>

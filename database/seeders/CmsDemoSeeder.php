@@ -65,7 +65,7 @@ class CmsDemoSeeder extends Seeder
             ]),
             'cover_image' => 'https://picsum.photos/seed/page-about/1200/400',
             'sort_order' => 1,
-            'config' => ['show_title' => true, 'show_breadcrumb' => true, 'show_children' => true, 'children_layout' => 'grid'],
+            'config' => ['show_title' => true, 'show_breadcrumb' => true, 'children_display' => 'cards', 'children_layout' => 'grid'],
             'published_at' => now()->subDays(60),
         ]);
 
@@ -101,7 +101,7 @@ class CmsDemoSeeder extends Seeder
             ]),
             'cover_image' => 'https://picsum.photos/seed/page-services/1200/400',
             'sort_order' => 2,
-            'config' => ['show_title' => true, 'show_breadcrumb' => true, 'show_children' => true, 'children_layout' => 'grid'],
+            'config' => ['show_title' => true, 'show_breadcrumb' => true, 'children_display' => 'cards', 'children_layout' => 'grid'],
             'published_at' => now()->subDays(55),
         ]);
 
@@ -133,7 +133,7 @@ class CmsDemoSeeder extends Seeder
             ]),
             'cover_image' => 'https://picsum.photos/seed/page-contact/1200/400',
             'sort_order' => 3,
-            'config' => ['show_title' => true, 'show_breadcrumb' => false, 'show_children' => false, 'children_layout' => 'grid'],
+            'config' => ['show_title' => true, 'show_breadcrumb' => false, 'children_display' => 'none', 'children_layout' => 'grid'],
             'published_at' => now()->subDays(45),
         ]);
     }
@@ -151,7 +151,7 @@ class CmsDemoSeeder extends Seeder
                 'status' => 'published',
                 'published_at' => now(),
                 'sort_order' => 0,
-                'config' => ['show_title' => true, 'show_breadcrumb' => true, 'show_children' => false, 'children_layout' => 'grid'],
+                'config' => ['show_title' => true, 'show_breadcrumb' => true, 'children_display' => 'none', 'children_layout' => 'grid'],
             ], $attributes)
         );
     }

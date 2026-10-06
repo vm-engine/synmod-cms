@@ -58,11 +58,11 @@ class CmsArticle extends Model implements CustomFieldContent, TranslatableConten
 {
     use HasCmsAccess;
     use HasCustomFields;
+
     /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
 
     use HasMediaGalleries;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -198,6 +198,23 @@ class CmsArticle extends Model implements CustomFieldContent, TranslatableConten
     public function updater(): BelongsTo
     {
         return $this->belongsTo(User::class, 'updated_by');
+    }
+
+    /** Timestamp shown on lists and the detail page: article override, else section, else on. */
+    public function showsDate(): bool
+    {
+        return $this->displaySetting('show_date');
+    }
+
+    /** Excerpt shown on the detail page: article override, else section, else on. */
+    public function showsExcerpt(): bool
+    {
+        return $this->displaySetting('show_excerpt');
+    }
+
+    private function displaySetting(string $key): bool
+    {
+        return (bool) (($this->config ?? [])[$key] ?? ($this->section->config ?? [])[$key] ?? true);
     }
 
     public function resolveCustomView(): ?string

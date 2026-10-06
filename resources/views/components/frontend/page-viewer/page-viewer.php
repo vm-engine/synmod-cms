@@ -2,10 +2,13 @@
 
 declare(strict_types=1);
 
+use Illuminate\Database\Eloquent\Collection;
+use Livewire\Attributes\Computed;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
+use VmEngine\Cms\Support\CmsUrl;
 use VmEngine\Cms\Support\FrontendViewResolver;
 use VmEngine\Cms\Traits\WithFieldFilters;
 
@@ -36,6 +39,38 @@ new class extends Component
     public function description(): ?string
     {
         return $this->page?->translatedMetaDescription();
+    }
+
+    /**
+     * Own children when this page enables the sub-menu, else siblings when the parent does.
+     *
+     * @return array{owner: CmsPage, items: Collection<int, CmsPage>}|null
+     */
+    #[Computed()]
+    public function submenu(): ?array
+    {
+        $owner = match (true) {
+            $this->page === null => null,
+            ($this->page->config['show_submenu'] ?? false) && $this->page->children()->exists() => $this->page,
+            (bool) ($this->page->parent?->config['show_submenu'] ?? false) => $this->page->parent,
+            default => null,
+        };
+
+        if ($owner === null) {
+            return null;
+        }
+
+        $items = app(CmsAccessService::class)->filterVisiblePages($owner->children()->getQuery()->published()->get());
+
+        return $items->isEmpty() ? null : ['owner' => $owner, 'items' => $items];
+    }
+
+    /** Anchor on the owner in one-page mode, else the child's own URL. */
+    public function submenuUrl(CmsPage $owner, CmsPage $item): string
+    {
+        return $owner->childrenDisplay() === 'one_page'
+            ? CmsUrl::to($owner).'#'.$item->childAnchor()
+            : CmsUrl::to($item);
     }
 
     public function render()

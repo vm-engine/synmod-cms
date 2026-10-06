@@ -53,6 +53,7 @@ new class extends Component
             $parent = $this->parentId ? $service->findOrFailById($this->parentId) : null;
             if ($parent !== null) {
                 $access->authorizeManage($parent, 'cms.page.create');
+                $this->authorizeChildCreation($parent);
                 $this->form->parent_id = $parent->id;
                 $this->lockedParentId = $parent->id;
             }
@@ -97,8 +98,16 @@ new class extends Component
 
         $parentId = $this->form->parent_id;
         if ($parentId !== null && ($this->pageId === null || $parentId !== $this->originalParentId)) {
-            $access->authorizeManage($service->findOrFailById($parentId), $this->pageId ? 'cms.page.update' : 'cms.page.create');
+            $parent = $service->findOrFailById($parentId);
+            $access->authorizeManage($parent, $this->pageId ? 'cms.page.update' : 'cms.page.create');
+            $this->authorizeChildCreation($parent);
         }
+    }
+
+    /** Dev-locked parents reject new children from non-devs. */
+    private function authorizeChildCreation(CmsPage $parent): void
+    {
+        abort_unless($parent->acceptsChildrenFromCurrentUser(), 403);
     }
 
     public function updatedFormParentId(): void
@@ -121,8 +130,19 @@ new class extends Component
         return array_values(array_filter(
             $service->getParentOptions($this->pageId),
             fn (array $option) => $option['value'] === '' || (int) $option['value'] === $this->form->parent_id
-                || $access->canManage($service->findOrFailById((int) $option['value']), 'cms.page.create'),
+                || (($parent = $service->findOrFailById((int) $option['value']))->acceptsChildrenFromCurrentUser()
+                    && $access->canManage($parent, 'cms.page.create')),
         ));
+    }
+
+    /** @return list<array{value: string, label: string}> */
+    #[Computed()]
+    public function childrenDisplayOptions(): array
+    {
+        return array_map(
+            fn (string $display) => ['value' => $display, 'label' => __('cms::labels.children_display_'.$display)],
+            CmsPage::CHILDREN_DISPLAYS,
+        );
     }
 
     #[Computed()]

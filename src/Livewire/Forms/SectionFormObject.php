@@ -46,6 +46,8 @@ class SectionFormObject extends Form
 
     public bool $show_thumbnail = true;
 
+    public bool $show_excerpt = true;
+
     public int $items_per_page = 12;
 
     public string $meta_title = '';
@@ -82,6 +84,7 @@ class SectionFormObject extends Form
         $this->show_date = $config['show_date'] ?? true;
         $this->show_author = $config['show_author'] ?? true;
         $this->show_thumbnail = $config['show_thumbnail'] ?? true;
+        $this->show_excerpt = $config['show_excerpt'] ?? true;
         $this->items_per_page = $config['items_per_page'] ?? 12;
         $this->meta_title = $section->meta_title ?? '';
         $this->meta_description = $section->meta_description ?? '';
@@ -174,6 +177,7 @@ class SectionFormObject extends Form
                 'show_date' => $this->show_date,
                 'show_author' => $this->show_author,
                 'show_thumbnail' => $this->show_thumbnail,
+                'show_excerpt' => $this->show_excerpt,
                 'items_per_page' => $this->items_per_page,
                 'custom_var' => $this->customVars,
                 'custom_var_allow_add' => $this->customVarAllowAdd,

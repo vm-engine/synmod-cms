@@ -214,13 +214,36 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <x-synapse-toggler
-                            id="show_children"
-                            wire:model="form.show_children"
+                            id="show_excerpt"
+                            wire:model="form.show_excerpt"
                             :inline="true"
-                            :checked="$form->show_children"
+                            :checked="$form->show_excerpt"
                             activeColor="green"
                         />
-                        <span class="text-sm">{{ __('cms::labels.show_children') }}</span>
+                        <span class="text-sm">{{ __('cms::labels.show_excerpt') }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <x-synapse-toggler
+                            id="show_submenu"
+                            wire:model="form.show_submenu"
+                            :inline="true"
+                            :checked="$form->show_submenu"
+                            activeColor="green"
+                        />
+                        <span class="text-sm">{{ __('cms::labels.show_submenu') }}</span>
+                    </div>
+                    <div>
+                        <label
+                            class="form-label"
+                            for="children_display"
+                        >{{ __('cms::labels.children_display') }}</label>
+                        <x-synapse-adv-select
+                            wire-model="form.children_display"
+                            :options="$this->childrenDisplayOptions"
+                        />
+                        @error('form.children_display')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
                     </div>
                 </div>
             </x-synapse-panel>
@@ -299,6 +322,21 @@
 
         {{-- Custom field definitions (dev only) --}}
         @isDev
+            <div class="card mt-6">
+                <div class="card-body flex items-start gap-3">
+                    <x-synapse-toggler
+                        id="allow_child_create"
+                        wire:model="form.allow_child_create"
+                        :inline="true"
+                        :checked="$form->allow_child_create"
+                        activeColor="green"
+                    />
+                    <div>
+                        <span class="text-sm">{{ __('cms::labels.allow_child_create') }}</span>
+                        <p class="form-help">{{ __('cms::labels.allow_child_create_help') }}</p>
+                    </div>
+                </div>
+            </div>
             @if ($form->parent_id === null)
                 @include('cms::components.backend.partials._field-schema-manager')
                 @include('cms::components.backend.partials._media-gallery-toggle', ['help' => __('cms::labels.media_gallery_enable_page_help')])

@@ -19,6 +19,9 @@ class ArticleFormObject extends Form
     use HasCustomFieldValues;
     use HasTranslationFields;
 
+    /** Form values of a per-article display override; `inherit` follows the section. */
+    public const DISPLAY_OVERRIDES = ['inherit' => null, 'show' => true, 'hide' => false];
+
     public ?CmsArticle $article = null;
 
     public ?int $section_id = null;
@@ -42,6 +45,10 @@ class ArticleFormObject extends Form
     public string $expires_at = '';
 
     public bool $is_featured = false;
+
+    public string $show_date = 'inherit';
+
+    public string $show_excerpt = 'inherit';
 
     public int $sort_order = 0;
 
@@ -86,6 +93,8 @@ class ArticleFormObject extends Form
         $this->tag_ids = $article->tags()->pluck('cms_tags.id')->toArray();
         $this->customVars = ($article->config ?? [])['custom_var'] ?? [];
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
+        $this->show_date = self::overrideKey(($article->config ?? [])['show_date'] ?? null);
+        $this->show_excerpt = self::overrideKey(($article->config ?? [])['show_excerpt'] ?? null);
 
         $this->fillTranslations($article);
         $this->fillCustomFields($article, $article);
@@ -120,7 +129,9 @@ class ArticleFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->accessRules(allowInherit: true), ...$this->translationRules($rules, new CmsArticle), ...$this->customFieldRules()];
+        $override = 'required|in:'.implode(',', array_keys(self::DISPLAY_OVERRIDES));
+
+        return [...$rules, 'show_date' => $override, 'show_excerpt' => $override, ...$this->accessRules(allowInherit: true), ...$this->translationRules($rules, new CmsArticle), ...$this->customFieldRules()];
     }
 
     public function store(int $createdBy): CmsArticle
@@ -179,7 +190,17 @@ class ArticleFormObject extends Form
             'og_image' => $this->og_image ?: null,
             'custom_view' => $this->custom_view ?: null,
             'custom_layout' => $this->custom_layout ?: null,
-            'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
+            'config' => [
+                'custom_var' => $this->customVars,
+                'custom_var_allow_add' => $this->customVarAllowAdd,
+                'show_date' => self::DISPLAY_OVERRIDES[$this->show_date],
+                'show_excerpt' => self::DISPLAY_OVERRIDES[$this->show_excerpt],
+            ],
         ];
+    }
+
+    private static function overrideKey(?bool $value): string
+    {
+        return (string) array_search($value, self::DISPLAY_OVERRIDES, true);
     }
 }

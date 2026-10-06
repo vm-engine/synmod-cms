@@ -39,12 +39,14 @@
                 <h2 class="cms-article-card__title">
                     <a href="{{ $url }}" class="cms-article-card__link">{{ $article->translate('title') }}</a>
                 </h2>
+                @if($article->showsDate())
                 <div class="cms-article-card__meta">
                     <time datetime="{{ $article->published_at?->toDateString() }}">{{ $article->published_at?->translatedFormat('d F Y') }}</time>
                     @if($article->read_time > 0)
                     <span>· {{ __('cms::labels.min_read', ['minutes' => $article->read_time]) }}</span>
                     @endif
                 </div>
+                @endif
                 @if($article->translate('excerpt'))
                 <p class="cms-article-card__excerpt">{{ $article->translate('excerpt') }}</p>
                 @endif

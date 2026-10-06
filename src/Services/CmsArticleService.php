@@ -75,7 +75,7 @@ class CmsArticleService
         return CmsArticle::published()
             ->visibleTo()
             ->where('section_id', $sectionId)
-            ->with(['category', 'tags'])
+            ->with(['section', 'category', 'tags'])
             ->when($scope, $scope)
             ->orderBy($orderBy, $this->normalizeDirection($orderDir))
             ->paginate($perPage)
@@ -118,7 +118,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesInSectionForWidget(?int $sectionId, string $sort, int $limit): Collection
     {
-        $query = CmsArticle::with(['category'])->published()->visibleTo();
+        $query = CmsArticle::with(['section', 'category'])->published()->visibleTo();
 
         if ($sectionId !== null) {
             $query->where('section_id', $sectionId);
@@ -137,7 +137,7 @@ class CmsArticleService
      */
     public function getPublishedArticlesInCategoryForWidget(?int $sectionId, ?int $categoryId, string $sort, int $limit): Collection
     {
-        $query = CmsArticle::published()->visibleTo();
+        $query = CmsArticle::with(['section'])->published()->visibleTo();
 
         if ($sectionId !== null) {
             $query->where('section_id', $sectionId);

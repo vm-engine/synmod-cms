@@ -212,6 +212,26 @@
                         />
                         <span class="text-sm font-medium">{{ __('cms::labels.is_featured') }}</span>
                     </div>
+                    <div>
+                        <label class="form-label">{{ __('cms::labels.show_date') }}</label>
+                        <x-synapse-adv-select
+                            wire-model="form.show_date"
+                            :options="$this->displayOverrideOptions"
+                        />
+                        @error('form.show_date')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
+                    <div>
+                        <label class="form-label">{{ __('cms::labels.show_excerpt') }}</label>
+                        <x-synapse-adv-select
+                            wire-model="form.show_excerpt"
+                            :options="$this->displayOverrideOptions"
+                        />
+                        @error('form.show_excerpt')
+                            <p class="form-error">{{ $message }}</p>
+                        @enderror
+                    </div>
                 </div>
             </x-synapse-panel>
 
