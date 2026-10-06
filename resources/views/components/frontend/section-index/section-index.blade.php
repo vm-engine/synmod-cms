@@ -1,5 +1,5 @@
-@if($section)
 <div class="cms-section-index">
+@if($section)
     <header class="cms-section__header">
         @if($section->cover_image)
         <div class="cms-section__cover">
@@ -19,6 +19,8 @@
         @endforeach
     </nav>
     @endif
+
+    <x-cms::field-filters :filter="$fieldFilter" />
 
     <div class="cms-article-grid">
         @forelse($articles as $article)
@@ -65,5 +67,5 @@
         {{ $articles->links() }}
     </div>
     @endif
-</div>
 @endif
+</div>

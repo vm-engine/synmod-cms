@@ -16,8 +16,12 @@ use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsAlbumFactory;
+use VmEngine\Cms\Support\CustomFieldContainer;
+use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\DefinesCustomFields;
 use VmEngine\Cms\Traits\HasCmsAccess;
+use VmEngine\Cms\Traits\HasCustomFields;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -41,9 +45,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property Carbon $updated_at
  * @property-read Collection<int, CmsAlbumImage> $images
  */
-class CmsAlbum extends Model implements TranslatableContent
+class CmsAlbum extends Model implements CustomFieldContainer, CustomFieldContent, TranslatableContent
 {
+    use DefinesCustomFields;
     use HasCmsAccess;
+
+    use HasCustomFields;
 
     /** @use HasFactory<CmsAlbumFactory> */
     use HasFactory;
@@ -149,5 +156,11 @@ class CmsAlbum extends Model implements TranslatableContent
     public function resolveCustomLayout(): ?string
     {
         return $this->custom_layout;
+    }
+
+    /** The container whose custom field definitions apply to this item. */
+    public function fieldSchemaOwner(): ?CmsAlbum
+    {
+        return $this;
     }
 }

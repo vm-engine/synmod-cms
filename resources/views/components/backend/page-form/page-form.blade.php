@@ -297,6 +297,18 @@
 
         </div>
 
+        {{-- Custom field definitions (dev only) --}}
+        @isDev
+            @if ($form->parent_id === null)
+                @include('cms::components.backend.partials._field-schema-manager')
+            @endif
+        @endisDev
+
+        {{-- Custom field values --}}
+        <div class="mt-6">
+            <x-cms::custom-field-inputs :schema="$form->inputFieldSchema()" />
+        </div>
+
         {{-- Custom Variables --}}
         <livewire:cms::backend.custom-var-manager
             wire:model="form.customVars"

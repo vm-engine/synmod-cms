@@ -7,6 +7,7 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Livewire\Forms\ArticleFormObject;
+use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Traits\WithAccessPicker;
@@ -42,6 +43,7 @@ new class extends Component
             $access->authorizeManage($section, 'cms.article.create');
             $this->form->section_id = $sectionId;
             $this->form->initAccessForNew($section);
+            $this->form->fillCustomFields(new CmsArticle(['section_id' => $sectionId]));
         }
 
         synav()->setActiveMenu('cms.section');

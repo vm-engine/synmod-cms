@@ -15,8 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsSectionFactory;
+use VmEngine\Cms\Support\CustomFieldContainer;
+use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\DefinesCustomFields;
 use VmEngine\Cms\Traits\HasCmsAccess;
+use VmEngine\Cms\Traits\HasCustomFields;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -43,9 +47,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read Collection<int, CmsCategory> $categories
  * @property-read Collection<int, CmsArticle> $articles
  */
-class CmsSection extends Model implements TranslatableContent
+class CmsSection extends Model implements CustomFieldContainer, CustomFieldContent, TranslatableContent
 {
+    use DefinesCustomFields;
     use HasCmsAccess;
+
+    use HasCustomFields;
 
     /** @use HasFactory<CmsSectionFactory> */
     use HasFactory;
@@ -160,5 +167,11 @@ class CmsSection extends Model implements TranslatableContent
     public function resolveArticleView(): ?string
     {
         return $this->custom_article_view;
+    }
+
+    /** The container whose custom field definitions apply to this item. */
+    public function fieldSchemaOwner(): ?CmsSection
+    {
+        return $this;
     }
 }

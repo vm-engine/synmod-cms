@@ -7,9 +7,12 @@ use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Support\FrontendViewResolver;
+use VmEngine\Cms\Traits\WithFieldFilters;
 
 new class extends Component
 {
+    use WithFieldFilters;
+
     public int $page_id;
 
     public ?CmsPage $page = null;
@@ -19,12 +22,10 @@ new class extends Component
         $this->page_id = $page_id;
         $this->page = app(CmsPageService::class)->findPublishedOrFailById(
             $page_id,
-            ['parent', 'children' => fn ($q) => $q->published()],
+            ['parent'],
         );
 
-        $access = app(CmsAccessService::class);
-        $access->authorizeView($this->page);
-        $this->page->setRelation('children', $access->filterVisiblePages($this->page->children));
+        app(CmsAccessService::class)->authorizeView($this->page);
     }
 
     public function title(): string
@@ -39,12 +40,18 @@ new class extends Component
 
     public function render()
     {
+        $filter = $this->fieldFilter($this->page?->fieldSchemaOwner());
+        if ($this->page !== null) {
+            $children = $filter->apply($this->page->children()->getQuery()->published())->get();
+            $this->page->setRelation('children', app(CmsAccessService::class)->filterVisiblePages($children));
+        }
+
         $template = FrontendViewResolver::view(
             $this->page?->resolveCustomView(),
             'cms::components.frontend.page-viewer.page-viewer',
         );
 
-        return view($template, ['page' => $this->page])
+        return view($template, ['page' => $this->page, 'fieldFilter' => $filter])
             ->title($this->title())
             ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->page?->resolveCustomLayout()));

@@ -42,6 +42,8 @@
             @endif
         </header>
 
+        <x-cms::field-filters :filter="$fieldFilter" />
+
         <div
             x-data="cmsAlbumViewer({{ json_encode($lgImages) }})"
             @keydown.escape.window="open && close()"

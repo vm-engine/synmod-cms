@@ -7,10 +7,12 @@ namespace VmEngine\Cms\Livewire\Forms;
 use Livewire\Form;
 use VmEngine\Cms\Models\CmsDownloadFile;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class DownloadFileFormObject extends Form
 {
+    use HasCustomFieldValues;
     use HasTranslationFields;
 
     public ?CmsDownloadFile $file = null;
@@ -33,10 +35,11 @@ class DownloadFileFormObject extends Form
         $this->customVarAllowAdd = $file->config['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($file);
+        $this->fillCustomFields($file, $file);
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, mixed>
      */
     public function rules(): array
     {
@@ -50,7 +53,7 @@ class DownloadFileFormObject extends Form
             'customVars.*.editable' => 'boolean',
         ];
 
-        return [...$rules, ...$this->translationRules($rules, new CmsDownloadFile)];
+        return [...$rules, ...$this->translationRules($rules, new CmsDownloadFile), ...$this->customFieldRules()];
     }
 
     public function update(): void
@@ -61,10 +64,13 @@ class DownloadFileFormObject extends Form
         $config['custom_var'] = $this->customVars;
         $config['custom_var_allow_add'] = $this->customVarAllowAdd;
 
-        $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->updateFile($this->file, [
-            'title' => $this->title ?: null,
-            'description' => $this->description ?: null,
-            'config' => $config,
-        ]));
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsDownloadService::class)->updateFile($this->file, [
+                'title' => $this->title ?: null,
+                'description' => $this->description ?: null,
+                'config' => $config,
+            ]),
+            fn (CmsDownloadFile $file) => $this->saveCustomFields($file),
+        ));
     }
 }

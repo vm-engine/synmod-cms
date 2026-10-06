@@ -7,9 +7,12 @@ use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Support\FrontendViewResolver;
+use VmEngine\Cms\Traits\WithFieldFilters;
 
 new class extends Component
 {
+    use WithFieldFilters;
+
     public int $album_id;
 
     public ?CmsAlbum $album = null;
@@ -46,12 +49,15 @@ new class extends Component
 
     public function render()
     {
+        $filter = $this->fieldFilter($this->album);
+        $this->album?->setRelation('images', $filter->apply($this->album->images()->with('file')->getQuery())->get());
+
         $template = FrontendViewResolver::view(
             $this->album?->resolveCustomView(),
             'cms::components.frontend.album-viewer.album-viewer',
         );
 
-        return view($template, ['album' => $this->album])
+        return view($template, ['album' => $this->album, 'fieldFilter' => $filter])
             ->title($this->title())
             ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->album?->resolveCustomLayout()));

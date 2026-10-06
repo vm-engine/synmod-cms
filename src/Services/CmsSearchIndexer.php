@@ -73,7 +73,7 @@ class CmsSearchIndexer
             $this->upsert($type, (int) $model->getKey(), $locale, [
                 'title' => Str::limit((string) $model->translate('title', $locale), 250),
                 'excerpt' => $hasExcerpt ? $model->translate('excerpt', $locale) : null,
-                'content' => self::plainText($model->translate($bodyField, $locale)),
+                'content' => trim(self::plainText($model->translate($bodyField, $locale)).' '.app(CmsCustomFieldService::class)->searchText($model, $locale)),
                 'url' => CmsUrl::localePath($path, $locale),
                 'image' => $model->cover_image ?: null,
                 'parent_label' => null,
@@ -129,7 +129,7 @@ class CmsSearchIndexer
             $this->upsert($type, $item->id, (string) $locale, [
                 'title' => Str::limit((string) $headline, 250),
                 'excerpt' => filled($title) ? $text : null,
-                'content' => trim($text.' '.$parent->title),
+                'content' => trim($text.' '.$parent->title.' '.app(CmsCustomFieldService::class)->searchText($item, (string) $locale)),
                 'url' => $parent->url.'#'.$anchor.'-'.$item->id,
                 'image' => $item->file?->isImage() ? ($item->file->getThumbnailUrl() ?: $item->file->getUrl()) : null,
                 'parent_label' => $parent->title,

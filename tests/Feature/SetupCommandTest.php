@@ -12,6 +12,8 @@ uses(RefreshDatabase::class);
 const CMS_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms.js';";
 const LEGACY_IMPORT = 'import "../../../vendor/vm-engine/synmod-cms/resources/js/cms.js";';
 const CMS_FRONTEND_JS_IMPORT = "import '../../vendor/vm-engine/synmod-cms/resources/js/cms-frontend.js';";
+const SYNAPSE_COMPONENTS_IMPORT = "import '../../synapps/resources/js/synapse-components.js';";
+const FLATPICKR_CSS_IMPORT = "import 'flatpickr/dist/flatpickr.min.css';";
 
 // Fixtures live in a temp dir set as the app base path, so the real host
 // files are never touched — afterEach is not guaranteed to run when a
@@ -58,6 +60,7 @@ it('wires assets and stores the chosen editor', function () {
     expect(file_get_contents($this->files['app']))->toContain(CMS_JS_IMPORT)
         ->and(file_get_contents($this->files['frontend']))->toContain(CMS_FRONTEND_JS_IMPORT)
         ->and(file_get_contents($this->files['frontend']))->not->toContain(CMS_JS_IMPORT)
+        ->and(file_get_contents($this->files['frontend']))->toContain(FLATPICKR_CSS_IMPORT."\n".SYNAPSE_COMPONENTS_IMPORT)
         ->and(file_get_contents($this->files['synapps']))->not->toContain('synmod-cms/resources/js/cms.js')
         ->and(file_get_contents($this->files['vite']))->toContain("src: 'node_modules/tinymce'")
         ->and(RteDriver::current())->toBe(RteDriver::Tinymce);
@@ -72,7 +75,19 @@ it('is idempotent', function () {
     expect(array_map('file_get_contents', $this->files))->toBe($first)
         ->and(substr_count($first['app'], CMS_JS_IMPORT))->toBe(1)
         ->and(substr_count($first['frontend'], CMS_FRONTEND_JS_IMPORT))->toBe(1)
+        ->and(substr_count($first['frontend'], SYNAPSE_COMPONENTS_IMPORT))->toBe(1)
         ->and(substr_count($first['vite'], 'node_modules/tinymce'))->toBe(1);
+});
+
+it('skips the synapse components import when synapps-frontend.js already has it', function () {
+    file_put_contents($this->basePath.'/synapps/resources/js/synapps-frontend.js', "import './synapse-components.js';\n");
+
+    $this->artisan('cms:setup')
+        ->expectsQuestion('Default rich-text editor', 'jodit')
+        ->assertSuccessful();
+
+    expect(file_get_contents($this->files['frontend']))->not->toContain('synapse-components.js')
+        ->not->toContain('flatpickr');
 });
 
 it('warns when the vite anchor is missing', function () {

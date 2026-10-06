@@ -28,6 +28,7 @@ use VmEngine\Cms\Observers\CmsMenuItemObserver;
 use VmEngine\Cms\Observers\CmsPageObserver;
 use VmEngine\Cms\Observers\CmsSectionObserver;
 use VmEngine\Cms\Services\CmsAccessService;
+use VmEngine\Cms\Services\CmsCustomFieldService;
 use VmEngine\Synapse\Traits\AutoRegistersComponents;
 
 class CmsServiceProvider extends ServiceProvider
@@ -39,6 +40,7 @@ class CmsServiceProvider extends ServiceProvider
         $this->registerComponents();
 
         $this->app->scoped(CmsAccessService::class);
+        $this->app->scoped(CmsCustomFieldService::class);
 
         $this->mergeConfigFrom(__DIR__.'/../config/cms-purifier.php', 'purifier.settings.cms_rte');
 

@@ -1,5 +1,5 @@
-@if($download)
 <div class="cms-download-viewer">
+@if($download)
     <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
@@ -19,6 +19,8 @@
         <div class="cms-download-viewer__description">{{ $download->translate('description') }}</div>
         @endif
     </header>
+
+    <x-cms::field-filters :filter="$fieldFilter" />
 
     <div class="cms-download-list">
         @forelse($download->files as $file)
@@ -63,5 +65,5 @@
         <div class="cms-empty">{{ __('cms::labels.no_files') }}</div>
         @endforelse
     </div>
-</div>
 @endif
+</div>

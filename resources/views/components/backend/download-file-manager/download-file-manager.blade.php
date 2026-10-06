@@ -55,6 +55,8 @@
                     </div>
                 </div>
 
+                <x-cms::custom-field-inputs :schema="$this->inputFieldSchema()" model="customFieldValues" />
+
                 <livewire:cms::backend.custom-var-manager
                     wire:model="newFileCustomVars"
                     :allow-add="$newFileCustomVarAllowAdd"

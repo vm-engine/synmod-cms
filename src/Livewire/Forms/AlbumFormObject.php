@@ -10,11 +10,15 @@ use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Traits\HasAccessFields;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
+use VmEngine\Cms\Traits\HasFieldSchema;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class AlbumFormObject extends Form
 {
     use HasAccessFields;
+    use HasCustomFieldValues;
+    use HasFieldSchema;
     use HasTranslationFields;
 
     public ?CmsAlbum $album = null;
@@ -64,6 +68,8 @@ class AlbumFormObject extends Form
         $this->customVarAllowAdd = ($album->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($album);
+        $this->fillFieldSchema($album);
+        $this->fillCustomFields($album, $album);
         $this->fillAccess($album, $album, app(CmsAccessService::class)->abilityFor($this->album, 'update'), CmsVisibility::Public);
     }
 
@@ -90,14 +96,17 @@ class AlbumFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsAlbum)];
+        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsAlbum), ...$this->fieldSchemaRules(), ...$this->customFieldRules()];
     }
 
     public function store(int $createdBy): CmsAlbum
     {
         $this->validate();
 
-        $album = $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->createAlbum([...$this->toData(), ...$this->accessData(null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create')], $createdBy));
+        $album = $this->saveWithTranslations(fn () => tap(
+            app(CmsGalleryService::class)->createAlbum([...$this->toData(), ...$this->accessData(null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create')], $createdBy),
+            fn (CmsAlbum $album) => $this->saveCustomData($album),
+        ));
 
         $this->saveAccess($album, null, $this->type === 'banner' ? 'cms.gallery.banner.create' : 'cms.gallery.album.create', withManagers: true);
 
@@ -110,7 +119,10 @@ class AlbumFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsGalleryService::class)->updateAlbum($this->album, [...$this->toData(), ...$this->accessData($this->album, app(CmsAccessService::class)->abilityFor($this->album, 'update'))]));
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsGalleryService::class)->updateAlbum($this->album, [...$this->toData(), ...$this->accessData($this->album, app(CmsAccessService::class)->abilityFor($this->album, 'update'))]),
+            fn (CmsAlbum $album) => $this->saveCustomData($album),
+        ));
 
         $this->saveAccess($this->album, $this->album, app(CmsAccessService::class)->abilityFor($this->album, 'update'), withManagers: true);
     }
@@ -134,5 +146,21 @@ class AlbumFormObject extends Form
             'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
         ];
+    }
+
+    /**
+     * Value inputs follow the dev's live schema; everyone else the stored one.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function inputFieldSchema(): array
+    {
+        return is_dev() ? $this->fieldSchema : $this->customFieldSchema;
+    }
+
+    private function saveCustomData(CmsAlbum $album): void
+    {
+        $this->saveFieldSchema($album);
+        $this->saveCustomFields($album);
     }
 }

@@ -10,11 +10,13 @@ use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Traits\HasAccessFields;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class ArticleFormObject extends Form
 {
     use HasAccessFields;
+    use HasCustomFieldValues;
     use HasTranslationFields;
 
     public ?CmsArticle $article = null;
@@ -86,6 +88,7 @@ class ArticleFormObject extends Form
         $this->customVarAllowAdd = ($article->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($article);
+        $this->fillCustomFields($article, $article);
         $this->fillAccess($article, $article, 'cms.article.update', CmsVisibility::Inherit);
     }
 
@@ -117,14 +120,17 @@ class ArticleFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->accessRules(allowInherit: true), ...$this->translationRules($rules, new CmsArticle)];
+        return [...$rules, ...$this->accessRules(allowInherit: true), ...$this->translationRules($rules, new CmsArticle), ...$this->customFieldRules()];
     }
 
     public function store(int $createdBy): CmsArticle
     {
         $this->validate();
 
-        $article = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createArticle([...$this->toData(), ...$this->accessData($this->sectionModel(), 'cms.article.create')], $this->tag_ids, $createdBy));
+        $article = $this->saveWithTranslations(fn () => tap(
+            app(CmsArticleService::class)->createArticle([...$this->toData(), ...$this->accessData($this->sectionModel(), 'cms.article.create')], $this->tag_ids, $createdBy),
+            fn (CmsArticle $article) => $this->saveCustomFields($article),
+        ));
 
         $this->saveAccess($article, $this->sectionModel(), 'cms.article.create', withManagers: false);
 
@@ -137,7 +143,10 @@ class ArticleFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateArticle($this->article, [...$this->toData(), ...$this->accessData($this->article, 'cms.article.update')], $this->tag_ids, $updatedBy));
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsArticleService::class)->updateArticle($this->article, [...$this->toData(), ...$this->accessData($this->article, 'cms.article.update')], $this->tag_ids, $updatedBy),
+            fn (CmsArticle $article) => $this->saveCustomFields($article),
+        ));
 
         $this->saveAccess($this->article, $this->article, 'cms.article.update', withManagers: false);
     }

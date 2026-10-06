@@ -9,11 +9,15 @@ use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Traits\HasAccessFields;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
+use VmEngine\Cms\Traits\HasFieldSchema;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class PageFormObject extends Form
 {
     use HasAccessFields;
+    use HasCustomFieldValues;
+    use HasFieldSchema;
     use HasTranslationFields;
 
     public ?CmsPage $page = null;
@@ -86,12 +90,36 @@ class PageFormObject extends Form
 
         $this->fillTranslations($page);
         $this->fillAccess($page, $page, 'cms.page.update', CmsVisibility::Public);
+        $this->fillFieldSchema($page);
+        $this->fillCustomFields($page, $page);
     }
 
     /** Access panel defaults for a new page (root, or child of $parent). */
     public function initAccessForNew(?CmsPage $parent): void
     {
         $this->fillAccess(null, $parent, 'cms.page.create', $parent ? CmsVisibility::Inherit : CmsVisibility::Public);
+        $this->fillCustomFields(new CmsPage(['parent_id' => $parent?->id]));
+    }
+
+    /**
+     * Root pages follow the dev's live schema; children follow their root's stored schema.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function inputFieldSchema(): array
+    {
+        return $this->parent_id === null && is_dev() ? $this->fieldSchema : $this->customFieldSchema;
+    }
+
+    /** Parent changed in the form: reload the new root's schema (values kept by name). */
+    public function refreshCustomFields(): void
+    {
+        $kept = $this->customFieldValues;
+        $this->fillCustomFields(new CmsPage(['parent_id' => $this->parent_id]), $this->page);
+
+        foreach ($this->customFieldValues as $locale => $values) {
+            $this->customFieldValues[$locale] = array_replace($values, array_intersect_key($kept[$locale] ?? [], $values));
+        }
     }
 
     /**
@@ -114,6 +142,8 @@ class PageFormObject extends Form
         return [
             ...$rules,
             ...$this->accessRules(allowInherit: $this->parent_id !== null),
+            ...($this->parent_id === null ? $this->fieldSchemaRules() : []),
+            ...$this->customFieldRules(),
             ...$this->translationRules($rules, new CmsPage),
         ];
     }
@@ -123,9 +153,9 @@ class PageFormObject extends Form
         $this->validate();
 
         $parent = $this->parentPage();
-        $page = $this->saveWithTranslations(fn () => app(CmsPageService::class)->create(
-            [...$this->toData(), ...$this->accessData($parent, 'cms.page.create')],
-            $createdBy,
+        $page = $this->saveWithTranslations(fn () => tap(
+            app(CmsPageService::class)->create([...$this->toData(), ...$this->accessData($parent, 'cms.page.create')], $createdBy),
+            fn (CmsPage $page) => $this->saveCustomData($page),
         ));
         $this->saveAccess($page, $parent, 'cms.page.create', withManagers: true);
 
@@ -138,11 +168,20 @@ class PageFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsPageService::class)->update(
-            $this->page,
-            [...$this->toData(), ...$this->accessData($this->page, 'cms.page.update')],
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsPageService::class)->update($this->page, [...$this->toData(), ...$this->accessData($this->page, 'cms.page.update')]),
+            fn (CmsPage $page) => $this->saveCustomData($page),
         ));
         $this->saveAccess($this->page, $this->page, 'cms.page.update', withManagers: true);
+    }
+
+    private function saveCustomData(CmsPage $page): void
+    {
+        if ($page->parent_id === null) {
+            $this->saveFieldSchema($page);
+        }
+
+        $this->saveCustomFields($page);
     }
 
     private function parentPage(): ?CmsPage

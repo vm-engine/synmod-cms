@@ -10,11 +10,13 @@ use VmEngine\Cms\Livewire\Forms\SectionFormObject;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Traits\WithAccessPicker;
+use VmEngine\Cms\Traits\WithFieldSchemaEditor;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
     use WithAccessPicker;
+    use WithFieldSchemaEditor;
 
     public SectionFormObject $form;
 

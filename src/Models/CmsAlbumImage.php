@@ -9,7 +9,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsAlbumImageFactory;
+use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\HasCustomFields;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Fm\Models\FmFile;
 use VmEngine\Synapse\Traits\WithDeleteToken;
@@ -28,11 +30,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read FmFile|null $file
  * @property-read string $delete_token
  */
-class CmsAlbumImage extends Model implements TranslatableContent
+class CmsAlbumImage extends Model implements CustomFieldContent, TranslatableContent
 {
+    use HasCustomFields;
+
     /** @use HasFactory<CmsAlbumImageFactory> */
     use HasFactory;
-
     use HasTranslations;
     use WithDeleteToken;
 
@@ -79,5 +82,11 @@ class CmsAlbumImage extends Model implements TranslatableContent
     public function file(): BelongsTo
     {
         return $this->belongsTo(FmFile::class, 'file_id');
+    }
+
+    /** The container whose custom field definitions apply to this item. */
+    public function fieldSchemaOwner(): ?CmsAlbum
+    {
+        return $this->album;
     }
 }

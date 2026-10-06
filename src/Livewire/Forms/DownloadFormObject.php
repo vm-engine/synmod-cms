@@ -9,11 +9,15 @@ use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Traits\HasAccessFields;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
+use VmEngine\Cms\Traits\HasFieldSchema;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class DownloadFormObject extends Form
 {
     use HasAccessFields;
+    use HasCustomFieldValues;
+    use HasFieldSchema;
     use HasTranslationFields;
 
     public ?CmsDownload $download = null;
@@ -60,6 +64,8 @@ class DownloadFormObject extends Form
         $this->customVarAllowAdd = ($download->config ?? [])['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($download);
+        $this->fillFieldSchema($download);
+        $this->fillCustomFields($download, $download);
         $this->fillAccess($download, $download, 'cms.download.category.update', CmsVisibility::Public);
     }
 
@@ -85,14 +91,17 @@ class DownloadFormObject extends Form
             'custom_layout' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsDownload)];
+        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsDownload), ...$this->fieldSchemaRules(), ...$this->customFieldRules()];
     }
 
     public function store(int $createdBy): CmsDownload
     {
         $this->validate();
 
-        $download = $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->createDownload([...$this->toData(), ...$this->accessData(null, 'cms.download.category.create')], $createdBy));
+        $download = $this->saveWithTranslations(fn () => tap(
+            app(CmsDownloadService::class)->createDownload([...$this->toData(), ...$this->accessData(null, 'cms.download.category.create')], $createdBy),
+            fn (CmsDownload $download) => $this->saveCustomData($download),
+        ));
 
         $this->saveAccess($download, null, 'cms.download.category.create', withManagers: true);
 
@@ -105,7 +114,10 @@ class DownloadFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsDownloadService::class)->updateDownload($this->download, [...$this->toData(), ...$this->accessData($this->download, 'cms.download.category.update')]));
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsDownloadService::class)->updateDownload($this->download, [...$this->toData(), ...$this->accessData($this->download, 'cms.download.category.update')]),
+            fn (CmsDownload $download) => $this->saveCustomData($download),
+        ));
 
         $this->saveAccess($this->download, $this->download, 'cms.download.category.update', withManagers: true);
     }
@@ -128,5 +140,21 @@ class DownloadFormObject extends Form
             'custom_layout' => $this->custom_layout ?: null,
             'config' => ['custom_var' => $this->customVars, 'custom_var_allow_add' => $this->customVarAllowAdd],
         ];
+    }
+
+    /**
+     * Value inputs follow the dev's live schema; everyone else the stored one.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function inputFieldSchema(): array
+    {
+        return is_dev() ? $this->fieldSchema : $this->customFieldSchema;
+    }
+
+    private function saveCustomData(CmsDownload $download): void
+    {
+        $this->saveFieldSchema($download);
+        $this->saveCustomFields($download);
     }
 }

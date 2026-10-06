@@ -1,5 +1,5 @@
-@if($category)
 <div class="cms-category-index">
+@if($category)
     <nav class="cms-breadcrumb" aria-label="{{ __('cms::labels.breadcrumb') }}">
         <ol class="cms-breadcrumb__list">
             <li class="cms-breadcrumb__item"><a href="{{ \VmEngine\Cms\Support\CmsUrl::to('/') }}" class="cms-breadcrumb__link">{{ __('cms::labels.home') }}</a></li>
@@ -19,6 +19,8 @@
         <div class="cms-category__description">{!! $category->translate('description') !!}</div>
         @endif
     </header>
+
+    <x-cms::field-filters :filter="$fieldFilter" />
 
     <div class="cms-article-grid">
         @forelse($articles as $article)
@@ -56,5 +58,5 @@
     @if($articles->hasPages())
     <div class="cms-pagination">{{ $articles->links() }}</div>
     @endif
-</div>
 @endif
+</div>

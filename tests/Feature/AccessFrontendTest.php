@@ -106,6 +106,32 @@ describe('listings', function () {
 
         expect(app(CmsMenuService::class)->buildTree('header')->pluck('label')->all())->toBe(['Docs']);
     });
+
+    it('applies visitor, inheritance and nesting rules to menu items', function () {
+        $menu = CmsMenu::factory()->create(['position' => 'header']);
+        $members = CmsPage::factory()->create(['status' => 'published', 'visibility' => 'protected']);
+        $privateSection = CmsSection::factory()->create(['status' => 'published', 'visibility' => 'private']);
+        $inheritingArticle = CmsArticle::factory()->create(['section_id' => $privateSection->id, 'status' => 'published', 'published_at' => now()->subDay()]);
+        $parent = $menu->items()->create(['label' => 'Parent', 'target_type' => 'url', 'target_url' => '/about', 'is_active' => true, 'sort_order' => 0]);
+        $menu->items()->create(['label' => 'Members', 'target_type' => 'page', 'target_id' => $members->id, 'parent_id' => $parent->id, 'is_active' => true, 'sort_order' => 0]);
+        $menu->items()->create(['label' => 'Secret Article', 'target_type' => 'article', 'target_id' => $inheritingArticle->id, 'is_active' => true, 'sort_order' => 1]);
+
+        $labels = fn () => app(CmsMenuService::class)->buildTree('header')
+            ->flatMap(fn ($item) => [$item->label, ...$item->children->pluck('label')])
+            ->all();
+
+        expect($labels())->toBe(['Parent']);
+
+        $this->actingAs(User::factory()->create());
+        app()->forgetScopedInstances();
+        expect($labels())->toBe(['Parent', 'Members']);
+
+        $listed = User::factory()->create();
+        frontendViewGrant($privateSection, $listed);
+        $this->actingAs($listed);
+        app()->forgetScopedInstances();
+        expect($labels())->toBe(['Parent', 'Members', 'Secret Article']);
+    });
 });
 
 describe('search + sitemap', function () {

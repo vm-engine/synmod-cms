@@ -7,13 +7,16 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsAlbum;
+use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use HasCustomFieldValues;
     use WithCmsAccessChecks;
 
     #[Locked]
@@ -36,6 +39,7 @@ new class extends Component
     {
         $this->albumId = $albumId;
         app(CmsGalleryService::class)->findAlbumOrFailById($albumId);
+        $this->fillCustomFields(new CmsAlbumImage(['album_id' => $albumId]));
         synav()->setActiveMenu('cms.gallery');
     }
 
@@ -67,16 +71,19 @@ new class extends Component
         $this->validate([
             'newImageUrl' => 'required|string',
             'newFileId' => 'required|integer|exists:fm_files,id',
-        ]);
+            ...$this->customFieldRules(),
+        ], [], $this->customFieldAttributes());
 
-        app(CmsGalleryService::class)->addImageToAlbum($this->albumId, [
+        $item = app(CmsGalleryService::class)->addImageToAlbum($this->albumId, [
             'file_id' => $this->newFileId,
             'title' => $this->newImageTitle ?: null,
             'caption' => $this->newImageCaption ?: null,
             'config' => ['custom_var' => $this->newImageCustomVars, 'custom_var_allow_add' => $this->newImageCustomVarAllowAdd],
         ]);
+        $this->saveCustomFields($item);
 
         $this->reset('newImageUrl', 'newImageTitle', 'newImageCaption', 'newImageCustomVars', 'newImageCustomVarAllowAdd');
+        $this->fillCustomFields(new CmsAlbumImage(['album_id' => $this->albumId]));
         $this->newFileId = null;
         unset($this->images);
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_added'));

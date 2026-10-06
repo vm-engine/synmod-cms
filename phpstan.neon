@@ -15,3 +15,5 @@ parameters:
             paths:
                 - src/Traits/WithAccessPicker.php
                 - src/Traits/WithCmsAccessChecks.php
+                - src/Traits/WithFieldSchemaEditor.php
+                - src/Traits/WithFieldFilters.php

@@ -55,7 +55,8 @@ trait HasTranslationFields
             $attributes["translations.*.{$field}"] = (string) __("cms::labels.{$field}");
         }
 
-        return $attributes;
+        // Form objects that also use HasCustomFieldValues name those inputs too.
+        return method_exists($this, 'customFieldAttributes') ? [...$attributes, ...$this->customFieldAttributes()] : $attributes;
     }
 
     /**

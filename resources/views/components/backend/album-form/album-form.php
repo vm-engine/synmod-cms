@@ -11,11 +11,13 @@ use VmEngine\Cms\Livewire\Forms\AlbumFormObject;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Traits\WithAccessPicker;
+use VmEngine\Cms\Traits\WithFieldSchemaEditor;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
     use WithAccessPicker;
+    use WithFieldSchemaEditor;
 
     public AlbumFormObject $form;
 

@@ -30,6 +30,10 @@
         </div>
     </article>
 
+    @if($page->config['show_children'] ?? false)
+    <x-cms::field-filters :filter="$fieldFilter" />
+    @endif
+
     @if(($page->config['show_children'] ?? false) && $page->children->isNotEmpty())
     <section class="cms-page__children">
         <h2 class="cms-page__children-title">{{ __('cms::labels.subpages') }}</h2>

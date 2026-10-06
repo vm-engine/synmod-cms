@@ -8,9 +8,11 @@ use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Support\FrontendViewResolver;
+use VmEngine\Cms\Traits\WithFieldFilters;
 
 new class extends Component
 {
+    use WithFieldFilters;
     use WithPagination;
 
     public int $section_id;
@@ -45,11 +47,13 @@ new class extends Component
         $orderBy = $config['order_by'] ?? 'published_at';
         $orderDir = $config['order_dir'] ?? 'desc';
 
+        $filter = $this->fieldFilter($this->section);
         $articles = app(CmsArticleService::class)->paginatePublishedArticlesInSection(
             sectionId: $this->section_id,
             orderBy: $orderBy,
             orderDir: $orderDir,
             perPage: $perPage,
+            scope: fn ($query) => $filter->apply($query),
         );
 
         $template = FrontendViewResolver::view(
@@ -57,7 +61,7 @@ new class extends Component
             'cms::components.frontend.section-index.section-index',
         );
 
-        return view($template, ['section' => $this->section, 'articles' => $articles])
+        return view($template, ['section' => $this->section, 'articles' => $articles, 'fieldFilter' => $filter])
             ->title($this->title())
             ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->section?->resolveCustomLayout()));

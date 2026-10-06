@@ -7,13 +7,16 @@ use Livewire\Attributes\Locked;
 use Livewire\Attributes\On;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsDownload;
+use VmEngine\Cms\Models\CmsDownloadFile;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
 use VmEngine\Cms\Traits\WithCmsAccessChecks;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
+    use HasCustomFieldValues;
     use WithCmsAccessChecks;
 
     #[Locked]
@@ -36,6 +39,7 @@ new class extends Component
     {
         $this->downloadId = $downloadId;
         app(CmsDownloadService::class)->findOrFailById($downloadId);
+        $this->fillCustomFields(new CmsDownloadFile(['download_id' => $downloadId]));
         synav()->setActiveMenu('cms.download');
     }
 
@@ -68,16 +72,19 @@ new class extends Component
         $this->validate([
             'newFileUrl' => 'required|string',
             'newFileId' => 'required|integer|exists:fm_files,id',
-        ]);
+            ...$this->customFieldRules(),
+        ], [], $this->customFieldAttributes());
 
-        app(CmsDownloadService::class)->addFileToDownload($this->downloadId, [
+        $item = app(CmsDownloadService::class)->addFileToDownload($this->downloadId, [
             'file_id' => $this->newFileId,
             'title' => $this->newFileTitle ?: null,
             'description' => $this->newFileDescription ?: null,
             'config' => ['custom_var' => $this->newFileCustomVars, 'custom_var_allow_add' => $this->newFileCustomVarAllowAdd],
         ]);
+        $this->saveCustomFields($item);
 
         $this->reset('newFileUrl', 'newFileTitle', 'newFileDescription', 'newFileCustomVars', 'newFileCustomVarAllowAdd');
+        $this->fillCustomFields(new CmsDownloadFile(['download_id' => $this->downloadId]));
         $this->newFileId = null;
         unset($this->files);
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_added'));

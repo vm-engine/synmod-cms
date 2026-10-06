@@ -56,6 +56,8 @@
                 </div>
             </div>
 
+            <x-cms::custom-field-inputs :schema="$form->inputFieldSchema()" />
+
             {{-- Custom Variables --}}
             <livewire:cms::backend.custom-var-manager wire:model="form.customVars" :allow-add="$form->customVarAllowAdd" wire:key="cvm-dlfile-{{ $fileId }}" />
 

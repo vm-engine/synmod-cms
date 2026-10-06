@@ -7,9 +7,12 @@ use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Support\FrontendViewResolver;
+use VmEngine\Cms\Traits\WithFieldFilters;
 
 new class extends Component
 {
+    use WithFieldFilters;
+
     public int $download_id;
 
     public ?CmsDownload $download = null;
@@ -43,12 +46,15 @@ new class extends Component
 
     public function render()
     {
+        $filter = $this->fieldFilter($this->download);
+        $this->download?->setRelation('files', $filter->apply($this->download->files()->with('file')->getQuery())->get());
+
         $template = FrontendViewResolver::view(
             $this->download?->resolveCustomView(),
             'cms::components.frontend.download-viewer.download-viewer',
         );
 
-        return view($template, ['download' => $this->download])
+        return view($template, ['download' => $this->download, 'fieldFilter' => $filter])
             ->title($this->title())
             ->layoutData(['description' => $this->description()])
             ->layout(FrontendViewResolver::layout($this->download?->resolveCustomLayout()));

@@ -15,8 +15,12 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsPageFactory;
+use VmEngine\Cms\Support\CustomFieldContainer;
+use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
+use VmEngine\Cms\Traits\DefinesCustomFields;
 use VmEngine\Cms\Traits\HasCmsAccess;
+use VmEngine\Cms\Traits\HasCustomFields;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -45,9 +49,12 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read CmsPage|null $parent
  * @property-read Collection<int, CmsPage> $children
  */
-class CmsPage extends Model implements TranslatableContent
+class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent, TranslatableContent
 {
+    use DefinesCustomFields;
     use HasCmsAccess;
+
+    use HasCustomFields;
 
     /** @use HasFactory<CmsPageFactory> */
     use HasFactory;
@@ -196,5 +203,16 @@ class CmsPage extends Model implements TranslatableContent
         }
 
         return $parent->full_slug.'/'.$this->slug;
+    }
+
+    /** The container whose custom field definitions apply to this item. */
+    public function fieldSchemaOwner(): ?CmsPage
+    {
+        $page = $this;
+        while ($page->parent_id !== null && $page->parent !== null) {
+            $page = $page->parent;
+        }
+
+        return $page;
     }
 }

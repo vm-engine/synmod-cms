@@ -70,12 +70,13 @@ class CmsArticleService
     /**
      * @return LengthAwarePaginator<int, CmsArticle>
      */
-    public function paginatePublishedArticlesInSection(int $sectionId, string $orderBy, string $orderDir, int $perPage): LengthAwarePaginator
+    public function paginatePublishedArticlesInSection(int $sectionId, string $orderBy, string $orderDir, int $perPage, ?Closure $scope = null): LengthAwarePaginator
     {
         return CmsArticle::published()
             ->visibleTo()
             ->where('section_id', $sectionId)
             ->with(['category', 'tags'])
+            ->when($scope, $scope)
             ->orderBy($orderBy, $this->normalizeDirection($orderDir))
             ->paginate($perPage)
             ->onEachSide(1);
@@ -84,12 +85,13 @@ class CmsArticleService
     /**
      * @return LengthAwarePaginator<int, CmsArticle>
      */
-    public function paginatePublishedArticlesInCategory(int $categoryId, string $orderBy, string $orderDir, int $perPage): LengthAwarePaginator
+    public function paginatePublishedArticlesInCategory(int $categoryId, string $orderBy, string $orderDir, int $perPage, ?Closure $scope = null): LengthAwarePaginator
     {
         return CmsArticle::published()
             ->visibleTo()
             ->where('category_id', $categoryId)
             ->with(['section', 'tags'])
+            ->when($scope, $scope)
             ->orderBy($orderBy, $this->normalizeDirection($orderDir))
             ->paginate($perPage)
             ->onEachSide(1);

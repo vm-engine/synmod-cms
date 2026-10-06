@@ -9,11 +9,15 @@ use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Traits\HasAccessFields;
+use VmEngine\Cms\Traits\HasCustomFieldValues;
+use VmEngine\Cms\Traits\HasFieldSchema;
 use VmEngine\Cms\Traits\HasTranslationFields;
 
 class SectionFormObject extends Form
 {
     use HasAccessFields;
+    use HasCustomFieldValues;
+    use HasFieldSchema;
     use HasTranslationFields;
 
     public ?CmsSection $section = null;
@@ -88,6 +92,8 @@ class SectionFormObject extends Form
         $this->customVarAllowAdd = $config['custom_var_allow_add'] ?? false;
 
         $this->fillTranslations($section);
+        $this->fillFieldSchema($section);
+        $this->fillCustomFields($section, $section);
         $this->fillAccess($section, $section, 'cms.article.section.update', CmsVisibility::Public);
     }
 
@@ -116,14 +122,17 @@ class SectionFormObject extends Form
             'custom_article_view' => 'nullable|string|max:255',
         ];
 
-        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsSection)];
+        return [...$rules, ...$this->accessRules(allowInherit: false), ...$this->translationRules($rules, new CmsSection), ...$this->fieldSchemaRules(), ...$this->customFieldRules()];
     }
 
     public function store(int $createdBy): CmsSection
     {
         $this->validate();
 
-        $section = $this->saveWithTranslations(fn () => app(CmsArticleService::class)->createSection([...$this->toData(), ...$this->accessData(null, 'cms.article.section.create')], $createdBy));
+        $section = $this->saveWithTranslations(fn () => tap(
+            app(CmsArticleService::class)->createSection([...$this->toData(), ...$this->accessData(null, 'cms.article.section.create')], $createdBy),
+            fn (CmsSection $section) => $this->saveCustomData($section),
+        ));
 
         $this->saveAccess($section, null, 'cms.article.section.create', withManagers: true);
 
@@ -136,7 +145,10 @@ class SectionFormObject extends Form
     {
         $this->validate();
 
-        $this->saveWithTranslations(fn () => app(CmsArticleService::class)->updateSection($this->section, [...$this->toData(), ...$this->accessData($this->section, 'cms.article.section.update')]));
+        $this->saveWithTranslations(fn () => tap(
+            app(CmsArticleService::class)->updateSection($this->section, [...$this->toData(), ...$this->accessData($this->section, 'cms.article.section.update')]),
+            fn (CmsSection $section) => $this->saveCustomData($section),
+        ));
 
         $this->saveAccess($this->section, $this->section, 'cms.article.section.update', withManagers: true);
     }
@@ -171,5 +183,21 @@ class SectionFormObject extends Form
             'custom_category_view' => $this->custom_category_view ?: null,
             'custom_article_view' => $this->custom_article_view ?: null,
         ];
+    }
+
+    /**
+     * Value inputs follow the dev's live schema; everyone else the stored one.
+     *
+     * @return list<array<string, mixed>>
+     */
+    public function inputFieldSchema(): array
+    {
+        return is_dev() ? $this->fieldSchema : $this->customFieldSchema;
+    }
+
+    private function saveCustomData(CmsSection $section): void
+    {
+        $this->saveFieldSchema($section);
+        $this->saveCustomFields($section);
     }
 }

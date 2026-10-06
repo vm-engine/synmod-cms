@@ -54,7 +54,7 @@ Then install and discover:
 composer update vm-engine/synmod-cms
 php artisan synapps:discover
 php artisan migrate
-php artisan cms:setup   # wires CMS JS into resources/js/app.js + TinyMCE assets into vite.config.js, picks the default editor
+php artisan cms:setup   # wires CMS JS into resources/js/app.js + frontend.js (incl. synapse components), TinyMCE assets into vite.config.js, picks the default editor
 npm install && npm run build
 ```
 
@@ -397,6 +397,58 @@ All content types (pages, sections, categories, articles, albums, album images) 
 Custom variables are accessible in frontend components and widgets via `$model->config['vars'] ?? []`.
 
 ---
+
+## Custom Fields
+
+Typed fields defined by a **dev** (`is_dev()`) on a container and filled in by any editor. Unlike [Custom Variables](#custom-variables), editors cannot add or change the definitions.
+
+| Defined on | Values on |
+|---|---|
+| Root page | the root page and all its descendants |
+| Section | the section and its articles |
+| Download category | the category and its files |
+| Album (normal or banner) | the album and its images |
+
+- **Types:** text, textarea, number, email, url, date, datetime, select, radio, checkbox, checkboxes.
+- **Definition:** each field has a name, label, type, options, default, required, help text and searchable / filterable / sortable flags.
+- **Translatable labels:** a label, help text or option label starting with `__` is a translation key (`__cms::labels.price` → `__('cms::labels.price')`).
+- **Per-locale values:** a missing locale falls back to the primary locale, then to the field default. `required` applies to the primary locale only.
+- **Type lock:** a field's type can't change once it has values. Renaming a field keeps its values. Deleting a field deletes its values.
+
+Reading values:
+
+```php
+$article->field('price');          // current locale
+$article->field('price', 'id');
+$article->fields();                // ['price' => 12.5, 'tags' => ['a', 'b'], ...]
+```
+
+Querying (pass `int|float` for number fields and a `DateTimeInterface` for date fields; `like` matches text):
+
+```php
+CmsArticle::whereField('price', '<', 100)->orderByField('event_date', 'desc')->get();
+CmsArticle::whereField('colour', 'red')->get();
+CmsArticle::whereFieldIn('tags', ['a', 'b'])->get();
+```
+
+**Search:** searchable values are added to the public search index. For option fields the option labels are indexed.
+
+**Listing filters:** the section, category, album, download and page-children listings accept these query parameters for filterable and sortable fields:
+- `?f[name]=value`
+- `?f[name][min]=..&f[name][max]=..` (number and date fields)
+- `?f[name][]=a` (checkboxes)
+- `?sort=name&dir=asc|desc`
+
+The default views render `<x-cms::field-filters :filter="$fieldFilter" />`. Custom views receive `$fieldFilter` too and can include it, or build their own form.
+
+The filter bar is Livewire-bound. Its inputs `wire:model` the listing's URL-synced `$f` / `$sort` / `$dir` (the `WithFieldFilters` trait), Apply calls `applyFieldFilters()` and Reset calls `resetFieldFilters()`. Date and datetime fields use `<x-synapse-datepicker>` in both the filters and the backend value inputs, so the frontend JS bundle must register the synapse components. `php artisan cms:setup` adds this to `resources/js/frontend.js`. It skips the step if `frontend.js` or `synapps-frontend.js` already imports `synapse-components.js`:
+
+```js
+import 'flatpickr/dist/flatpickr.min.css';
+import '../../synapps/resources/js/synapse-components.js';
+```
+
+The default theme styles the bar in `themes/default/css/cms.css` (`.cms-field-filters*`).
 
 ## Custom View & Layout Overrides
 

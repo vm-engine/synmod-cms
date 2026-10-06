@@ -11,11 +11,13 @@ use VmEngine\Cms\Livewire\Forms\PageFormObject;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsPageService;
 use VmEngine\Cms\Traits\WithAccessPicker;
+use VmEngine\Cms\Traits\WithFieldSchemaEditor;
 use VmEngine\Synapse\Services\Helper\Breadcrumbs;
 
 new class extends Component
 {
     use WithAccessPicker;
+    use WithFieldSchemaEditor;
 
     public PageFormObject $form;
 
@@ -96,6 +98,11 @@ new class extends Component
         if ($parentId !== null && ($this->pageId === null || $parentId !== $this->originalParentId)) {
             $access->authorizeManage($service->findOrFailById($parentId), $this->pageId ? 'cms.page.update' : 'cms.page.create');
         }
+    }
+
+    public function updatedFormParentId(): void
+    {
+        $this->form->refreshCustomFields();
     }
 
     #[On('custom-var-allow-add-changed')]

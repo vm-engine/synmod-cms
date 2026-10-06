@@ -16,8 +16,10 @@ use Illuminate\Support\Carbon;
 use VmEngine\Cms\Enums\ArticleStatus;
 use VmEngine\Cms\Enums\CmsVisibility;
 use VmEngine\Cms\Factories\CmsArticleFactory;
+use VmEngine\Cms\Support\CustomFieldContent;
 use VmEngine\Cms\Support\TranslatableContent;
 use VmEngine\Cms\Traits\HasCmsAccess;
+use VmEngine\Cms\Traits\HasCustomFields;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Synapse\Traits\WithDeleteToken;
 
@@ -51,9 +53,11 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
  * @property-read CmsCategory|null $category
  * @property-read Collection<int, CmsTag> $tags
  */
-class CmsArticle extends Model implements TranslatableContent
+class CmsArticle extends Model implements CustomFieldContent, TranslatableContent
 {
     use HasCmsAccess;
+
+    use HasCustomFields;
 
     /** @use HasFactory<CmsArticleFactory> */
     use HasFactory;
@@ -216,5 +220,11 @@ class CmsArticle extends Model implements TranslatableContent
         $wordCount = str_word_count(strip_tags($body));
 
         return (int) max(1, ceil($wordCount / 200));
+    }
+
+    /** The container whose custom field definitions apply to this item. */
+    public function fieldSchemaOwner(): ?CmsSection
+    {
+        return $this->section;
     }
 }
