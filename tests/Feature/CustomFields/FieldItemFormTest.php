@@ -14,6 +14,8 @@ use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsCustomFieldService;
 use VmEngine\Fm\Models\FmFile;
 
+require_once __DIR__.'/helpers.php';
+
 uses(RefreshDatabase::class);
 
 beforeEach(function () {

@@ -11,26 +11,15 @@ use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsCustomFieldService;
 use VmEngine\SynAuth\Models\Role;
-use VmEngine\SynAuth\Models\RolePermission;
 use VmEngine\SynAuth\Models\User;
+
+require_once __DIR__.'/helpers.php';
 
 uses(RefreshDatabase::class);
 
 beforeEach(function () {
     config(['app.locale' => 'en', 'synapps.apps.multi_language' => true, 'synapps.apps.enabled_languages' => ['en', 'id']]);
 });
-
-function cfAdminUser(): User
-{
-    $role = Role::factory();
-    foreach ([['page'], ['article'], ['article', 'section'], ['gallery', 'album'], ['gallery', 'image'], ['download', 'category'], ['download', 'file']] as $acl) {
-        $role = $role->has(RolePermission::factory()->forModule('cms', ...$acl)->fullCrud());
-    }
-    $user = User::factory()->create();
-    $user->roles()->attach($role->create(['level' => 5, 'can_access_backend' => true]));
-
-    return $user;
-}
 
 function cfDev(): User
 {
