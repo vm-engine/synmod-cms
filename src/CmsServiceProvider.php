@@ -28,6 +28,8 @@ use VmEngine\Cms\Observers\CmsDownloadObserver;
 use VmEngine\Cms\Observers\CmsMenuItemObserver;
 use VmEngine\Cms\Observers\CmsPageObserver;
 use VmEngine\Cms\Observers\CmsSectionObserver;
+use VmEngine\Cms\Services\Analytics\FakeGoogleApiClient;
+use VmEngine\Cms\Services\Analytics\GoogleApiClient;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsCustomFieldService;
 use VmEngine\Synapse\Traits\AutoRegistersComponents;
@@ -42,6 +44,12 @@ class CmsServiceProvider extends ServiceProvider
 
         $this->app->scoped(CmsAccessService::class);
         $this->app->scoped(CmsCustomFieldService::class);
+
+        // Dev-only dummy Google data for the Analytics dashboard. Never in production,
+        // and never under tests, so a host's local flag can't leak into the suite.
+        if (config('synapps.modules.cms.analytics.fake') && ! $this->app->environment(['production', 'testing'])) {
+            $this->app->bind(GoogleApiClient::class, FakeGoogleApiClient::class);
+        }
 
         $this->mergeConfigFrom(__DIR__.'/../config/cms-purifier.php', 'purifier.settings.cms_rte');
 

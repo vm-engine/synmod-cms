@@ -18,6 +18,7 @@ return [
     'download_file' => 'Download Files',
     'menu' => 'Menus',
     'tag' => 'Tags',
+    'analytics' => 'Analytics (Google)',
     'settings' => 'CMS Settings',
     'search_term' => 'Search Terms',
     'access' => 'Content Access Settings',

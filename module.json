@@ -27,6 +27,9 @@
         "popular_min_hits": 3,
         "popular_limit": 8
     },
+    "analytics": {
+        "fake": false
+    },
     "dependencies": {
         "npm": {
             "main": {
@@ -108,6 +111,14 @@
                     "route": "cms.search-term.index",
                     "icon": "fa-solid fa-magnifying-glass",
                     "acl": "cms.search_term.read"
+                },
+                "analytics": {
+                    "id": "analytics",
+                    "name": "__cms::menu.be.analytics",
+                    "class": "",
+                    "route": "cms.analytics",
+                    "icon": "fa-solid fa-chart-line",
+                    "acl": "cms.analytics.read"
                 },
                 "settings": {
                     "id": "settings",
@@ -233,6 +244,13 @@
                     "delete": 1
                 }
             }
+        },
+        "analytics": {
+            "label": "__cms::acl.analytics",
+            "create": 0,
+            "read": 1,
+            "update": 1,
+            "delete": 0
         },
         "settings": {
             "label": "__cms::acl.settings",

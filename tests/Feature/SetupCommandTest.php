@@ -22,16 +22,19 @@ beforeEach(function () {
     $this->basePath = sys_get_temp_dir().'/cms-setup-test-'.uniqid();
     mkdir($this->basePath.'/resources/js', 0755, true);
     mkdir($this->basePath.'/synapps/resources/js', 0755, true);
+    mkdir($this->basePath.'/public', 0755, true);
 
     $this->files = [
         'app' => $this->basePath.'/resources/js/app.js',
         'frontend' => $this->basePath.'/resources/js/frontend.js',
         'vite' => $this->basePath.'/vite.config.js',
         'synapps' => $this->basePath.'/synapps/resources/js/synapps.js',
+        'robots' => $this->basePath.'/public/robots.txt',
     ];
 
     file_put_contents($this->files['app'], "import '../../synapps/resources/js/synapps-app.js';\n");
     file_put_contents($this->files['frontend'], "import '../../synapps/resources/js/synapps-frontend.js';\n");
+    file_put_contents($this->files['robots'], "User-agent: *\nDisallow:\n");
     file_put_contents($this->files['synapps'], "import './synapse-components.js';\n".LEGACY_IMPORT."\n");
     file_put_contents($this->files['vite'], <<<'JS'
         export default defineConfig({
@@ -128,4 +131,32 @@ it('ships the search box in the frontend bundle only', function () {
     expect(file_get_contents("{$js}/cms-frontend.js"))->toContain("Alpine.data('cmsSearchBox'")
         ->not->toContain('sortablejs')
         ->and(file_get_contents("{$js}/cms.js"))->not->toContain('cmsSearchBox');
+});
+
+it('adds the sitemap to robots.txt once', function () {
+    config(['app.url' => 'https://example.com']);
+
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+
+    expect(file_get_contents($this->files['robots']))
+        ->toBe("User-agent: *\nDisallow:\n\nSitemap: https://example.com/sitemap.xml\n");
+});
+
+it('creates robots.txt when the host has none', function () {
+    config(['app.url' => 'https://example.com']);
+    unlink($this->files['robots']);
+
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+
+    expect(file_get_contents($this->files['robots']))
+        ->toBe("User-agent: *\nDisallow:\n\nSitemap: https://example.com/sitemap.xml\n");
+});
+
+it('leaves an existing sitemap directive alone', function () {
+    file_put_contents($this->files['robots'], "User-agent: *\nSitemap: https://cdn.example.com/map.xml\n");
+
+    $this->artisan('cms:patch-resources')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+
+    expect(file_get_contents($this->files['robots']))->toBe("User-agent: *\nSitemap: https://cdn.example.com/map.xml\n");
 });

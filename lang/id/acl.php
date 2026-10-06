@@ -18,6 +18,7 @@ return [
     'download_file' => 'File Unduhan',
     'menu' => 'Menu',
     'tag' => 'Tag',
+    'analytics' => 'Analitik (Google)',
     'settings' => 'Pengaturan CMS',
     'search_term' => 'Kata Pencarian',
     'access' => 'Pengaturan Akses Konten',

@@ -13,8 +13,8 @@ use function Laravel\Prompts\select;
  * Wires CMS assets into the host app and picks the default rich-text editor:
  * cms.js (admin: editors, sortable) into app.js, cms-frontend.js (public:
  * search box) and the synapse components (datepicker in the custom field
- * filters) into frontend.js. Both editors are always wired so the choice
- * can change later from CMS settings.
+ * filters) into frontend.js, and the sitemap into public/robots.txt. Both
+ * editors are always wired so the choice can change later from CMS settings.
  */
 class SetupCommand extends Command
 {
@@ -42,6 +42,7 @@ class SetupCommand extends Command
         $this->patchEntry('frontend.js', self::SYNAPSE_FRONTEND_IMPORTS, 'synapse-components.js', alsoIn: ['synapps/resources/js/synapps-frontend.js']);
         $this->removeLegacySynappsImport();
         $this->patchViteConfig();
+        $this->patchRobots();
 
         $driver = (string) select(
             label: 'Default rich-text editor',
@@ -135,6 +136,27 @@ class SetupCommand extends Command
 
         file_put_contents($path, $patched);
         $this->line('  vite.config.js — TinyMCE static copy added');
+    }
+
+    /**
+     * Point crawlers at the CMS sitemap. public/robots.txt is static (the web
+     * server serves it before any route), so the directive is written into it.
+     * Any existing Sitemap: line is respected.
+     */
+    private function patchRobots(): void
+    {
+        $path = public_path('robots.txt');
+        $contents = $this->read($path) ?? "User-agent: *\nDisallow:\n";
+
+        if (preg_match('/^\s*Sitemap:/mi', $contents) === 1) {
+            $this->line('  robots.txt — Sitemap already set (skipped)');
+
+            return;
+        }
+
+        $sitemap = rtrim((string) config('app.url'), '/').'/sitemap.xml';
+        file_put_contents($path, rtrim($contents).PHP_EOL.PHP_EOL.'Sitemap: '.$sitemap.PHP_EOL);
+        $this->line("  robots.txt — Sitemap: {$sitemap} added");
     }
 
     private function read(string $path): ?string

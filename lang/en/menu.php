@@ -12,6 +12,7 @@ return [
         'menu' => 'Menus',
         'tag' => 'Tags',
         'search_term' => 'Search Terms',
+        'analytics' => 'Analytics',
         'settings' => 'Settings',
     ],
 ];

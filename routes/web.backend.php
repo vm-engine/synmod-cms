@@ -69,6 +69,10 @@ Route::group([], function () {
     Route::livewire('/search-terms', 'cms::backend.search-term-list')->name('search-term.index')
         ->middleware('can-access:cms.search_term.read');
 
+    // Analytics (Google Analytics + Search Console)
+    Route::livewire('/analytics', 'cms::backend.analytics')->name('analytics')
+        ->middleware('can-access:cms.analytics.read');
+
     // Settings
     Route::livewire('/settings', 'cms::backend.settings')->name('settings')
         ->middleware('can-access:cms.settings.read');

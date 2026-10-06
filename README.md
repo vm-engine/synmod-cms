@@ -86,6 +86,7 @@ All admin routes are under `/admin/cms/` and require authentication. Access is c
 | `GET /admin/cms/menu` | `backend.cms.menu.index` | `cms.menu.read` |
 | `GET /admin/cms/menu/{menuId}/items` | `backend.cms.menu.items` | `cms.menu.update` |
 | `GET /admin/cms/tag` | `backend.cms.tag.index` | `cms.tag.read` |
+| `GET /admin/cms/analytics` | `backend.cms.analytics` | `cms.analytics.read` |
 | `GET /admin/cms/settings` | `backend.cms.settings` | `cms.settings.read` |
 
 > **Note:** Article create/edit forms are always section-scoped. The global article list (`cms.article.index`) is read-only for overview; all CRUD operations go through the section-scoped routes.
@@ -520,6 +521,52 @@ Use the same pattern if you add your own frontend viewer for a CMS content type.
 
 ---
 
+## Google Analytics & Search Console
+
+GA4 tracking, Search Console verification, an optional cookie-consent banner and a backend **Analytics** dashboard. No extra Composer packages: Google's REST APIs are called with Laravel `Http`, authenticated as a service account (self-signed RS256 JWT via `openssl`).
+
+### 1. Tracking + verification (CMS Settings → Tracking)
+
+- **GA4 Measurement ID** (`G-…`): GA4 → Admin → Data streams → Web. `<x-cms::analytics-head />` renders `gtag.js` **only in `production` and never for users with backend access**, and adds Google's hosts to the CSP on those pages (no `apps.json` change needed).
+- **Search Console verification token**: add a URL-prefix property → *HTML tag* method → paste only the `content` value. (Domain properties verify via DNS instead.) The meta tag renders in every environment.
+- Submit `/sitemap.xml` in Search Console; `cms:setup` puts it in `robots.txt` (see [Sitemap](#sitemap)).
+
+### 2. Cookie consent (Consent Mode v2)
+
+**Require cookie consent** (default on): GA starts with `analytics_storage: denied` (cookieless pings) and `<x-cms::cookie-consent />` asks the visitor. Accept/Reject updates consent and stores `cms_consent=granted|denied` for 180 days; `<x-cms::cookie-settings-link />` reopens the banner. Ads consent is always denied. Turn it off only for sites without EU/UK visitors (GA then starts granted, no banner).
+
+Theme wiring (the default theme already does this): `<x-cms::analytics-head />` in `<head>`, `<x-cms::cookie-consent />` before the scripts, `<x-cms::cookie-settings-link />` in the footer. Markup is unstyled BEM (`.cms-consent*`, `.cms-consent-link`); the default theme styles it in `themes/default/css/cms.css`.
+
+### 3. Reporting API (CMS Settings → Reporting API)
+
+1. Google Cloud console → create/select a project → enable **Google Analytics Data API** and **Google Search Console API**.
+2. IAM → Service accounts → create one → Keys → *Add key* → JSON.
+3. GA4 → Admin → Property access management → add the service-account email as **Viewer**.
+4. Search Console → Settings → Users and permissions → add the email (Restricted is enough).
+5. In CMS Settings fill **GA4 Property ID** (numeric, Admin → Property details — not the `G-` ID), **Search Console property** (`https://example.com/` or `sc-domain:example.com`) and paste the **JSON key**. The key is stored encrypted (`dbconf('cms.analytics_key')`, app key) and never shown again; other values live in `dbconf('cms.analytics')`.
+
+### 4. Dashboard
+
+`/admin/cms/analytics` (`cms.analytics.read`): range 7/28/90 days, GA users/sessions/views/engagement rate + daily views trend + top pages, Search Console clicks/impressions/CTR/position + daily clicks trend + top queries/pages. Each panel loads lazily and fails on its own (a Google error is shown in that panel). Results are cached for 1 hour; **Refresh** (`cms.analytics.update`) and saving settings clear the cache. Search Console data lags ~3 days, so its ranges end 3 days ago.
+
+### 5. Dummy data (development)
+
+To review the dashboard without a Google account, turn on dummy mode in `synapps/config/modules.json` and regenerate config:
+
+```json
+{ "cms": { "analytics": { "fake": true } } }
+```
+
+```bash
+php artisan synapps:config
+```
+
+Then fill any **GA4 Property ID** and **Search Console property** in CMS Settings (e.g. `123` and `sc-domain:example.com`); no JSON key is needed. `FakeGoogleApiClient` replaces the real client and returns Google-shaped sample data (stable per date, weekday/weekend rhythm), so reporters, caching and panels run unchanged. The dashboard shows a warning while it is on. The flag is **ignored in production** (and under tests, so a local flag can't change the suite).
+
+Code: `AnalyticsSettings`, `AnalyticsCache`, `TrendLine` (`src/Support`), `GoogleApiClient`, `Ga4Reporter`, `SearchConsoleReporter` (`src/Services/Analytics`), `AnalyticsRange` enum.
+
+---
+
 ## Models
 
 | Model | Table | Key fields |
@@ -718,7 +765,8 @@ Defined in `module.json` and registered via Synapse's ACL system.
 | `cms.gallery.image` | create, read, update, delete | Album images |
 | `cms.menu` | create, read, update, delete | Menus and menu items |
 | `cms.tag` | create, read, update, delete | Tags |
-| `cms.settings` | read, update | CMS-wide settings |
+| `cms.settings` | read, update | CMS-wide settings (incl. Google Analytics / Search Console) |
+| `cms.analytics` | read, update | Analytics dashboard (read = view, update = Refresh) |
 | `cms.access` | update | Edit an item's Access panel (visibility, viewers, managers); only on items the user can manage |
 
 `cms.gallery` itself has no CRUD actions — permissions are always checked at the sub-permission level (`album`, `banner`, `image`).
@@ -728,6 +776,8 @@ Defined in `module.json` and registered via Synapse's ACL system.
 ## Sitemap
 
 The sitemap is served at `/sitemap.xml` by `SitemapController` registered in `routes/web.override.php` (no module URL prefix). The response sets `Content-Type: application/xml` and `Cache-Control: public, max-age=3600`.
+
+`cms:setup` (or its deprecated alias `cms:patch-resources`) adds `Sitemap: {APP_URL}/sitemap.xml` to the host's static `public/robots.txt` (created if missing; an existing `Sitemap:` line is left alone).
 
 ---
 

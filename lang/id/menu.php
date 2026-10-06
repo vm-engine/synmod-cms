@@ -12,6 +12,7 @@ return [
         'menu' => 'Menu',
         'tag' => 'Tag',
         'search_term' => 'Kata Pencarian',
+        'analytics' => 'Analitik',
         'settings' => 'Pengaturan',
     ],
 ];
