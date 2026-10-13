@@ -5,6 +5,15 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-10-13
+
+### Changed
+- The Jodit editor is now Synapse's optional `<x-synapse-rte>`; the CMS adds its file-manager image, file and video buttons through the `cms-fm` editor extension (`resources/js/cms.js`). The host must enable the Synapse editor (`php artisan synapps:reconfig` → "Enable the rich-text editor?"); until then Jodit fields show a notice above a plain textarea, and `cms:setup` warns about it. TinyMCE, the driver setting and the `cms_rte` purifier profile are unchanged.
+- Requires `vm-engine/synapse` ^3.4.
+
+### Removed
+- The `cmsJodit` Alpine component and `Jodit::editorConfig()` (replaced by `buttons()` and `extensionConfig()`).
+
 ## [2.0.0] - 2026-10-06
 
 **Breaking:**
