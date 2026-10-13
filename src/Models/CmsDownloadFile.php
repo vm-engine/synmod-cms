@@ -34,11 +34,11 @@ use VmEngine\Synapse\Traits\WithDeleteToken;
 class CmsDownloadFile extends Model implements CustomFieldContent, TranslatableContent
 {
     use HasCustomFields;
+
     /** @use HasFactory<CmsDownloadFileFactory> */
     use HasFactory;
 
     use HasMediaGalleries;
-
     use HasTranslations;
     use WithDeleteToken;
 

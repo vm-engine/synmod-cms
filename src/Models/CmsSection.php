@@ -51,11 +51,11 @@ class CmsSection extends Model implements CustomFieldContainer, CustomFieldConte
 {
     use DefinesCustomFields;
     use HasCmsAccess;
-
     use HasCustomFields;
 
     /** @use HasFactory<CmsSectionFactory> */
     use HasFactory;
+
     use HasTranslations;
     use WithDeleteToken;
 

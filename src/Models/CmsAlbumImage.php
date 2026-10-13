@@ -36,6 +36,7 @@ class CmsAlbumImage extends Model implements CustomFieldContent, TranslatableCon
 
     /** @use HasFactory<CmsAlbumImageFactory> */
     use HasFactory;
+
     use HasTranslations;
     use WithDeleteToken;
 

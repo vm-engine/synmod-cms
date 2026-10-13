@@ -47,11 +47,11 @@ class CmsDownload extends Model implements CustomFieldContainer, CustomFieldCont
 {
     use DefinesCustomFields;
     use HasCmsAccess;
-
     use HasCustomFields;
 
     /** @use HasFactory<CmsDownloadFactory> */
     use HasFactory;
+
     use HasTranslations;
     use WithDeleteToken;
 

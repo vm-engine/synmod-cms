@@ -49,11 +49,11 @@ class CmsAlbum extends Model implements CustomFieldContainer, CustomFieldContent
 {
     use DefinesCustomFields;
     use HasCmsAccess;
-
     use HasCustomFields;
 
     /** @use HasFactory<CmsAlbumFactory> */
     use HasFactory;
+
     use HasTranslations;
     use WithDeleteToken;
 
