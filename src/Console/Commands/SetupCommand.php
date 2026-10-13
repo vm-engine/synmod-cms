@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Console\Commands;
 
 use Illuminate\Console\Command;
 use VmEngine\Cms\Enums\RteDriver;
+use VmEngine\Synapse\Rte\RteSetup;
 
 use function Laravel\Prompts\select;
 
@@ -55,6 +56,10 @@ class SetupCommand extends Command
         );
 
         dbconf(['cms.editor.driver' => $driver]);
+
+        if ($driver === RteDriver::Jodit->value && ! RteSetup::enabled()) {
+            $this->components->warn('The Jodit editor uses the Synapse rich-text editor, which is disabled. Run "php artisan synapps:reconfig" and enable it; until then CMS fields show a plain textarea.');
+        }
 
         $this->call('cms:search-reindex');
 

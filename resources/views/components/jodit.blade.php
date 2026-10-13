@@ -1,15 +1,11 @@
-<div
-    wire:ignore
-    x-data="cmsJodit({{ json_encode($editorConfig()) }})"
->
-    <textarea
-        class="form-input"
-        id="jodit-{{ str_replace(['.', '[', ']'], '-', $name) }}"
-        x-ref="textarea"
-        name="{{ $name }}"
-        rows="12"
-    >{{ $value }}</textarea>
-</div>
+<x-synapse-rte
+    :field="$name"
+    :value="$value"
+    :height="$height"
+    :buttons="$buttons()"
+    extension="cms-fm"
+    :extension-config="$extensionConfig()"
+/>
 
 {{-- Dedicated FM picker for the Jodit image/file buttons (modal only, input row hidden) --}}
 @php $joditFmClass = 'cms-jodit-fm-' . str_replace(['.', '[', ']'], '-', $name); @endphp
