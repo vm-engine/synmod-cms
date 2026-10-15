@@ -7,6 +7,7 @@ namespace VmEngine\Cms\Observers;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsFallbackService;
+use VmEngine\Cms\Support\CmsPagePaletteIndex;
 
 class CmsPageObserver
 {
@@ -16,6 +17,7 @@ class CmsPageObserver
     {
         app(CmsAccessService::class)->forgetPageTree();
         $this->fallback->syncPage($page);
+        CmsPagePaletteIndex::put($page);
     }
 
     public function updated(CmsPage $page): void
@@ -28,11 +30,13 @@ class CmsPageObserver
         }
 
         $this->fallback->syncPage($page);
+        CmsPagePaletteIndex::put($page);
     }
 
     public function deleted(CmsPage $page): void
     {
         app(CmsAccessService::class)->forgetPageTree();
         $this->fallback->forgetPage($page);
+        CmsPagePaletteIndex::forget($page->id);
     }
 }

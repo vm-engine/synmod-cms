@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace VmEngine\Cms;
 
 use Illuminate\Support\ServiceProvider;
+use VmEngine\Cms\Console\Commands\PaletteReindexCommand;
 use VmEngine\Cms\Console\Commands\PatchResourcesCommand;
 use VmEngine\Cms\Console\Commands\PruneMediaGalleriesCommand;
 use VmEngine\Cms\Console\Commands\SanitizeContentCommand;
@@ -68,6 +69,7 @@ class CmsServiceProvider extends ServiceProvider
                 PatchResourcesCommand::class,
                 SanitizeContentCommand::class,
                 SearchReindexCommand::class,
+                PaletteReindexCommand::class,
                 PruneMediaGalleriesCommand::class,
             ]);
         }

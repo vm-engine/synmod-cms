@@ -335,6 +335,7 @@ When `synapps.apps.multi_language` is on, every page, article, section, category
 | Backend | **CMS → Search Terms**: hide, unhide or delete popular terms (ACL `cms.search_term`) |
 | Index | `cms_searchables`, kept in sync automatically. Rebuild with `php artisan cms:search-reindex {--type=page --type=article …}` |
 | PHP API | `app(CmsSearchService::class)->search($q, $types, $perPage)`, `->suggest($q)` |
+| Backend palette | Separate from the public index: every page is in the Synapse Ctrl/⌘+K palette (`content:cms.page`, opens the page form, ACL `cms.page.update`), kept in sync by `CmsPageObserver`. Rebuild with `php artisan cms:palette-reindex` (also run by `cms:setup`). `module.json` `searchables` add New page / New section / New album. Needs `synapps:searchable-setup` |
 
 Results link to album items and download files with `#item-{id}` / `#file-{id}`: the album lightbox opens the linked image, and download rows can be highlighted with CSS, e.g. `.cms-download-item:target { background: #fff7d6; }`.
 

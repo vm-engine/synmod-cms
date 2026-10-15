@@ -131,6 +131,32 @@
             }
         }
     },
+    "searchables": {
+        "create_page": {
+            "name": "__cms::search.create_page",
+            "description": "__cms::search.create_page_desc",
+            "route": "cms.page.form",
+            "icon": "ph ph-file-plus",
+            "acl": "cms.page.create",
+            "keywords": "__cms::search.create_page_keywords"
+        },
+        "create_section": {
+            "name": "__cms::search.create_section",
+            "description": "__cms::search.create_section_desc",
+            "route": "cms.section.form",
+            "icon": "ph ph-folder-plus",
+            "acl": "cms.article.section.create",
+            "keywords": "__cms::search.create_section_keywords"
+        },
+        "create_album": {
+            "name": "__cms::search.create_album",
+            "description": "__cms::search.create_album_desc",
+            "route": "cms.album.form",
+            "icon": "ph ph-images",
+            "acl": "cms.gallery.album.create",
+            "keywords": "__cms::search.create_album_keywords"
+        }
+    },
     "acl": {
         "page": {
             "label": "__cms::acl.page",
