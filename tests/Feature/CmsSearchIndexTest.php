@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Schema;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
@@ -14,6 +15,7 @@ use VmEngine\Cms\Models\CmsSearchable;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsSearchService;
 use VmEngine\Fm\Models\FmFile;
+use VmEngine\SynFallback\Facades\Fallback;
 
 uses(RefreshDatabase::class);
 
@@ -280,5 +282,13 @@ describe('cms:search-reindex', function () {
 
     it('rejects unknown types', function () {
         $this->artisan('cms:search-reindex', ['--type' => ['tag']])->assertFailed();
+    });
+
+    it('registers the search page even when the index table is missing', function () {
+        Schema::drop('cms_searchables');
+
+        $this->artisan('cms:search-reindex')->assertFailed();
+
+        expect(Fallback::exists('search'))->toBeTrue();
     });
 });

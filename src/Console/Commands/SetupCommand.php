@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Console\Commands;
 
 use Illuminate\Console\Command;
 use VmEngine\Cms\Enums\RteDriver;
+use VmEngine\Cms\Services\CmsFallbackService;
 use VmEngine\Synapse\Rte\RteSetup;
 
 use function Laravel\Prompts\select;
@@ -39,8 +40,12 @@ class SetupCommand extends Command
 
     private const FEED_LINKS = '{{-- CMS: RSS feed autodiscovery --}}'.PHP_EOL.'<x-cms::feed-links />';
 
-    public function handle(): int
+    public function handle(CmsFallbackService $fallback): int
     {
+        // Before anything that can stop the run: without this route the
+        // frontend search box links to a 404 (cms:search-reindex re-syncs it below).
+        $fallback->syncSearchPage();
+
         $this->patchEntry('app.js', self::CMS_JS_IMPORT, 'synmod-cms/resources/js/cms.js');
         $this->patchEntry('frontend.js', self::CMS_FRONTEND_JS_IMPORT, 'synmod-cms/resources/js/cms-frontend.js');
         $this->patchEntry('frontend.js', self::SYNAPSE_FRONTEND_IMPORTS, 'synapse-components.js', alsoIn: ['synapps/resources/js/synapps-frontend.js']);

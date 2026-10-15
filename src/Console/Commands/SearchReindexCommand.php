@@ -32,6 +32,10 @@ class SearchReindexCommand extends Command
 
     public function handle(CmsFallbackService $fallback, CmsSearchIndexer $indexer): int
     {
+        // The search page route needs no index table: register it first so a
+        // failed or partial rebuild never leaves /{locale}/search a 404.
+        $fallback->syncSearchPage();
+
         if (! $indexer->isEnabled()) {
             $this->components->error('The cms_searchables table is missing — run `php artisan migrate` first.');
 
@@ -49,7 +53,6 @@ class SearchReindexCommand extends Command
         }
 
         $indexer->clear($types);
-        $fallback->syncSearchPage();
 
         // Re-sync through the fallback service so the index matches the routes
         // exactly (this also re-registers the routes — idempotent).

@@ -5,7 +5,9 @@ declare(strict_types=1);
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Facades\Schema;
 use VmEngine\Cms\Enums\RteDriver;
+use VmEngine\SynFallback\Facades\Fallback;
 
 uses(RefreshDatabase::class);
 
@@ -182,4 +184,14 @@ it('warns when the theme head partial is missing', function () {
         ->expectsQuestion('Default rich-text editor', 'jodit')
         ->expectsOutputToContain('add <x-cms::feed-links /> to your layout <head> manually')
         ->assertSuccessful();
+});
+
+it('registers the frontend search page even when the search index cannot be rebuilt', function () {
+    Schema::drop('cms_searchables');
+
+    $this->artisan('cms:setup')
+        ->expectsQuestion('Default rich-text editor', 'jodit')
+        ->assertSuccessful();
+
+    expect(Fallback::exists('search'))->toBeTrue();
 });
