@@ -5,6 +5,13 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.0] - 2026-10-15
+
+### Added
+- Backend global search (Synapse Ctrl/⌘+K palette): every CMS page is an entry (`content:cms.page`) titled with the page title and its path, opening the page form (ACL `cms.page.update`). `CmsPageObserver` adds/updates it on save and removes it on delete; `CmsPagePaletteIndex` holds the logic.
+- `cms:palette-reindex` rebuilds the page entries (warns and exits cleanly when `synapps:searchable-setup` hasn't run). `cms:setup` now runs it after `cms:search-reindex`.
+- `module.json` `searchables`: New page, New section, New album (gated by their `.create` permissions), with English and Indonesian labels in `lang/{en,id}/search.php`.
+
 ## [2.1.0] - 2026-10-13
 
 ### Changed
