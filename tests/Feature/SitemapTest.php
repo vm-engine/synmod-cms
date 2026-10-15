@@ -11,6 +11,8 @@ use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Services\CmsSitemapService;
+use VmEngine\Cms\Support\CmsLocale;
+use VmEngine\Cms\Support\CmsUrl;
 
 uses(RefreshDatabase::class);
 
@@ -27,6 +29,27 @@ describe('CmsSitemapService', function () {
             ->toContain('<?xml version="1.0" encoding="UTF-8"?>')
             ->toContain('<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">')
             ->toContain('</urlset>');
+    });
+
+    it('skips pages with show_in_sitemap turned off', function () {
+        CmsPage::factory()->create(['slug' => 'visible', 'full_slug' => 'visible', 'status' => 'published']);
+        CmsPage::factory()->create([
+            'slug' => 'hidden', 'full_slug' => 'hidden', 'status' => 'published',
+            'config' => ['show_in_sitemap' => false],
+        ]);
+
+        $xml = app(CmsSitemapService::class)->generate();
+
+        expect($xml)->toContain('/visible</loc>')->not->toContain('/hidden</loc>');
+    });
+
+    it('lists configured static paths', function () {
+        config(['synapps.modules.cms.sitemap.static_paths' => ['/', 'kontak']]);
+
+        $xml = app(CmsSitemapService::class)->generate();
+
+        expect($xml)->toContain('<loc>'.CmsUrl::absolute('/', CmsLocale::primary()).'</loc>')
+            ->toContain('<loc>'.CmsUrl::absolute('kontak', CmsLocale::primary()).'</loc>');
     });
 
     it('includes published pages', function () {
@@ -207,6 +230,8 @@ describe('CmsSitemapService', function () {
     });
 
     it('generates empty urlset when no content exists', function () {
+        config(['synapps.modules.cms.sitemap.static_paths' => []]);
+
         $xml = app(CmsSitemapService::class)->generate();
 
         expect($xml)

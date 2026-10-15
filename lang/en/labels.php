@@ -65,6 +65,7 @@ return [
     'show_title' => 'Show Page Title',
     'show_breadcrumb' => 'Show Breadcrumb',
     'show_excerpt' => 'Show Excerpt on Detail Page',
+    'show_in_sitemap' => 'Show in Sitemap',
     'show_submenu' => 'Show Child Pages as Sub-Menu',
     'children_display' => 'Child Pages Display',
     'children_display_none' => 'Hidden',

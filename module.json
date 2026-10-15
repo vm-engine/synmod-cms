@@ -17,6 +17,9 @@
     "primary_locale": null,
     "language_names": {},
     "language_icons": {},
+    "sitemap": {
+        "static_paths": ["/"]
+    },
     "search": {
         "engine": "database",
         "scout_content_limit": 5000,

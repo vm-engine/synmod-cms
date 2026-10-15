@@ -33,6 +33,14 @@ describe('model helpers', function () {
         $this->actingAs(mgDev());
         expect($locked->acceptsChildrenFromCurrentUser())->toBeTrue();
     });
+
+    it('shows pages in the sitemap unless turned off', function (?array $config, bool $expected) {
+        expect((new CmsPage(['config' => $config]))->showInSitemap())->toBe($expected);
+    })->with([
+        'empty' => [null, true],
+        'on' => [['show_in_sitemap' => true], true],
+        'off' => [['show_in_sitemap' => false], false],
+    ]);
 });
 
 describe('page form', function () {
@@ -96,6 +104,19 @@ describe('page form', function () {
             ->assertHasNoErrors();
 
         expect($page->fresh()->config['allow_child_create'])->toBeFalse();
+    });
+
+    it('saves the sitemap flag', function () {
+        $page = CmsPage::factory()->create();
+
+        Livewire::actingAs(mgAdmin())
+            ->test('cms::backend.page-form', ['id' => $page->id])
+            ->assertSet('form.show_in_sitemap', true)
+            ->set('form.show_in_sitemap', false)
+            ->call('save')
+            ->assertHasNoErrors();
+
+        expect($page->fresh()->config['show_in_sitemap'])->toBeFalse();
     });
 });
 

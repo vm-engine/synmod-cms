@@ -65,6 +65,7 @@ return [
     'show_title' => 'Tampilkan Judul Halaman',
     'show_breadcrumb' => 'Tampilkan Breadcrumb',
     'show_excerpt' => 'Tampilkan Ringkasan di Halaman Detail',
+    'show_in_sitemap' => 'Tampilkan di Sitemap',
     'show_submenu' => 'Tampilkan Halaman Anak sebagai Sub-Menu',
     'children_display' => 'Tampilan Halaman Anak',
     'children_display_none' => 'Disembunyikan',

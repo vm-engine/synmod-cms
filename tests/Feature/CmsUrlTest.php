@@ -83,6 +83,8 @@ describe('CmsUrl paths and links', function () {
     });
 
     it('localizes site-internal hrefs only', function (string $href, string $expected) {
+        // The backend case below assumes this prefix; pin it rather than inherit the host's.
+        config(['synapps.auth.routes.backend_prefix' => '/apps']);
         app()->setLocale('id');
 
         expect(CmsUrl::localizeHref($href))->toBe($expected);
@@ -186,6 +188,7 @@ describe('Menu URLs', function () {
 
 describe('Sitemap', function () {
     it('lists every language version with hreflang alternates', function () {
+        config(['synapps.modules.cms.sitemap.static_paths' => []]);
         CmsPage::factory()->create(['slug' => 'about', 'full_slug' => 'about']);
 
         $xml = app(CmsSitemapService::class)->generate();

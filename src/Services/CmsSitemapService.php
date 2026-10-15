@@ -19,6 +19,7 @@ class CmsSitemapService
     public function generate(): string
     {
         $urls = array_merge(
+            $this->staticUrls(),
             $this->pageUrls(),
             $this->sectionUrls(),
             $this->categoryUrls(),
@@ -30,13 +31,31 @@ class CmsSitemapService
     }
 
     /**
+     * Non-CMS routes (e.g. the host's homepage) from `synapps.modules.cms.sitemap.static_paths`.
+     *
+     * @return array<int, array{path: string|null, lastmod: string, changefreq: string, priority: string}>
+     */
+    private function staticUrls(): array
+    {
+        /** @var array<int, string> $paths */
+        $paths = (array) config('synapps.modules.cms.sitemap.static_paths', ['/']);
+
+        return array_map(fn (string $path): array => [
+            'path' => $path,
+            'lastmod' => now()->startOfDay()->toAtomString(),
+            'changefreq' => 'weekly',
+            'priority' => $path === '/' ? '1.0' : '0.7',
+        ], array_values($paths));
+    }
+
+    /**
      * @return array<int, array{path: string|null, lastmod: string, changefreq: string, priority: string}>
      */
     private function pageUrls(): array
     {
         return CmsPage::published()
             ->get()
-            ->filter(fn ($model) => $this->access->isPublic($model))
+            ->filter(fn (CmsPage $model) => $model->showInSitemap() && $this->access->isPublic($model))
             ->map(fn (CmsPage $p) => [
                 'path' => CmsUrl::path($p),
                 'lastmod' => $p->updated_at->toAtomString(),

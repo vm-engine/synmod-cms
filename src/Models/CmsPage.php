@@ -193,6 +193,12 @@ class CmsPage extends Model implements CustomFieldContainer, CustomFieldContent,
         return in_array($display, self::CHILDREN_DISPLAYS, true) ? $display : 'none';
     }
 
+    /** Whether `/sitemap.xml` lists this page; on unless the page opts out. */
+    public function showInSitemap(): bool
+    {
+        return (bool) (($this->config ?? [])['show_in_sitemap'] ?? true);
+    }
+
     /** Devs always may; others only while a dev has not locked this page (`allow_child_create`). */
     public function acceptsChildrenFromCurrentUser(): bool
     {

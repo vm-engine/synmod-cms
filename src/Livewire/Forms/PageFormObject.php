@@ -52,6 +52,8 @@ class PageFormObject extends Form
 
     public bool $show_excerpt = false;
 
+    public bool $show_in_sitemap = true;
+
     /** Dev-only; see {@see allowChildCreateConfig()}. */
     public bool $allow_child_create = true;
 
@@ -90,6 +92,7 @@ class PageFormObject extends Form
         $this->children_display = $page->childrenDisplay();
         $this->show_submenu = $config['show_submenu'] ?? false;
         $this->show_excerpt = $config['show_excerpt'] ?? false;
+        $this->show_in_sitemap = $page->showInSitemap();
         $this->allow_child_create = $config['allow_child_create'] ?? true;
         $this->children_layout = $config['children_layout'] ?? 'grid';
         $this->meta_title = $page->meta_title ?? '';
@@ -230,6 +233,7 @@ class PageFormObject extends Form
                 'children_display' => $this->children_display,
                 'show_submenu' => $this->show_submenu,
                 'show_excerpt' => $this->show_excerpt,
+                'show_in_sitemap' => $this->show_in_sitemap,
                 'allow_child_create' => $this->allowChildCreateConfig(),
                 'children_layout' => $this->children_layout,
                 'custom_var' => $this->customVars,

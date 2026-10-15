@@ -88,7 +88,7 @@ new class extends Component
 
         return view($template, ['page' => $this->page, 'fieldFilter' => $filter])
             ->title($this->title())
-            ->layoutData(['description' => $this->description()])
+            ->layoutData(['description' => $this->description(), 'ogImage' => $this->page?->og_image ?: $this->page?->cover_image])
             ->layout(FrontendViewResolver::layout($this->page?->resolveCustomLayout()));
     }
 };

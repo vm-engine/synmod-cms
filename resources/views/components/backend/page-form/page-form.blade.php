@@ -281,6 +281,16 @@
                     </div>
                     <div class="flex items-center gap-3">
                         <x-synapse-toggler
+                            id="show_in_sitemap"
+                            wire:model="form.show_in_sitemap"
+                            :inline="true"
+                            :checked="$form->show_in_sitemap"
+                            activeColor="green"
+                        />
+                        <span class="text-sm">{{ __('cms::labels.show_in_sitemap') }}</span>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <x-synapse-toggler
                             id="show_submenu"
                             wire:model="form.show_submenu"
                             :inline="true"
