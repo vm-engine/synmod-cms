@@ -5,6 +5,16 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.3.0] - 2026-10-15
+
+### Added
+- Pages: a **Show in Sitemap** toggle in the page form (`config.show_in_sitemap`, on by default). `/sitemap.xml` leaves out pages that turn it off.
+- Sitemap: `module.json` `sitemap.static_paths` (default `["/"]`) lists routes the CMS doesn't own, such as the host's homepage. `/` gets priority 1.0, other paths 0.7. Hosts can override it in `synapps/config/modules.json`.
+- Page viewer: passes `ogImage` to the layout (the page's OG image, else its cover image) so themes can render social previews.
+
+### Fixed
+- `FeedTest` and `CmsUrlTest` no longer depend on the host app's configuration: the locale-prefixed feed cases re-register their routes under the test's multi-language config (keeping synapps-fallback's catch-all route last), and the backend-href case pins its backend prefix. Both suites now pass on single-language hosts and hosts with a custom backend prefix.
+
 ## [2.2.1] - 2026-10-15
 
 ### Fixed
