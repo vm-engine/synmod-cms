@@ -5,6 +5,11 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.2.1] - 2026-10-15
+
+### Fixed
+- Frontend search returned 404 (`/{locale}/search`) when the search page route had never been registered. `cms:search-reindex` and `cms:setup` now register it as their first step, before the index rebuild — previously a missing `cms_searchables` table, or anything failing earlier in `cms:setup`, skipped it. Servers deployed with only `migrate` / `db:seed` still need one of the two commands once.
+
 ## [2.2.0] - 2026-10-15
 
 ### Added
