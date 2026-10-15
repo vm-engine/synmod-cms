@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Routing\Route as RoutingRoute;
+use Illuminate\Routing\RouteCollection;
 use Illuminate\Routing\Router;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Blade;
@@ -16,6 +17,34 @@ use VmEngine\Cms\Models\CmsSection;
 
 uses(RefreshDatabase::class);
 
+/**
+ * Routes are registered at boot from the host's own config, so on a single-language host the
+ * /{locale}/feed copies never exist. Re-register the override routes under the test's
+ * multi-language config, keeping synapps-fallback's catch-all `{path}` route last as at boot
+ * (it is an ordinary route, so anything added after it would never match).
+ */
+function registerFeedRoutesAsMultiLanguageHost(): void
+{
+    $router = app('router');
+    $catchAll = $router->getRoutes()->getByName('synfallback.dispatch');
+    $routes = new RouteCollection;
+
+    foreach ($router->getRoutes()->getRoutes() as $route) {
+        if ($route !== $catchAll) {
+            $routes->add($route);
+        }
+    }
+
+    $router->setRoutes($routes);
+    Route::middleware('web')->name('cms.')->group(dirname(__DIR__, 2).'/routes/web.override.php');
+
+    if ($catchAll !== null) {
+        $routes->add($catchAll);
+    }
+
+    $routes->refreshNameLookups();
+}
+
 beforeEach(function () {
     config([
         'app.name' => 'Synapse',
@@ -23,6 +52,8 @@ beforeEach(function () {
         'synapps.apps.multi_language' => true,
         'synapps.apps.enabled_languages' => ['en', 'id'],
     ]);
+
+    registerFeedRoutesAsMultiLanguageHost();
 
     $this->section = CmsSection::factory()->create(['slug' => 'news', 'title' => 'News']);
 });
