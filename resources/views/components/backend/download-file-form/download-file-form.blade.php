@@ -1,4 +1,4 @@
-<div>
+<div x-data="{ pageName: '{{ $this->title() }}' }">
     @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
 
     <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit="save">

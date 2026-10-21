@@ -7,6 +7,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- The album image form and download file form logged `Alpine Expression Error: Undefined variable: pageName`: the shared breadcrumbs partial reads `pageName` from the page's `x-data`, which these two pages didn't provide.
+
 ## [2.3.2] - 2026-10-21
 
 ### Fixed
