@@ -113,7 +113,7 @@
                                     confirmColor: 'danger',
                                     icon: 'fa-solid fa-trash',
                                     wireMethod: 'deleteImage',
-                                    wireParams: [{{ (int) $image->id }}],
+                                    wireParams: ['{{ $image->delete_token }}'],
                                     wireComponent: $el.dataset.component
                                 })"
                             >

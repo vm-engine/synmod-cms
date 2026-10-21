@@ -56,6 +56,7 @@
                                 </div>
                                 @include('cms::components.backend.menu-item-manager._item-actions', [
                                     'itemId' => $item->id,
+                                    'itemToken' => $item->delete_token,
                                     'canAddSub' => true,
                                 ])
                             </div>
@@ -84,6 +85,7 @@
                                                         'cms::components.backend.menu-item-manager._item-actions',
                                                         [
                                                             'itemId' => $child->id,
+                                                            'itemToken' => $child->delete_token,
                                                             'canAddSub' => true,
                                                         ]
                                                     )
@@ -117,6 +119,7 @@
                                                                             'cms::components.backend.menu-item-manager._item-actions',
                                                                             [
                                                                                 'itemId' => $grandchild->id,
+                                                                                'itemToken' => $grandchild->delete_token,
                                                                                 'canAddSub' => false,
                                                                             ]
                                                                         )

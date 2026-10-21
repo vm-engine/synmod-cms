@@ -41,7 +41,7 @@ it('lets a non-dev editor create, edit and delete a gallery', function () {
     $component->call('edit', $gallery->id)->set('title', 'Renamed')->call('saveGallery')->assertHasNoErrors();
     expect($gallery->fresh()->title)->toBe('Renamed')->and($gallery->fresh()->key)->toBe('intro-shots');
 
-    $component->call('deleteGallery', $gallery->id);
+    $component->call('deleteGallery', $gallery->delete_token);
     expect(CmsMediaGallery::count())->toBe(0);
 });
 
@@ -79,7 +79,7 @@ it('adds, captions per locale, reorders and removes images', function () {
     $component->call('updateOrder', [$b->id, $a->id]);
     expect($gallery->images()->pluck('id')->all())->toBe([$b->id, $a->id]);
 
-    $component->call('removeImage', $a->id);
+    $component->call('removeImage', $a->delete_token);
     expect(CmsMediaGalleryImage::pluck('id')->all())->toBe([$b->id]);
 });
 
@@ -101,7 +101,7 @@ it("cannot touch another owner's gallery", function () {
 
     Livewire::actingAs(mgAdmin())
         ->test('cms::backend.media-gallery-manager', ['owner' => $this->page])
-        ->call('deleteGallery', $foreign->id)
+        ->call('deleteGallery', $foreign->delete_token)
         ->assertNotFound();
 
     expect($foreign->fresh())->not->toBeNull();

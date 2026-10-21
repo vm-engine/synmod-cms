@@ -65,7 +65,7 @@
                                             confirmColor: 'danger',
                                             icon: 'fa-solid fa-trash',
                                             wireMethod: 'delete',
-                                            wireParams: [{{ (int) $term->id }}],
+                                            wireParams: ['{{ $term->delete_token }}'],
                                             wireComponent: $el.dataset.component
                                         })"
                                     >{{ __('cms::labels.delete') }}</button>

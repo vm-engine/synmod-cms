@@ -261,8 +261,19 @@ describe('Search Terms backend', function () {
         $component->call('toggleHidden', $term->id);
         expect($term->fresh()->is_hidden)->toBeTrue();
 
-        $component->call('delete', $term->id);
+        $component->call('delete', $term->delete_token);
         expect(CmsSearchTerm::whereKey($term->id)->exists())->toBeFalse();
+    });
+
+    it('deletes a term by delete token only, never by a raw id', function () {
+        $term = CmsSearchTerm::where('term', 'bali')->sole();
+
+        Livewire::actingAs(($this->makeUser)(true))->test('cms::backend.search-term-list')
+            ->assertDontSeeHtml('wireParams: ['.$term->id.']')
+            ->call('delete', (string) $term->id)
+            ->assertDispatched('notify', variant: 'danger', message: __('cms::labels.invalid_delete_token'));
+
+        expect(CmsSearchTerm::whereKey($term->id)->exists())->toBeTrue();
     });
 
     it('refuses changes without update or delete permission', function () {

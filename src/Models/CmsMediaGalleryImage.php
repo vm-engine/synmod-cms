@@ -12,6 +12,7 @@ use VmEngine\Cms\Factories\CmsMediaGalleryImageFactory;
 use VmEngine\Cms\Support\TranslatableContent;
 use VmEngine\Cms\Traits\HasTranslations;
 use VmEngine\Fm\Models\FmFile;
+use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
  * @property int $id
@@ -30,6 +31,7 @@ class CmsMediaGalleryImage extends Model implements TranslatableContent
     use HasFactory;
 
     use HasTranslations;
+    use WithDeleteToken;
 
     protected $table = 'cms_media_gallery_images';
 

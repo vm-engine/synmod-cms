@@ -221,7 +221,7 @@ describe('albums', function () {
 
         Livewire::actingAs($other)
             ->test('cms::backend.album-image-manager', ['albumId' => $album->id])
-            ->call('deleteImage', $image->id)
+            ->call('deleteImage', $image->delete_token)
             ->assertForbidden();
 
         expect($image->fresh())->not->toBeNull();
@@ -240,7 +240,7 @@ describe('downloads', function () {
 
         Livewire::actingAs($other)
             ->test('cms::backend.download-file-manager', ['downloadId' => $download->id])
-            ->call('deleteFile', $file->id)
+            ->call('deleteFile', $file->delete_token)
             ->assertForbidden();
 
         expect($file->fresh())->not->toBeNull();

@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Carbon;
+use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
  * A public search term with its hit count, per locale (popular searches).
@@ -21,6 +22,8 @@ use Illuminate\Support\Carbon;
  */
 class CmsSearchTerm extends Model
 {
+    use WithDeleteToken;
+
     protected $table = 'cms_search_terms';
 
     protected $fillable = ['locale', 'term', 'hits', 'is_hidden', 'last_searched_at'];

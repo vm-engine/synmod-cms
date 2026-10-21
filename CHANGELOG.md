@@ -5,6 +5,11 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Security
+- Delete actions no longer expose record ids: search terms, album images, download files, media galleries, media gallery images and menu items are deleted by an encrypted, session-bound delete token (`WithDeleteToken`); a raw id is refused. `CmsMediaGallery`, `CmsMediaGalleryImage` and `CmsSearchTerm` now use the trait.
+
 ## [2.3.0] - 2026-10-15
 
 ### Added

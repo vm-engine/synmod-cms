@@ -25,7 +25,6 @@
         data-title="{{ __('cms::labels.delete_item_title') }}"
         data-message="{{ __('cms::labels.delete_item_confirm') }}"
         data-confirm="{{ __('cms::labels.yes_delete') }}"
-        data-id="{{ $itemId }}"
         data-component="{{ $this->getId() }}"
         @click="$dispatch('confirm-dialog', {
             title: $el.dataset.title,
@@ -34,7 +33,7 @@
             confirmColor: 'danger',
             icon: 'fa-solid fa-trash',
             wireMethod: 'deleteItem',
-            wireParams: [{{ (int) $itemId }}],
+            wireParams: ['{{ $itemToken }}'],
             wireComponent: $el.dataset.component
         })"
     >

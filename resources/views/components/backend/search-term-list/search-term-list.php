@@ -48,10 +48,19 @@ new class extends Component
         unset($this->terms);
     }
 
-    public function delete(int $id): void
+    public function delete(string $token): void
     {
         $this->authorizeAcl('cms.search_term.delete');
-        app(CmsSearchTermService::class)->delete($id);
+        $id = CmsSearchTerm::validateDeleteToken($token);
+
+        if ($id === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        app(CmsSearchTermService::class)->delete((int) $id);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.search_term_deleted'));
         unset($this->terms);

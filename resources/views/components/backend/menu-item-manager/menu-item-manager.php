@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\DB;
 use Livewire\Attributes\Computed;
 use Livewire\Component;
 use VmEngine\Cms\Models\CmsMenu;
+use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Services\CmsArticleService;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Services\CmsGalleryService;
@@ -199,9 +200,18 @@ new class extends Component
         $this->reset('editingId', 'editLabel', 'editLabelTranslations', 'editTargetType', 'editTargetId', 'editTargetUrl', 'editOpenNewTab', 'editParentId', 'editCustomView', 'editCustomLayout');
     }
 
-    public function deleteItem(int $id): void
+    public function deleteItem(string $token): void
     {
-        app(CmsMenuService::class)->deleteMenuItemInMenu($this->menuId, $id);
+        $id = CmsMenuItem::validateDeleteToken($token);
+
+        if ($id === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        app(CmsMenuService::class)->deleteMenuItemInMenu($this->menuId, (int) $id);
         unset($this->items);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.item_deleted'));

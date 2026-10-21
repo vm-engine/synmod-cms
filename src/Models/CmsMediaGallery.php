@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Carbon;
 use VmEngine\Cms\Factories\CmsMediaGalleryFactory;
+use VmEngine\Synapse\Traits\WithDeleteToken;
 
 /**
  * An inline image set owned by one page, article or download file and
@@ -31,6 +32,8 @@ class CmsMediaGallery extends Model
 {
     /** @use HasFactory<CmsMediaGalleryFactory> */
     use HasFactory;
+
+    use WithDeleteToken;
 
     public const LAYOUTS = ['slider', 'grid'];
 

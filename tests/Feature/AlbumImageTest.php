@@ -93,7 +93,7 @@ describe('Delete Album Image', function () {
 
         Livewire::actingAs($this->user)
             ->test('cms::backend.album-image-manager', ['albumId' => $this->album->id])
-            ->call('deleteImage', $image->id)
+            ->call('deleteImage', $image->delete_token)
             ->assertDispatched('notify');
 
         $this->assertDatabaseMissing('cms_album_images', ['id' => $image->id]);

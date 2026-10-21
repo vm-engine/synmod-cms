@@ -90,11 +90,20 @@ new class extends Component
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_added'));
     }
 
-    public function deleteFile(int $id): void
+    public function deleteFile(string $token): void
     {
         app(CmsAccessService::class)->authorizeManage($this->download, 'cms.download.file.delete');
 
-        app(CmsDownloadService::class)->deleteFileInDownload($this->downloadId, $id);
+        $id = CmsDownloadFile::validateDeleteToken($token);
+
+        if ($id === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        app(CmsDownloadService::class)->deleteFileInDownload($this->downloadId, (int) $id);
         unset($this->files);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.file_deleted'));

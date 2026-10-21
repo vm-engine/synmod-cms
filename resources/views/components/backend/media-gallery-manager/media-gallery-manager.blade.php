@@ -80,7 +80,7 @@
                                 confirmColor: 'danger',
                                 icon: 'fa-solid fa-trash',
                                 wireMethod: 'deleteGallery',
-                                wireParams: [{{ (int) $gallery->id }}],
+                                wireParams: ['{{ $gallery->delete_token }}'],
                                 wireComponent: $el.dataset.component
                             })"
                         >
@@ -177,7 +177,7 @@
                                                 confirmColor: 'danger',
                                                 icon: 'fa-solid fa-trash',
                                                 wireMethod: 'removeImage',
-                                                wireParams: [{{ (int) $image->id }}],
+                                                wireParams: ['{{ $image->delete_token }}'],
                                                 wireComponent: $el.dataset.component
                                             })"
                                         >

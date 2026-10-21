@@ -89,11 +89,20 @@ new class extends Component
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_added'));
     }
 
-    public function deleteImage(int $id): void
+    public function deleteImage(string $token): void
     {
         app(CmsAccessService::class)->authorizeManage($this->album, 'cms.gallery.image.delete');
 
-        app(CmsGalleryService::class)->deleteImageInAlbum($this->albumId, $id);
+        $id = CmsAlbumImage::validateDeleteToken($token);
+
+        if ($id === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        app(CmsGalleryService::class)->deleteImageInAlbum($this->albumId, (int) $id);
         unset($this->images);
         $this->dispatch('synapse-confirmed');
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.image_deleted'));

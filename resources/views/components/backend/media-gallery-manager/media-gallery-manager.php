@@ -12,6 +12,7 @@ use Livewire\Component;
 use VmEngine\Cms\Models\CmsArticle;
 use VmEngine\Cms\Models\CmsDownloadFile;
 use VmEngine\Cms\Models\CmsMediaGallery;
+use VmEngine\Cms\Models\CmsMediaGalleryImage;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsMediaGalleryService;
@@ -145,9 +146,19 @@ new class extends Component
         $this->dispatch('notify', variant: 'success', title: 'Success', message: __('cms::labels.media_gallery_saved'));
     }
 
-    public function deleteGallery(int $id): void
+    public function deleteGallery(string $token): void
     {
         $this->authorizeOwner();
+        $id = CmsMediaGallery::validateDeleteToken($token);
+
+        if ($id === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        $id = (int) $id;
         $this->service()->delete($this->service()->findInOwnerOrFail($this->owner, $id));
 
         if ($this->activeGalleryId === $id) {
@@ -206,9 +217,19 @@ new class extends Component
         $this->fillCaptions();
     }
 
-    public function removeImage(int $imageId): void
+    public function removeImage(string $token): void
     {
         $this->authorizeOwner();
+        $imageId = CmsMediaGalleryImage::validateDeleteToken($token);
+
+        if ($imageId === false) {
+            $this->dispatch('synapse-confirmed');
+            $this->dispatch('notify', variant: 'danger', title: 'Error', message: __('cms::labels.invalid_delete_token'));
+
+            return;
+        }
+
+        $imageId = (int) $imageId;
         $this->service()->removeImage($this->requireActiveGallery(), $imageId);
 
         unset($this->captions[$imageId], $this->activeGallery, $this->galleries);

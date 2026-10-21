@@ -91,7 +91,7 @@ describe('Delete Download File', function () {
 
         Livewire::actingAs($this->user)
             ->test('cms::backend.download-file-manager', ['downloadId' => $this->download->id])
-            ->call('deleteFile', $file->id)
+            ->call('deleteFile', $file->delete_token)
             ->assertDispatched('notify');
 
         $this->assertDatabaseMissing('cms_download_files', ['id' => $file->id]);
