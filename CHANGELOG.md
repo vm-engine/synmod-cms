@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.2] - 2026-10-21
+
 ### Fixed
 - `cms.js` and `cms-frontend.js` registered `cmsSearchBox`, `cmsLocaleTabs`, `cmsForm` and the rich-text editor's `cms-fm` file-manager extension only on `alpine:init`, which does not fire after a `wire:navigate` from another layout, so e.g. app → frontend logged `Undefined variable: cmsSearchBox`. They now register immediately when Alpine is already running. Rebuild assets (`npm run build`) after updating.
 
