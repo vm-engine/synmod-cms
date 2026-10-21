@@ -2,10 +2,14 @@
 import Sortable from 'sortablejs';
 window.Sortable = Sortable;
 
+// alpine:init fires once per full page load. After a wire:navigate from another layout this entry
+// loads with Alpine already running, so register right away when it is.
+const onAlpine = (register) => (window.Alpine ? register() : document.addEventListener('alpine:init', register));
+
 // File-manager buttons for <x-synapse-rte extension="cms-fm"> (see <x-cms::jodit>).
 // The image/file/video buttons open the synmod-fm picker instead of Jodit's own
 // uploader, so uploads stay under FM's permissions and storage.
-document.addEventListener('alpine:init', () => {
+onAlpine(() => {
     if (!window.synapseRte) return;
 
     window.synapseRte.extend('cms-fm', (rte, config) => {
@@ -61,7 +65,7 @@ document.addEventListener('alpine:init', () => {
 // <x-cms::locale-tabs> / <x-cms::translation-input> — which language a
 // translatable form is showing. Set on the <form> as
 // x-data="cmsLocaleTabs('<primary>')"; views only call these methods (CSP build).
-document.addEventListener('alpine:init', () => {
+onAlpine(() => {
     Alpine.data('cmsLocaleTabs', (primary) => ({
         locale: primary,
         primary,
@@ -83,7 +87,7 @@ document.addEventListener('alpine:init', () => {
 // before a reload/close or a wire:navigate away. Comparing the whole form
 // state (not DOM input events) also catches Jodit, file-picker, adv-select
 // and custom-var changes, which never fire `input` on the form.
-document.addEventListener('alpine:init', () => {
+onAlpine(() => {
     Alpine.data('cmsForm', (confirmMessage) => ({
         snapshot: null,
         saving: false,
