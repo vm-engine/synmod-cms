@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.3.1] - 2026-10-21
+
 ### Security
 - Delete actions no longer expose record ids: search terms, album images, download files, media galleries, media gallery images and menu items are deleted by an encrypted, session-bound delete token (`WithDeleteToken`); a raw id is refused. `CmsMediaGallery`, `CmsMediaGalleryImage` and `CmsSearchTerm` now use the trait.
 
