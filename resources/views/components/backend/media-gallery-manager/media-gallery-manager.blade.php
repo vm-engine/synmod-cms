@@ -10,7 +10,7 @@
                     type="button"
                     wire:click="create"
                 >
-                    <span class="fa-solid fa-plus"></span> {{ __('cms::labels.media_gallery_add') }}
+                    <span class="ph ph-plus"></span> {{ __('cms::labels.media_gallery_add') }}
                 </button>
             </div>
 
@@ -39,11 +39,11 @@
                             @click="copy()"
                         >
                             <span
-                                class="fa-solid fa-copy"
+                                class="ph ph-copy"
                                 x-show="! copied"
                             ></span>
                             <span
-                                class="fa-solid fa-check"
+                                class="ph ph-check"
                                 x-show="copied"
                                 x-cloak
                             ></span>
@@ -56,7 +56,7 @@
                             title="{{ __('cms::labels.media_gallery_images') }}"
                             wire:click="openImages({{ $gallery->id }})"
                         >
-                            <span class="fa-solid fa-images"></span>
+                            <span class="ph ph-images"></span>
                         </button>
                         <button
                             class="btn xs secondary"
@@ -64,7 +64,7 @@
                             title="{{ __('cms::labels.edit') }}"
                             wire:click="edit({{ $gallery->id }})"
                         >
-                            <span class="fa-solid fa-pen"></span>
+                            <span class="ph ph-pencil-simple"></span>
                         </button>
                         <button
                             class="btn xs danger"
@@ -78,13 +78,13 @@
                                 message: $el.dataset.message,
                                 confirmText: $el.dataset.confirm,
                                 confirmColor: 'danger',
-                                icon: 'fa-solid fa-trash',
+                                icon: 'ph ph-trash',
                                 wireMethod: 'deleteGallery',
                                 wireParams: ['{{ $gallery->delete_token }}'],
                                 wireComponent: $el.dataset.component
                             })"
                         >
-                            <span class="fa-solid fa-trash"></span>
+                            <span class="ph ph-trash"></span>
                         </button>
                     </div>
                 </div>
@@ -106,7 +106,7 @@
                             type="button"
                             wire:click="closeImages"
                         >
-                            <span class="fa-solid fa-xmark"></span>
+                            <span class="ph ph-x"></span>
                         </button>
                     </div>
 
@@ -126,7 +126,7 @@
                                 type="button"
                                 wire:click="addImage"
                             >
-                                <span class="fa-solid fa-plus"></span>
+                                <span class="ph ph-plus"></span>
                             </button>
                         </div>
                         @error('newFileId')
@@ -161,7 +161,7 @@
                                             class="btn xs secondary mg-drag-handle cursor-grab"
                                             title="Drag to reorder"
                                         >
-                                            <span class="fa-solid fa-grip-vertical"></span>
+                                            <span class="ph ph-dots-six-vertical"></span>
                                         </span>
                                         <button
                                             class="btn xs danger"
@@ -175,13 +175,13 @@
                                                 message: $el.dataset.message,
                                                 confirmText: $el.dataset.confirm,
                                                 confirmColor: 'danger',
-                                                icon: 'fa-solid fa-trash',
+                                                icon: 'ph ph-trash',
                                                 wireMethod: 'removeImage',
                                                 wireParams: ['{{ $image->delete_token }}'],
                                                 wireComponent: $el.dataset.component
                                             })"
                                         >
-                                            <span class="fa-solid fa-trash"></span>
+                                            <span class="ph ph-trash"></span>
                                         </button>
                                     </div>
                                 </div>
@@ -230,7 +230,7 @@
                 type="button"
                 @click="$dispatch('close-modal-media-gallery-form')"
             >
-                <span class="fa-solid fa-xmark"></span>
+                <span class="ph ph-x"></span>
             </button>
         </div>
         <div class="syn-modal-body space-y-4">

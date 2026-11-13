@@ -66,7 +66,7 @@ new class extends Component
     #[Computed()]
     public function breadcrumbs(): Breadcrumbs
     {
-        return Breadcrumbs::make(label: __('cms::labels.download_list'), icon: 'fa-solid fa-download', url: backend_route('cms.download.index'))
+        return Breadcrumbs::make(label: __('cms::labels.download_list'), icon: 'ph ph-download-simple', url: backend_route('cms.download.index'))
             ->add(label: $this->download->title, url: backend_route('cms.download.form', ['id' => $this->downloadId]))
             ->add(label: __('cms::labels.manage_files'), url: backend_route('cms.download.files', ['downloadId' => $this->downloadId]))
             ->add(label: $this->title());

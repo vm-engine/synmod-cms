@@ -1,5 +1,5 @@
 <div x-data="cmsPageSlugForm('{{ $this->title() }}', {{ $categoryId ? 'false' : 'true' }})">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-cms::form-layout
         :back="backend_route('cms.category.index', ['sectionId' => $sectionId])"
@@ -60,7 +60,7 @@
                             @click="fillSlugFromTitle()"
                             title="{{ __('cms::labels.fill_from_title') }}"
                         >
-                            <span class="fa-solid fa-wand-magic-sparkles"></span>
+                            <span class="ph ph-magic-wand"></span>
                         </button>
                     </div>
                     @error('form.slug')

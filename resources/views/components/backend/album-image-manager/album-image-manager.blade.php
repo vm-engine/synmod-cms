@@ -1,6 +1,6 @@
 <div x-data="cmsAlbumImagePreview('{{ $this->title() }}')">
     <x-synapse-confirm-dialog />
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <div class="space-y-5 sm:space-y-6">
 
@@ -51,7 +51,7 @@
                             type="button"
                             wire:click="addImage"
                         >
-                            <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_image') }}
+                            <span class="ph ph-plus"></span> {{ __('cms::labels.add_image') }}
                         </button>
                     </div>
                 </div>
@@ -89,7 +89,7 @@
                                 />
                             @else
                                 <div class="flex h-full items-center justify-center text-gray-400">
-                                    <span class="fa-solid fa-image text-3xl"></span>
+                                    <span class="ph ph-image text-3xl"></span>
                                 </div>
                             @endif
                         </div>
@@ -111,13 +111,13 @@
                                     message: $el.dataset.message,
                                     confirmText: $el.dataset.confirm,
                                     confirmColor: 'danger',
-                                    icon: 'fa-solid fa-trash',
+                                    icon: 'ph ph-trash',
                                     wireMethod: 'deleteImage',
                                     wireParams: ['{{ $image->delete_token }}'],
                                     wireComponent: $el.dataset.component
                                 })"
                             >
-                                <span class="fa-solid fa-trash"></span>
+                                <span class="ph ph-trash"></span>
                             </button>
                             @endif
                             @if ($this->canManage($this->album, 'cms.gallery.image.update'))
@@ -127,14 +127,14 @@
                                 title="{{ __('cms::labels.edit') }}"
                                 wire:navigate
                             >
-                                <span class="fa-solid fa-pen"></span>
+                                <span class="ph ph-pencil-simple"></span>
                             </a>
                             @endif
                             <span
                                 class="btn xs secondary cursor-grab"
                                 title="Drag to reorder"
                             >
-                                <span class="fa-solid fa-grip-vertical"></span>
+                                <span class="ph ph-dots-six-vertical"></span>
                             </span>
                         </div>
                     </div>
@@ -152,7 +152,7 @@
                 href="{{ backend_route('cms.album.index') }}"
                 wire:navigate
             >
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
+                <span class="ph ph-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
         </div>
     </div>
@@ -185,7 +185,7 @@
                 type="button"
                 @click="closePreview()"
             >
-                <span class="fa-solid fa-times text-sm"></span>
+                <span class="ph ph-x text-sm"></span>
             </button>
         </div>
     </div>

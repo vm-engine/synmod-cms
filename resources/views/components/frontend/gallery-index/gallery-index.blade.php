@@ -26,7 +26,7 @@
             </div>
             @else
             <div class="cms-gallery-album-card__image cms-gallery-album-card__image--empty">
-                <span class="fa-solid fa-images"></span>
+                <span class="ph ph-images"></span>
             </div>
             @endif
             <div class="cms-gallery-album-card__body">

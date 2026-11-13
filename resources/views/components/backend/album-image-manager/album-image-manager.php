@@ -131,7 +131,7 @@ new class extends Component
     #[Computed()]
     public function breadcrumbs(): Breadcrumbs
     {
-        return Breadcrumbs::make(label: __('cms::labels.album_list'), icon: 'fa-solid fa-images', url: backend_route('cms.album.index'))
+        return Breadcrumbs::make(label: __('cms::labels.album_list'), icon: 'ph ph-images', url: backend_route('cms.album.index'))
             ->add(label: $this->album->title, url: backend_route('cms.album.form', ['id' => $this->albumId]))
             ->add(label: __('cms::labels.manage_images'));
     }

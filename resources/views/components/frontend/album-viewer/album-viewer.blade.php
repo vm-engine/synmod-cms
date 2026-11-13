@@ -99,7 +99,7 @@
                     @click="close()"
                     aria-label="{{ __('cms::labels.close') }}"
                 >
-                    <span class="fa-solid fa-times"></span>
+                    <span class="ph ph-x"></span>
                 </button>
 
                 {{-- Counter --}}
@@ -118,7 +118,7 @@
                         x-show="images.length > 1"
                         aria-label="{{ __('cms::labels.previous') }}"
                     >
-                        <span class="fa-solid fa-chevron-left"></span>
+                        <span class="ph ph-caret-left"></span>
                     </button>
 
                     <div class="cms-lightbox__image-wrap">
@@ -147,7 +147,7 @@
                         x-show="images.length > 1"
                         aria-label="{{ __('cms::labels.next') }}"
                     >
-                        <span class="fa-solid fa-chevron-right"></span>
+                        <span class="ph ph-caret-right"></span>
                     </button>
                 </div>
 

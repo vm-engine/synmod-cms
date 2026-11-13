@@ -5,7 +5,7 @@
             <p class="text-xs text-gray-400">{{ __('cms::labels.custom_fields_schema_hint') }}</p>
         </div>
         <button class="btn xs primary" type="button" wire:click="addField">
-            <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_field') }}
+            <span class="ph ph-plus"></span> {{ __('cms::labels.add_field') }}
         </button>
     </div>
 
@@ -31,7 +31,7 @@
                             @endforeach
                         </select>
                         @if ($this->isFieldLocked($field))
-                            <p class="mt-1 text-xs text-gray-400"><span class="fa-solid fa-lock"></span> {{ __('cms::labels.field_type_locked') }}</p>
+                            <p class="mt-1 text-xs text-gray-400"><span class="ph ph-lock"></span> {{ __('cms::labels.field_type_locked') }}</p>
                         @endif
                         @error('form.fieldSchema.'.$index.'.type') <p class="form-error">{{ $message }}</p> @enderror
                     </div>
@@ -50,7 +50,7 @@
                         <div class="mb-2 flex items-center justify-between">
                             <span class="form-label mb-0">{{ __('cms::labels.field_options') }}</span>
                             <button class="btn xs secondary" type="button" wire:click="addOption({{ $index }})">
-                                <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_option') }}
+                                <span class="ph ph-plus"></span> {{ __('cms::labels.add_option') }}
                             </button>
                         </div>
                         @error('form.fieldSchema.'.$index.'.options') <p class="form-error">{{ $message }}</p> @enderror
@@ -59,7 +59,7 @@
                                 <input class="form-input font-mono text-sm" type="text" placeholder="{{ __('cms::labels.field_option_value') }}" wire:model.blur="form.fieldSchema.{{ $index }}.options.{{ $optionIndex }}.value" />
                                 <input class="form-input text-sm" type="text" placeholder="{{ __('cms::labels.field_option_label') }}" wire:model.blur="form.fieldSchema.{{ $index }}.options.{{ $optionIndex }}.label" />
                                 <button class="btn xs danger" type="button" title="{{ __('cms::labels.remove_option') }}" wire:click="removeOption({{ $index }}, {{ $optionIndex }})">
-                                    <span class="fa-solid fa-trash"></span>
+                                    <span class="ph ph-trash"></span>
                                 </button>
                             </div>
                         @endforeach
@@ -74,9 +74,9 @@
                         <label class="flex items-center gap-2"><input class="form-checkbox" type="checkbox" wire:model="form.fieldSchema.{{ $index }}.sortable" /> {{ __('cms::labels.field_sortable') }}</label>
                     @endif
                     <div class="ml-auto flex gap-1">
-                        <button class="btn xs secondary" type="button" wire:click="moveField({{ $index }}, -1)"><span class="fa-solid fa-arrow-up"></span></button>
-                        <button class="btn xs secondary" type="button" wire:click="moveField({{ $index }}, 1)"><span class="fa-solid fa-arrow-down"></span></button>
-                        <button class="btn xs danger" type="button" title="{{ __('cms::labels.remove_field') }}" wire:click="removeField({{ $index }})"><span class="fa-solid fa-trash"></span></button>
+                        <button class="btn xs secondary" type="button" wire:click="moveField({{ $index }}, -1)"><span class="ph ph-arrow-up"></span></button>
+                        <button class="btn xs secondary" type="button" wire:click="moveField({{ $index }}, 1)"><span class="ph ph-arrow-down"></span></button>
+                        <button class="btn xs danger" type="button" title="{{ __('cms::labels.remove_field') }}" wire:click="removeField({{ $index }})"><span class="ph ph-trash"></span></button>
                     </div>
                 </div>
             </div>

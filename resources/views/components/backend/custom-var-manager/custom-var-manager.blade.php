@@ -10,7 +10,7 @@
             @endif
             @if($canManageSchema || $allowAdd)
             <button class="btn xs primary" type="button" wire:click="addVar">
-                <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_var') }}
+                <span class="ph ph-plus"></span> {{ __('cms::labels.add_var') }}
             </button>
             @endif
         </div>
@@ -74,7 +74,7 @@
                                     wire:click="removeVar({{ $index }})"
                                     title="{{ __('cms::labels.remove_var') }}"
                                 >
-                                    <span class="fa-solid fa-trash"></span>
+                                    <span class="ph ph-trash"></span>
                                 </button>
                             </td>
                         </tr>
@@ -99,7 +99,7 @@
                                 <input class="form-input text-sm" type="text" wire:model.live="value.{{ $index }}.value" />
                             </div>
                             <button class="btn xs danger mb-0.5" type="button" wire:click="removeVar({{ $index }})">
-                                <span class="fa-solid fa-trash"></span>
+                                <span class="ph ph-trash"></span>
                             </button>
                         </div>
                     @elseif($var['editable'] ?? true)
@@ -108,7 +108,7 @@
                     @else
                         <label class="form-label">{{ $label }}</label>
                         <div class="form-input bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 flex items-center gap-2 cursor-not-allowed">
-                            <span class="fa-solid fa-lock text-xs opacity-50"></span>
+                            <span class="ph ph-lock text-xs opacity-50"></span>
                             <span>{{ $var['value'] }}</span>
                         </div>
                     @endif

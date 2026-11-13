@@ -12,7 +12,7 @@
         <h1 class="cms-download-viewer__title">{{ $download->translate('title') }}</h1>
         @if($download->visibility->value !== 'public')
         <span class="cms-download-viewer__badge cms-download-viewer__badge--private">
-            <span class="fa-solid fa-lock"></span> {{ $download->visibility->label() }}
+            <span class="ph ph-lock"></span> {{ $download->visibility->label() }}
         </span>
         @endif
         @if($download->translate('description'))
@@ -29,7 +29,7 @@
                 @if($file->file?->isImage())
                     <img src="{{ $file->file->getThumbnailUrl() }}" alt="" class="cms-download-item__thumb" />
                 @else
-                    <span class="fa-solid fa-file cms-download-item__file-icon"></span>
+                    <span class="ph ph-file cms-download-item__file-icon"></span>
                 @endif
             </div>
             <div class="cms-download-item__info">
@@ -50,12 +50,12 @@
                     class="cms-download-btn"
                     rel="nofollow"
                 >
-                    <span class="fa-solid fa-download"></span>
+                    <span class="ph ph-download-simple"></span>
                     {{ __('cms::labels.download') }}
                 </a>
                 @else
                 <span class="cms-download-btn cms-download-btn--disabled">
-                    <span class="fa-solid fa-ban"></span>
+                    <span class="ph ph-prohibit"></span>
                     {{ __('cms::labels.unavailable') }}
                 </span>
                 @endif

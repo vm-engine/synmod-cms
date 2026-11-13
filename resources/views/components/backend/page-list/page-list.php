@@ -141,7 +141,7 @@ new class extends Component
     {
         return Breadcrumbs::make(
             label: __('cms::labels.page_list'),
-            icon: 'fa-solid fa-file-lines',
+            icon: 'ph ph-file-text',
         );
     }
 

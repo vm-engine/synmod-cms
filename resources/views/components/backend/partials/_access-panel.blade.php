@@ -41,7 +41,7 @@
                         @foreach ($this->form->lockedPrincipals[$list] as $locked)
                             <x-synapse-badge
                                 :color="$locked['reason'] === 'locked' ? 'warning' : 'gray'"
-                                icon="fa-solid fa-lock"
+                                icon="ph ph-lock"
                                 title="{{ __('cms::access.' . $locked['reason']) }}"
                             >
                                 {{ $locked['label'] }}

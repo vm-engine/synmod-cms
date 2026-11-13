@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}', drawerOpen: false }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
 
     <x-synapse-confirm-dialog />
@@ -13,7 +13,7 @@
                     href="{{ backend_route('cms.page.form') }}"
                     wire:navigate
                 >
-                    <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                    <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                 </a>
                 @endcanAccess
                 <x-synapse-search-box
@@ -26,7 +26,7 @@
                             class="btn"
                             @click="drawerOpen = true"
                         >
-                            <span class="fa-solid fa-filter"></span>
+                            <span class="ph ph-funnel"></span>
                         </button>
                     </x-slot:trailing>
                 </x-synapse-search-box>
@@ -82,7 +82,7 @@
                                                         href="{{ backend_route('cms.page.form', ['parentId' => $page->id]) }}"
                                                         wire:navigate
                                                     >
-                                                        <span class="fa-solid fa-plus"></span>
+                                                        <span class="ph ph-plus"></span>
                                                         <span
                                                             class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                     </a>
@@ -94,7 +94,7 @@
                                                     href="{{ backend_route('cms.page.form', ['id' => $page->id]) }}"
                                                     wire:navigate
                                                 >
-                                                    <span class="fa-solid fa-edit"></span>
+                                                    <span class="ph ph-pencil-simple"></span>
                                                     <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                 </a>
                                                 @endif
@@ -108,13 +108,13 @@
                                                     message: '{{ __('cms::labels.delete_page_message', ['title' => addslashes($page->title)]) }}',
                                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                     confirmColor: 'danger',
-                                                    icon: 'fa-solid fa-trash',
+                                                    icon: 'ph ph-trash',
                                                     wireMethod: 'delete',
                                                     wireParams: [$el.dataset.token],
                                                     wireComponent: '{{ $this->getId() }}'
                                                 })"
                                                 >
-                                                    <span class="fa-solid fa-trash"></span>
+                                                    <span class="ph ph-trash"></span>
                                                     <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                 </button>
                                                 @endif
@@ -143,7 +143,7 @@
                                         <td class="font-medium">
                                             <span class="flex items-center gap-1.5">
                                                 @if ($this->sortableGroups['root'] ?? false)
-                                                    <span class="drag-handle cursor-grab text-gray-400" data-root-handle><span class="fa-solid fa-grip-vertical"></span></span>
+                                                    <span class="drag-handle cursor-grab text-gray-400" data-root-handle><span class="ph ph-dots-six-vertical"></span></span>
                                                 @endif
                                                 {{ $root->title }}<x-cms::locale-badges :model="$root" />
                                             </span>
@@ -162,7 +162,7 @@
                                                     href="{{ backend_route('cms.page.form', ['parentId' => $root->id]) }}"
                                                     wire:navigate
                                                 >
-                                                    <span class="fa-solid fa-plus"></span>
+                                                    <span class="ph ph-plus"></span>
                                                     <span class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                 </a>
                                                 @endif
@@ -172,7 +172,7 @@
                                                     href="{{ backend_route('cms.page.form', ['id' => $root->id]) }}"
                                                     wire:navigate
                                                 >
-                                                    <span class="fa-solid fa-edit"></span>
+                                                    <span class="ph ph-pencil-simple"></span>
                                                     <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                 </a>
                                                 @endif
@@ -186,13 +186,13 @@
                                                     message: '{{ __('cms::labels.delete_page_message', ['title' => addslashes($root->title)]) }}',
                                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                     confirmColor: 'danger',
-                                                    icon: 'fa-solid fa-trash',
+                                                    icon: 'ph ph-trash',
                                                     wireMethod: 'delete',
                                                     wireParams: [$el.dataset.token],
                                                     wireComponent: '{{ $this->getId() }}'
                                                 })"
                                                 >
-                                                    <span class="fa-solid fa-trash"></span>
+                                                    <span class="ph ph-trash"></span>
                                                     <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                 </button>
                                                 @endif
@@ -212,10 +212,10 @@
                                                     class="flex items-center gap-1.5 pl-5 text-gray-500 dark:text-gray-400"
                                                 >
                                                     @if ($this->sortableGroups[$root->id] ?? false)
-                                                        <span class="drag-handle cursor-grab text-gray-400"><span class="fa-solid fa-grip-vertical"></span></span>
+                                                        <span class="drag-handle cursor-grab text-gray-400"><span class="ph ph-dots-six-vertical"></span></span>
                                                     @endif
                                                     <span
-                                                        class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
+                                                        class="ph ph-arrow-elbow-right-down rotate-180 opacity-40"></span>
                                                     {{ $child->title }}<x-cms::locale-badges :model="$child" />
                                                 </span>
                                             </td>
@@ -233,7 +233,7 @@
                                                         href="{{ backend_route('cms.page.form', ['parentId' => $child->id]) }}"
                                                         wire:navigate
                                                     >
-                                                        <span class="fa-solid fa-plus"></span>
+                                                        <span class="ph ph-plus"></span>
                                                         <span
                                                             class="tooltip">{{ __('cms::labels.add_child_page') }}</span>
                                                     </a>
@@ -244,7 +244,7 @@
                                                         href="{{ backend_route('cms.page.form', ['id' => $child->id]) }}"
                                                         wire:navigate
                                                     >
-                                                        <span class="fa-solid fa-edit"></span>
+                                                        <span class="ph ph-pencil-simple"></span>
                                                         <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                     </a>
                                                     @endif
@@ -258,13 +258,13 @@
                                                     message: '{{ __('cms::labels.delete_page_message', ['title' => addslashes($child->title)]) }}',
                                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                     confirmColor: 'danger',
-                                                    icon: 'fa-solid fa-trash',
+                                                    icon: 'ph ph-trash',
                                                     wireMethod: 'delete',
                                                     wireParams: [$el.dataset.token],
                                                     wireComponent: '{{ $this->getId() }}'
                                                 })"
                                                     >
-                                                        <span class="fa-solid fa-trash"></span>
+                                                        <span class="ph ph-trash"></span>
                                                         <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                     </button>
                                                     @endif
@@ -284,10 +284,10 @@
                                                         class="flex items-center gap-1.5 pl-10 text-gray-400 dark:text-gray-500"
                                                     >
                                                         @if ($this->sortableGroups[$child->id] ?? false)
-                                                            <span class="drag-handle cursor-grab text-gray-400"><span class="fa-solid fa-grip-vertical"></span></span>
+                                                            <span class="drag-handle cursor-grab text-gray-400"><span class="ph ph-dots-six-vertical"></span></span>
                                                         @endif
                                                         <span
-                                                            class="fa-solid fa-turn-down fa-sm rotate-180 opacity-40"></span>
+                                                            class="ph ph-arrow-elbow-right-down rotate-180 opacity-40"></span>
                                                         {{ $grandchild->title }}<x-cms::locale-badges :model="$grandchild" />
                                                     </span>
                                                 </td>
@@ -305,7 +305,7 @@
                                                             href="{{ backend_route('cms.page.form', ['id' => $grandchild->id]) }}"
                                                             wire:navigate
                                                         >
-                                                            <span class="fa-solid fa-edit"></span>
+                                                            <span class="ph ph-pencil-simple"></span>
                                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                                         </a>
                                                         @endif
@@ -319,13 +319,13 @@
                                                     message: '{{ __('cms::labels.delete_page_message', ['title' => addslashes($grandchild->title)]) }}',
                                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                     confirmColor: 'danger',
-                                                    icon: 'fa-solid fa-trash',
+                                                    icon: 'ph ph-trash',
                                                     wireMethod: 'delete',
                                                     wireParams: [$el.dataset.token],
                                                     wireComponent: '{{ $this->getId() }}'
                                                 })"
                                                         >
-                                                            <span class="fa-solid fa-trash"></span>
+                                                            <span class="ph ph-trash"></span>
                                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                                         </button>
                                                         @endif
@@ -353,7 +353,7 @@
     </div>
 
     @php
-        $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter');
+        $drawerTitle = '<span class="ph ph-funnel mr-2"></span>' . __('cms::labels.advanced_filter');
     @endphp
     <x-synapse-drawer :title="$drawerTitle">
         <div class="mb-6">

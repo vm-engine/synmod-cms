@@ -44,7 +44,7 @@
         x-show="slides.length > 1"
         aria-label="{{ __('cms::labels.previous') }}"
     >
-        <span class="fa-solid fa-chevron-left"></span>
+        <span class="ph ph-caret-left"></span>
     </button>
     <button
         class="cms-banner-slider__control cms-banner-slider__control--next"
@@ -53,7 +53,7 @@
         x-show="slides.length > 1"
         aria-label="{{ __('cms::labels.next') }}"
     >
-        <span class="fa-solid fa-chevron-right"></span>
+        <span class="ph ph-caret-right"></span>
     </button>
 
     <div

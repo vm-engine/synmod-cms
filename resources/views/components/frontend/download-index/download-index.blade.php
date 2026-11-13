@@ -26,14 +26,14 @@
             </div>
             @else
             <div class="cms-download-card__image cms-download-card__image--empty">
-                <span class="fa-solid fa-folder-open"></span>
+                <span class="ph ph-folder-open"></span>
             </div>
             @endif
             <div class="cms-download-card__body">
                 <div class="cms-download-card__meta">
                     @if($download->visibility->value !== 'public')
                     <span class="cms-download-card__badge cms-download-card__badge--private">
-                        <span class="fa-solid fa-lock"></span> {{ $download->visibility->label() }}
+                        <span class="ph ph-lock"></span> {{ $download->visibility->label() }}
                     </span>
                     @endif
                 </div>

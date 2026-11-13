@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <form x-data="cmsLocaleTabs('{{ \VmEngine\Cms\Support\CmsLocale::primary() }}')" wire:submit="save">
         <div class="space-y-5 sm:space-y-6">
@@ -13,7 +13,7 @@
                         @if($image->file->isImage())
                             <img class="w-full h-full object-cover" src="{{ $image->file->getThumbnailUrl() }}" alt="{{ $image->title ?? '' }}" />
                         @else
-                            <span class="fa-solid fa-file text-gray-400 text-2xl"></span>
+                            <span class="ph ph-file text-gray-400 text-2xl"></span>
                         @endif
                     </div>
                     <div class="text-sm text-gray-500 dark:text-gray-400 space-y-0.5">
@@ -64,12 +64,12 @@
 
         <div class="fixed bottom-0 left-0 right-0 z-9 bg-white dark:bg-gray-900 border-t border-gray-200 dark:border-gray-700 px-5 py-3 flex justify-between items-center">
             <a class="btn secondary" href="{{ backend_route('cms.album.images', ['albumId' => $albumId]) }}" wire:navigate>
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
+                <span class="ph ph-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
             @canAccess('cms.gallery.image.update')
             <button class="btn primary" type="submit" wire:loading.attr="disabled">
-                <span class="fa-solid fa-floppy-disk" wire:loading.remove></span>
-                <span class="fa-solid fa-circle-notch fa-spin" wire:loading></span>
+                <span class="ph ph-floppy-disk" wire:loading.remove></span>
+                <span class="ph ph-spinner syn-spin" wire:loading></span>
                 {{ __('cms::labels.save') }}
             </button>
             @endcanAccess

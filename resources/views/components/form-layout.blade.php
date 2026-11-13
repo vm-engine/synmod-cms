@@ -56,7 +56,7 @@
             href="{{ $back }}"
             wire:navigate
         >
-            <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
+            <span class="ph ph-arrow-left"></span> {{ __('cms::labels.back') }}
         </a>
         <div class="flex items-center gap-3">
             <span
@@ -75,11 +75,11 @@
                 wire:loading.attr="disabled"
             >
                 <span
-                    class="fa-solid fa-floppy-disk"
+                    class="ph ph-floppy-disk"
                     wire:loading.remove
                 ></span>
                 <span
-                    class="fa-solid fa-circle-notch fa-spin"
+                    class="ph ph-spinner syn-spin"
                     wire:loading
                 ></span>
                 {{ __('cms::labels.save') }}

@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}', drawerOpen: false }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -12,7 +12,7 @@
                     href="{{ backend_route('cms.download.form') }}"
                     wire:navigate
                 >
-                    <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                    <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                 </a>
                 @endcanAccess
                 <x-synapse-search-box
@@ -25,7 +25,7 @@
                             class="btn"
                             @click="drawerOpen = true"
                         >
-                            <span class="fa-solid fa-filter"></span>
+                            <span class="ph ph-funnel"></span>
                         </button>
                     </x-slot:trailing>
                 </x-synapse-search-box>
@@ -63,7 +63,7 @@
                                 <td>
                                     <x-synapse-badge :color="$download->visibility->value !== 'public' ? 'warning' : 'gray'">
                                         <span
-                                            class="fa-solid {{ $download->visibility->value !== 'public' ? 'fa-lock' : 'fa-lock-open' }} mr-1 text-[10px]"
+                                            class="ph {{ $download->visibility->value !== 'public' ? 'ph-lock' : 'ph-lock-open' }} mr-1 text-[10px]"
                                         ></span>
                                         {{ $download->visibility->label() }}
                                     </x-synapse-badge>
@@ -82,7 +82,7 @@
                                             href="{{ backend_route('cms.download.form', ['id' => $download->id]) }}"
                                             wire:navigate
                                         >
-                                            <span class="fa-solid fa-edit"></span>
+                                            <span class="ph ph-pencil-simple"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
                                         @endif
@@ -92,7 +92,7 @@
                                             href="{{ backend_route('cms.download.files', ['downloadId' => $download->id]) }}"
                                             wire:navigate
                                         >
-                                            <span class="fa-solid fa-folder-open"></span>
+                                            <span class="ph ph-folder-open"></span>
                                             <span class="tooltip">{{ __('cms::labels.manage_files') }}</span>
                                         </a>
                                         @endcanAccess
@@ -106,13 +106,13 @@
                                             message: '{{ __('cms::labels.delete_download_message', ['title' => addslashes($download->title)]) }}',
                                             confirmText: '{{ __('cms::labels.yes_delete') }}',
                                             confirmColor: 'danger',
-                                            icon: 'fa-solid fa-trash',
+                                            icon: 'ph ph-trash',
                                             wireMethod: 'delete',
                                             wireParams: [$el.dataset.token],
                                             wireComponent: '{{ $this->getId() }}'
                                         })"
                                         >
-                                            <span class="fa-solid fa-trash"></span>
+                                            <span class="ph ph-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
                                         @endif
@@ -149,7 +149,7 @@
         </x-synapse-panel>
     </div>
 
-    @php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
+    @php $drawerTitle = '<span class="ph ph-funnel mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
     <x-synapse-drawer :title="$drawerTitle">
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::access.visibility') }}</label>

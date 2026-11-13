@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}', drawerOpen: false }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -18,7 +18,7 @@
                         href="{{ backend_route('cms.section.form') }}"
                         wire:navigate
                     >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                        <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                     </a>
                     @endcanAccess
                     <div class="input-group w-full sm:w-auto">
@@ -33,7 +33,7 @@
                             type="button"
                             @click="drawerOpen = true"
                         >
-                            <span class="fa-solid fa-filter"></span>
+                            <span class="ph ph-funnel"></span>
                         </button>
                     </div>
                 </div>
@@ -90,7 +90,7 @@
                                                 href="{{ backend_route('cms.section.form', ['id' => $section->id]) }}"
                                                 wire:navigate
                                             >
-                                                <span class="fa-solid fa-edit"></span>
+                                                <span class="ph ph-pencil-simple"></span>
                                                 <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                             </a>
                                             @endif
@@ -100,7 +100,7 @@
                                                 href="{{ backend_route('cms.category.index', ['sectionId' => $section->id]) }}"
                                                 wire:navigate
                                             >
-                                                <span class="fa-solid fa-folder"></span>
+                                                <span class="ph ph-folder"></span>
                                                 <span class="tooltip">{{ __('cms::labels.manage_categories') }}</span>
                                             </a>
                                             @endcanAccess
@@ -110,7 +110,7 @@
                                                 href="{{ backend_route('cms.section.article.index', ['sectionId' => $section->id]) }}"
                                                 wire:navigate
                                             >
-                                                <span class="fa-solid fa-newspaper"></span>
+                                                <span class="ph ph-newspaper"></span>
                                                 <span class="tooltip">{{ __('cms::labels.view_articles') }}</span>
                                             </a>
                                             @endcanAccess
@@ -124,13 +124,13 @@
                                                 message: '{{ __('cms::labels.delete_section_message', ['title' => addslashes($section->title)]) }}',
                                                 confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                 confirmColor: 'danger',
-                                                icon: 'fa-solid fa-trash',
+                                                icon: 'ph ph-trash',
                                                 wireMethod: 'delete',
                                                 wireParams: [$el.dataset.token],
                                                 wireComponent: '{{ $this->getId() }}'
                                             })"
                                             >
-                                                <span class="fa-solid fa-trash"></span>
+                                                <span class="ph ph-trash"></span>
                                                 <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                             </button>
                                             @endif
@@ -167,7 +167,7 @@
         </div>
     </div>
 
-    @php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
+    @php $drawerTitle = '<span class="ph ph-funnel mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
     <x-synapse-drawer :title="$drawerTitle">
         <div class="mb-6">
             <label class="mb-2 block text-sm font-medium">{{ __('cms::labels.status') }}</label>

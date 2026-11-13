@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -63,7 +63,7 @@
                                             message: $el.dataset.message,
                                             confirmText: $el.dataset.confirm,
                                             confirmColor: 'danger',
-                                            icon: 'fa-solid fa-trash',
+                                            icon: 'ph ph-trash',
                                             wireMethod: 'delete',
                                             wireParams: ['{{ $term->delete_token }}'],
                                             wireComponent: $el.dataset.component

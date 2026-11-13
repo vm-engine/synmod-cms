@@ -53,7 +53,7 @@
                 type="button"
                 wire:click="addItem"
             >
-                <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_item') }}
+                <span class="ph ph-plus"></span> {{ __('cms::labels.add_item') }}
             </button>
             <button
                 class="btn"

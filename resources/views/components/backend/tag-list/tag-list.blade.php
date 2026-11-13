@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -18,7 +18,7 @@
                         @click="$dispatch('open-modal-tag-form')"
                         wire:click="$dispatch('reset-tag-form')"
                     >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                        <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                     </button>
                     @endcanAccess
                     <input
@@ -67,7 +67,7 @@
                                             @click="$dispatch('open-modal-tag-form')"
                                             wire:click="$dispatch('load-tag', { id: {{ $tag->id }} })"
                                         >
-                                            <span class="fa-solid fa-pen-to-square"></span>
+                                            <span class="ph ph-pencil-simple"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </button>
                                         @endcanAccess
@@ -81,13 +81,13 @@
                                                     message: '{{ __('cms::labels.delete_tag_message', ['name' => addslashes($tag->name)]) }}',
                                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                                     confirmColor: 'danger',
-                                                    icon: 'fa-solid fa-trash',
+                                                    icon: 'ph ph-trash',
                                                     wireMethod: 'delete',
                                                     wireParams: [$el.dataset.token],
                                                     wireComponent: '{{ $this->getId() }}'
                                                 })"
                                         >
-                                            <span class="fa-solid fa-trash"></span>
+                                            <span class="ph ph-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
                                         @endcanAccess
@@ -165,7 +165,7 @@
                     type="button"
                     wire:click="save"
                 >
-                    <span class="fa-solid fa-floppy-disk"></span> {{ __('cms::labels.save') }}
+                    <span class="ph ph-floppy-disk"></span> {{ __('cms::labels.save') }}
                 </button>
                 @endcanAccess
             </div>

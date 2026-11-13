@@ -87,7 +87,7 @@ new class extends Component
     #[Computed]
     public function breadcrumbs(): Breadcrumbs
     {
-        return Breadcrumbs::make(label: __('cms::labels.search_term_list'), icon: 'fa-solid fa-magnifying-glass');
+        return Breadcrumbs::make(label: __('cms::labels.search_term_list'), icon: 'ph ph-magnifying-glass');
     }
 
     private function authorizeAcl(string $acl): void

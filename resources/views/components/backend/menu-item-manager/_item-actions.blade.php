@@ -7,7 +7,7 @@
             wire:click="startAddChild({{ $itemId }})"
             title="{{ __('cms::labels.add_sub_item') }}"
         >
-            <span class="fa-solid fa-circle-plus"></span>
+            <span class="ph ph-plus-circle"></span>
         </button>
     @endif
     <button
@@ -15,7 +15,7 @@
         type="button"
         wire:click="startEdit({{ $itemId }})"
     >
-        <span class="fa-solid fa-pen-to-square"></span>
+        <span class="ph ph-pencil-simple"></span>
     </button>
     @endcanAccess
     @canAccess('cms.menu.delete')
@@ -31,13 +31,13 @@
             message: $el.dataset.message,
             confirmText: $el.dataset.confirm,
             confirmColor: 'danger',
-            icon: 'fa-solid fa-trash',
+            icon: 'ph ph-trash',
             wireMethod: 'deleteItem',
             wireParams: ['{{ $itemToken }}'],
             wireComponent: $el.dataset.component
         })"
     >
-        <span class="fa-solid fa-trash"></span>
+        <span class="ph ph-trash"></span>
     </button>
     @endcanAccess
 </div>

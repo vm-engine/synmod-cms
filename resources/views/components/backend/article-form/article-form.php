@@ -152,7 +152,7 @@ new class extends Component
     #[Computed()]
     public function breadcrumbs(): Breadcrumbs
     {
-        return Breadcrumbs::make(label: __('cms::labels.section_list'), icon: 'fa-solid fa-layer-group', url: backend_route('cms.section.index'))
+        return Breadcrumbs::make(label: __('cms::labels.section_list'), icon: 'ph ph-stack', url: backend_route('cms.section.index'))
             ->add(label: $this->sectionName, url: backend_route('cms.section.article.index', ['sectionId' => $this->sectionId]))
             ->add(label: __('cms::labels.article_list'), url: backend_route('cms.section.article.index', ['sectionId' => $this->sectionId]))
             ->add(label: $this->title());

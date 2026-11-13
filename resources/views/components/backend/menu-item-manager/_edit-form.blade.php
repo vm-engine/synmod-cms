@@ -67,7 +67,7 @@
             type="button"
             wire:click="saveEdit"
         >
-            <span class="fa-solid fa-floppy-disk"></span> {{ __('cms::labels.save') }}
+            <span class="ph ph-floppy-disk"></span> {{ __('cms::labels.save') }}
         </button>
         <button
             class="btn sm secondary"

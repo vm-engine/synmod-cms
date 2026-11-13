@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     @if ($this->isDummyMode)
         <div class="mb-6">

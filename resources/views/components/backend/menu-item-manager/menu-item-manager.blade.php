@@ -1,6 +1,6 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
     <x-synapse-confirm-dialog />
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <div class="space-y-5 sm:space-y-6">
 
@@ -46,7 +46,7 @@
                             {{-- View mode (level 0) --}}
                             <div class="flex items-center gap-3 px-4 py-3">
                                 <span class="drag-handle cursor-grab text-gray-400">
-                                    <span class="fa-solid fa-grip-vertical"></span>
+                                    <span class="ph ph-dots-six-vertical"></span>
                                 </span>
                                 <div class="flex-1">
                                     <span class="text-sm font-medium">{{ $item->label }}</span>
@@ -73,7 +73,7 @@
                                                 {{-- View mode (level 1) --}}
                                                 <div class="flex items-center gap-3 px-4 py-2">
                                                     <span class="text-gray-300 dark:text-gray-600">
-                                                        <span class="fa-solid fa-corner-down-right text-xs"></span>
+                                                        <span class="ph ph-arrow-elbow-down-right text-xs"></span>
                                                     </span>
                                                     <div class="flex-1">
                                                         <span class="text-sm font-medium">{{ $child->label }}</span>
@@ -105,7 +105,7 @@
                                                                     <div class="flex items-center gap-3 px-4 py-2">
                                                                         <span class="text-gray-300 dark:text-gray-600">
                                                                             <span
-                                                                                class="fa-solid fa-corner-down-right text-xs"
+                                                                                class="ph ph-arrow-elbow-down-right text-xs"
                                                                             ></span>
                                                                         </span>
                                                                         <div class="flex-1">
@@ -172,7 +172,7 @@
                 href="{{ backend_route('cms.menu.index') }}"
                 wire:navigate
             >
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
+                <span class="ph ph-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
         </div>
     </div>

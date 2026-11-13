@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}', drawerOpen: false }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -13,7 +13,7 @@
                         href="{{ backend_route('cms.section.article.form', ['sectionId' => $sectionId]) }}"
                         wire:navigate
                     >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                        <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                     </a>
                     @endif
                 @endif
@@ -27,7 +27,7 @@
                             class="btn"
                             @click="drawerOpen = true"
                         >
-                            <span class="fa-solid fa-filter"></span>
+                            <span class="ph ph-funnel"></span>
                         </button>
                     </x-slot:trailing>
                 </x-synapse-search-box>
@@ -48,7 +48,7 @@
                                         wire:click.prevent="sortData('title')"
                                     >
                                         <span
-                                            class="fa fa-solid {{ $sort !== 'title' ? 'fa-sort' : ($sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') }}"
+                                            class="ph {{ $sort !== 'title' ? 'ph-arrows-down-up' : ($sortDirection === 'asc' ? 'ph-caret-up' : 'ph-caret-down') }}"
                                         ></span>
                                     </a>
                                 </div>
@@ -75,7 +75,7 @@
                                         wire:click.prevent="sortData('created_at')"
                                     >
                                         <span
-                                            class="fa fa-solid {{ $sort !== 'created_at' ? 'fa-sort' : ($sortDirection === 'asc' ? 'fa-sort-up' : 'fa-sort-down') }}"
+                                            class="ph {{ $sort !== 'created_at' ? 'ph-arrows-down-up' : ($sortDirection === 'asc' ? 'ph-caret-up' : 'ph-caret-down') }}"
                                         ></span>
                                     </a>
                                 </div>
@@ -112,7 +112,7 @@
                                 </td>
                                 <td>
                                     @if ($article->is_featured)
-                                        <span class="fa-solid fa-star text-yellow-500"></span>
+                                        <span class="ph ph-star text-yellow-500"></span>
                                     @endif
                                 </td>
                                 <td>{{ $article->created_at->format('d M Y') }}</td>
@@ -124,7 +124,7 @@
                                             href="{{ backend_route('cms.section.article.edit', ['sectionId' => $article->section_id, 'id' => $article->id]) }}"
                                             wire:navigate
                                         >
-                                            <span class="fa-solid fa-edit"></span>
+                                            <span class="ph ph-pencil-simple"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </a>
                                         @endif
@@ -138,13 +138,13 @@
                                             message: '{{ __('cms::labels.delete_article_message', ['title' => addslashes($article->title)]) }}',
                                             confirmText: '{{ __('cms::labels.yes_delete') }}',
                                             confirmColor: 'danger',
-                                            icon: 'fa-solid fa-trash',
+                                            icon: 'ph ph-trash',
                                             wireMethod: 'delete',
                                             wireParams: [$el.dataset.token],
                                             wireComponent: '{{ $this->getId() }}'
                                         })"
                                         >
-                                            <span class="fa-solid fa-trash"></span>
+                                            <span class="ph ph-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
                                         @endif
@@ -182,7 +182,7 @@
         </x-synapse-panel>
     </div>
 
-@php $drawerTitle = '<span class="fa-solid fa-filter mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
+@php $drawerTitle = '<span class="ph ph-funnel mr-2"></span>' . __('cms::labels.advanced_filter'); @endphp
 <x-synapse-drawer :title="$drawerTitle">
     @if (!$sectionId)
         <div class="mb-6">

@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -175,11 +175,11 @@
                 wire:loading.attr="disabled"
             >
                 <span
-                    class="fa-solid fa-floppy-disk"
+                    class="ph ph-floppy-disk"
                     wire:loading.remove
                 ></span>
                 <span
-                    class="fa-solid fa-circle-notch fa-spin"
+                    class="ph ph-spinner syn-spin"
                     wire:loading
                 ></span>
                 {{ __('cms::labels.save') }}

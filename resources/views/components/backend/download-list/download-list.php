@@ -121,7 +121,7 @@ new class extends Component
     #[Computed()]
     public function breadcrumbs(): Breadcrumbs
     {
-        return Breadcrumbs::make(label: __('cms::labels.download_list'), icon: 'fa-solid fa-download');
+        return Breadcrumbs::make(label: __('cms::labels.download_list'), icon: 'ph ph-download-simple');
     }
 
     public function render()

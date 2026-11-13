@@ -1,5 +1,5 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <x-synapse-confirm-dialog />
 
@@ -18,7 +18,7 @@
                         @click="$dispatch('open-modal-menu-form')"
                         wire:click="$dispatch('reset-menu-form')"
                     >
-                        <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add') }}
+                        <span class="ph ph-plus"></span> {{ __('cms::labels.add') }}
                     </button>
                     @endcanAccess
                     <input
@@ -76,7 +76,7 @@
                                             type="button"
                                             @click="$dispatch('open-modal-menu-form'); $wire.dispatch('load-menu', { id: {{ $menu->id }} })"
                                         >
-                                            <span class="fa-solid fa-edit"></span>
+                                            <span class="ph ph-pencil-simple"></span>
                                             <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                                         </button>
                                         <a
@@ -84,7 +84,7 @@
                                             href="{{ backend_route('cms.menu.items', ['menuId' => $menu->id]) }}"
                                             wire:navigate
                                         >
-                                            <span class="fa-solid fa-list"></span>
+                                            <span class="ph ph-list-bullets"></span>
                                             <span class="tooltip">{{ __('cms::labels.manage_items') }}</span>
                                         </a>
                                         @endcanAccess
@@ -98,13 +98,13 @@
                                             message: '{{ __('cms::labels.delete_menu_message', ['name' => addslashes($menu->name)]) }}',
                                             confirmText: '{{ __('cms::labels.yes_delete') }}',
                                             confirmColor: 'danger',
-                                            icon: 'fa-solid fa-trash',
+                                            icon: 'ph ph-trash',
                                             wireMethod: 'delete',
                                             wireParams: [$el.dataset.token],
                                             wireComponent: '{{ $this->getId() }}'
                                         })"
                                         >
-                                            <span class="fa-solid fa-trash"></span>
+                                            <span class="ph ph-trash"></span>
                                             <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                                         </button>
                                         @endcanAccess
@@ -205,7 +205,7 @@
                     type="button"
                     wire:click="save"
                 >
-                    <span class="fa-solid fa-floppy-disk"></span> {{ __('cms::labels.save') }}
+                    <span class="ph ph-floppy-disk"></span> {{ __('cms::labels.save') }}
                 </button>
                 @endcanAccess
             </div>

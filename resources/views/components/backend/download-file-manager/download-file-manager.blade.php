@@ -1,6 +1,6 @@
 <div x-data="{ pageName: '{{ $this->title() }}' }">
     <x-synapse-confirm-dialog />
-    @include('synapps::components.layouts.partials.breadcrumbs', ['breadcrumbs' => $this->breadcrumbs])
+    <x-synapse-breadcrumbs :breadcrumbs="$this->breadcrumbs" />
 
     <div class="space-y-5 sm:space-y-6">
 
@@ -50,7 +50,7 @@
                             type="button"
                             wire:click="addFile"
                         >
-                            <span class="fa-solid fa-plus"></span> {{ __('cms::labels.add_file') }}
+                            <span class="ph ph-plus"></span> {{ __('cms::labels.add_file') }}
                         </button>
                     </div>
                 </div>
@@ -78,7 +78,7 @@
                         data-id="{{ $file->id }}"
                     >
                         <span
-                            class="drag-handle fa-solid fa-grip-vertical cursor-grab text-gray-300 hover:text-gray-500"
+                            class="drag-handle ph ph-dots-six-vertical cursor-grab text-gray-300 hover:text-gray-500"
                         ></span>
                         <div
                             class="flex-none w-10 h-10 rounded border border-gray-200 dark:border-gray-700 flex items-center justify-center bg-gray-50 dark:bg-gray-800">
@@ -89,7 +89,7 @@
                                     alt=""
                                 >
                             @else
-                                <span class="fa-solid fa-file text-gray-400 text-lg"></span>
+                                <span class="ph ph-file text-gray-400 text-lg"></span>
                             @endif
                         </div>
                         <div class="flex-1 min-w-0">
@@ -111,7 +111,7 @@
                                 href="{{ backend_route('cms.download.file.form', ['downloadId' => $downloadId, 'id' => $file->id]) }}"
                                 wire:navigate
                             >
-                                <span class="fa-solid fa-edit"></span>
+                                <span class="ph ph-pencil-simple"></span>
                                 <span class="tooltip">{{ __('cms::labels.edit') }}</span>
                             </a>
                             @endif
@@ -126,13 +126,13 @@
                                     message: '{{ __('cms::labels.delete_file_confirm') }}',
                                     confirmText: '{{ __('cms::labels.yes_delete') }}',
                                     confirmColor: 'danger',
-                                    icon: 'fa-solid fa-trash',
+                                    icon: 'ph ph-trash',
                                     wireMethod: 'deleteFile',
                                     wireParams: ['{{ $file->delete_token }}'],
                                     wireComponent: $el.dataset.component
                                 })"
                             >
-                                <span class="fa-solid fa-trash"></span>
+                                <span class="ph ph-trash"></span>
                                 <span class="tooltip">{{ __('cms::labels.delete') }}</span>
                             </button>
                             @endif
@@ -140,7 +140,7 @@
                     </div>
                 @empty
                     <div class="py-10 text-center text-gray-400">
-                        <span class="fa-solid fa-folder-open text-3xl mb-2 block"></span>
+                        <span class="ph ph-folder-open text-3xl mb-2 block"></span>
                         {{ __('cms::labels.no_files') }}
                     </div>
                 @endforelse
@@ -153,7 +153,7 @@
                 href="{{ backend_route('cms.download.index') }}"
                 wire:navigate
             >
-                <span class="fa-solid fa-arrow-left"></span> {{ __('cms::labels.back') }}
+                <span class="ph ph-arrow-left"></span> {{ __('cms::labels.back') }}
             </a>
         </div>
     </div>
