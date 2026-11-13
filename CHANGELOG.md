@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [2.4.0] - 2026-11-13
+
+### Changed
+- Requires vm-engine/synapse ^3.10: backend pages render `<x-synapse-breadcrumbs>` instead of including the deprecated `layouts.partials.breadcrumbs`.
+- Icons use Phosphor (`ph ph-*`) instead of Font Awesome, including the `module.json` menu icons; spinners are `ph ph-spinner syn-spin`. Synapse 3.10 deprecates Font Awesome.
+
 ## [2.3.3] - 2026-10-21
 
 ### Fixed

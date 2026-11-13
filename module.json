@@ -8,7 +8,7 @@
     },
     "name": "CMS",
     "description": "Content Management System — static pages, dynamic articles, gallery, and frontend menu management",
-    "version": "2.3.3",
+    "version": "2.4.0",
     "author": "Adods",
     "email": "theadods@gmail.com",
     "url_prefix": "cms",
@@ -56,7 +56,7 @@
             "name": "__cms::menu.be.parent",
             "position": 5,
             "class": "",
-            "icon": "fa-solid fa-newspaper",
+            "icon": "ph ph-newspaper",
             "acl": "cms.any",
             "sub": {
                 "page": {
@@ -64,7 +64,7 @@
                     "name": "__cms::menu.be.page",
                     "class": "",
                     "route": "cms.page.index",
-                    "icon": "fa-solid fa-file-lines",
+                    "icon": "ph ph-file-text",
                     "acl": "cms.page.read"
                 },
                 "section": {
@@ -72,7 +72,7 @@
                     "name": "__cms::menu.be.section",
                     "class": "",
                     "route": "cms.section.index",
-                    "icon": "fa-solid fa-layer-group",
+                    "icon": "ph ph-stack",
                     "acl": "cms.article.section.read"
                 },
                 "gallery": {
@@ -80,7 +80,7 @@
                     "name": "__cms::menu.be.gallery",
                     "class": "",
                     "route": "cms.album.index",
-                    "icon": "fa-solid fa-images",
+                    "icon": "ph ph-images",
                     "acl": "cms.gallery.any"
                 },
                 "menu": {
@@ -88,7 +88,7 @@
                     "name": "__cms::menu.be.menu",
                     "class": "",
                     "route": "cms.menu.index",
-                    "icon": "fa-solid fa-bars",
+                    "icon": "ph ph-list",
                     "acl": "cms.menu.read"
                 },
                 "download": {
@@ -96,7 +96,7 @@
                     "name": "__cms::menu.be.download",
                     "class": "",
                     "route": "cms.download.index",
-                    "icon": "fa-solid fa-download",
+                    "icon": "ph ph-download-simple",
                     "acl": "cms.download.any"
                 },
                 "tag": {
@@ -104,7 +104,7 @@
                     "name": "__cms::menu.be.tag",
                     "class": "",
                     "route": "cms.tag.index",
-                    "icon": "fa-solid fa-tags",
+                    "icon": "ph ph-tag",
                     "acl": "cms.tag.read"
                 },
                 "search_term": {
@@ -112,7 +112,7 @@
                     "name": "__cms::menu.be.search_term",
                     "class": "",
                     "route": "cms.search-term.index",
-                    "icon": "fa-solid fa-magnifying-glass",
+                    "icon": "ph ph-magnifying-glass",
                     "acl": "cms.search_term.read"
                 },
                 "analytics": {
@@ -120,7 +120,7 @@
                     "name": "__cms::menu.be.analytics",
                     "class": "",
                     "route": "cms.analytics",
-                    "icon": "fa-solid fa-chart-line",
+                    "icon": "ph ph-chart-line",
                     "acl": "cms.analytics.read"
                 },
                 "settings": {
@@ -128,7 +128,7 @@
                     "name": "__cms::menu.be.settings",
                     "class": "",
                     "route": "cms.settings",
-                    "icon": "fa-solid fa-gear",
+                    "icon": "ph ph-gear",
                     "acl": "cms.settings.read"
                 }
             }
