@@ -26,6 +26,7 @@ Content Management System module for [Laravel Synapse](https://github.com/vm-eng
 - **Activity Logging** — every backend create/update/delete/reorder is logged via `CmsActivityLogger`, recording only the diff of changed fields on updates
 - **Frontend Livewire Components** — semantic BEM-style components for page, section, category, article, gallery index, album, and menu rendering; all resolved automatically via the fallback routing system
 - **Widget Blade Components** — 8 embeddable `<x-cms::widget.*>` components for use anywhere in your layout, most supporting `template`/`card` overrides for full custom markup (see [Widget Components](#widget-components))
+- **Page Builder** — standalone pages composed from the CMS widgets on a live visual canvas: drag widgets between the regions a theme template declares, style regions and widgets from a curated Tailwind class palette, publish when ready (see [Page Builder](#page-builder))
 - **Granular ACL** — CRUD permissions per resource and sub-resource (`cms.article.section`, `cms.gallery.album`, etc.)
 - **Content access control** — Public / Protected / Private (selected users or roles) frontend visibility with page and article inheritance, plus per-item managers lists (page subtrees, sections, albums, downloads) on top of the module ACL. Edited from each form's **Access** panel (`cms.access.update`); entries a dev adds are locked for everyone else
 
@@ -71,6 +72,10 @@ All admin routes are under `/admin/cms/` and require authentication. Access is c
 |---|---|---|
 | `GET /admin/cms/page` | `backend.cms.page.index` | `cms.page.read` |
 | `GET /admin/cms/page/form/{id?}` | `backend.cms.page.form` | `cms.page.create\|update` |
+| `GET /admin/cms/builder` | `backend.cms.builder.index` | `cms.builder.read` |
+| `GET /admin/cms/builder/form/{id?}` | `backend.cms.builder.form` | `cms.builder.create\|update` |
+| `GET /admin/cms/builder/{id}/editor` | `backend.cms.builder.editor` | `cms.builder.update` |
+| `GET /admin/cms/builder/{id}/canvas` | `backend.cms.builder.canvas` | `cms.builder.update` (the editor's iframe; `?preview=1` hides the edit chrome) |
 | `GET /admin/cms/section` | `backend.cms.section.index` | `cms.article.section.read` |
 | `GET /admin/cms/section/form/{id?}` | `backend.cms.section.form` | `cms.article.section.create\|update` |
 | `GET /admin/cms/section/{sectionId}/category` | `backend.cms.category.index` | `cms.article.category.read` |
@@ -305,7 +310,8 @@ Renders an active album's images in a grid (not restricted to `banner`-type albu
 <x-cms::widget.gallery
     album="team-photos"
     :limit="0"              {{-- 0 = no limit --}}
-    :showTitle="true"
+    :showAlbumTitle="false" {{-- album name as a linked heading above the grid; the page builder turns it on --}}
+    :showTitle="true"       {{-- per-image titles --}}
     :showCaption="true"
     card="theme::widgets.gallery-card"   {{-- per-image override; receives $image + $album + $with --}}
     template="theme::widgets.gallery"    {{-- full override; receives $images, $album + $with --}}
@@ -315,6 +321,55 @@ Renders an active album's images in a grid (not restricted to `banner`-type albu
     :with="[]"
 />
 ```
+
+---
+
+## Page Builder
+
+**CMS → Page Builder** (right after Pages) creates standalone public pages built from the widgets above. A builder page has its own URL (`/{slug}`, registered with the fallback router when published), SEO fields and translatable title/meta, but no rich-text body — its content is the widgets.
+
+**Editing.** *Add* (or the pencil) opens the settings form: title, URL, template, SEO. *Open Builder* opens the editor:
+
+- The canvas is an iframe that renders the draft with the real theme layout, template and widgets.
+- Hover a widget for its toolbar: drag handle (move within or across regions), settings, duplicate, remove.
+- *+ Add widget* in a region opens the widget picker; the new widget's settings open in the drawer.
+- *Style* on a region, or the classes in a widget's drawer, apply palette classes.
+- The device buttons narrow the canvas to tablet/mobile width; *Preview* opens the draft without edit chrome.
+- Edits only change the draft (`layout_draft`). *Publish* (`cms.builder.publish.update`) copies it to the live `layout`; the list and editor flag "Unpublished changes" until then.
+
+**Widgets.** The eight widgets above, configured from a per-widget prop schema in `VmEngine\Cms\Support\CmsWidgetRegistry` (limit, sort, layout, show* toggles, and pickers for the page/section/category/album). The widgets' `template`/`card`/`with`/`bare`/wrapper-class props are not exposed — style through the palette. A widget that throws is logged and skipped on the public page, and shown as an error card on the canvas.
+
+**Templates and regions.** A template is a Blade view plus its named regions. The package ships `full` (hero, main) and `sidebar-right` (hero, main, sidebar, footer-top). A theme adds or overrides templates in its `theme.json`:
+
+```json
+"page_builder": {
+    "templates": {
+        "landing": {
+            "name": "Landing",
+            "view": "theme::builder.landing",
+            "regions": { "hero": "Hero", "features": "Features", "main": "Main" }
+        }
+    }
+}
+```
+
+The view receives `$layout`, `$regions` and `$editing` and places each region:
+
+```blade
+<div class="space-y-12">
+    <x-cms::builder.region name="hero" :$layout :$regions :$editing />
+    <div class="grid gap-8 lg:grid-cols-2">
+        <x-cms::builder.region name="features" :$layout :$regions :$editing />
+        <x-cms::builder.region name="main" :$layout :$regions :$editing />
+    </div>
+</div>
+```
+
+Entries whose view doesn't exist or that declare no regions are ignored; a page whose template disappears renders with `full`. Switching a page's template moves widgets from regions the new template lacks into its first region.
+
+**Class palette.** Editors pick from `resources/builder/class-palette.json` (spacing, background, text, border & shadow, width, responsive visibility) — no free-text classes, and anything outside the palette is dropped on save. `cms:setup` adds `@source '../../vendor/vm-engine/synmod-cms/resources/builder/class-palette.json';` to the host's `resources/css/base.css` so Tailwind compiles every palette class; run `npm run build` afterwards (and after editing the palette).
+
+**Menus and sitemap.** Menu items can target a published builder page (*Builder Page* type); published builder pages are listed in `/sitemap.xml`.
 
 ---
 
@@ -578,6 +633,7 @@ Code: `AnalyticsSettings`, `AnalyticsCache`, `TrendLine` (`src/Support`), `Googl
 | `CmsCategory` | `cms_categories` | `section_id`, `slug`, `status`, `inherit_config`, `config` (JSON, overrides section when `inherit_config=false`), `custom_view`, `custom_layout`, `custom_article_view` |
 | `CmsArticle` | `cms_articles` | `section_id`, `category_id` (nullable), `slug`, `status`, `published_at`, `expires_at`, `is_featured`, `read_time`, `config` (JSON), `custom_view`, `custom_layout` |
 | `CmsTag` | `cms_tags` | `slug` (unique) |
+| `CmsBuilderPage` | `cms_builder_pages` | `slug` (unique, flat), `status` (draft/published), `template`, `layout_draft` (JSON, edited), `layout` (JSON, published) |
 | `CmsAlbum` | `cms_albums` | `slug`, `type` (`normal`\|`banner`), `status` (`active`\|`inactive`), `cover_image`, `config` (JSON), `custom_view`, `custom_layout` |
 | `CmsAlbumImage` | `cms_album_images` | `album_id`, `file_id` (nullable FK to `fm_files`), `title`, `caption`, `sort_order`, `config` (JSON) |
 | `CmsMenu` | `cms_menus` | `position`, `is_active` |
@@ -758,6 +814,8 @@ Defined in `module.json` and registered via Synapse's ACL system.
 |---|---|---|
 | `cms.page` | create, read, update, delete | Static pages |
 | `cms.page.publish` | read, update | Publish/unpublish pages |
+| `cms.builder` | create, read, update, delete | Page builder pages (settings + layout) |
+| `cms.builder.publish` | read, update | Publish/unpublish page builder pages |
 | `cms.article` | create, read, update, delete | Articles |
 | `cms.article.publish` | read, update | Publish/unpublish articles |
 | `cms.article.section` | create, read, update, delete | Sections |

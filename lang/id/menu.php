@@ -6,6 +6,7 @@ return [
     'be' => [
         'parent' => 'CMS',
         'page' => 'Halaman',
+        'builder' => 'Page Builder',
         'section' => 'Artikel',
         'gallery' => 'Galeri',
         'download' => 'Unduhan',

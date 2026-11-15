@@ -128,3 +128,21 @@ describe('page-list drag sorting', function () {
             ->assertDontSeeHtml('data-root-handle');
     });
 });
+
+describe('CmsPageService::getParentOptions', function () {
+    it('lists parents in tree order with a depth instead of a dash prefix, excluding the page itself', function () {
+        $about = CmsPage::factory()->create(['title' => 'About', 'slug' => 'about', 'full_slug' => 'about']);
+        $team = CmsPage::factory()->create(['title' => 'Team', 'slug' => 'team', 'full_slug' => 'about/team', 'parent_id' => $about->id]);
+        $history = CmsPage::factory()->create(['title' => 'History', 'slug' => 'history', 'full_slug' => 'about/history', 'parent_id' => $about->id]);
+
+        $options = app(CmsPageService::class)->getParentOptions($team->id);
+
+        $ours = array_values(array_filter($options, fn (array $o): bool => in_array($o['value'], [$about->id, $team->id, $history->id], true)));
+
+        expect($options[0]['value'])->toBe('')
+            ->and($ours)->toBe([
+                ['value' => $about->id, 'label' => 'About', 'depth' => 0],
+                ['value' => $history->id, 'label' => 'History', 'depth' => 1],
+            ]);
+    });
+});

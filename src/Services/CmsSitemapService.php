@@ -6,6 +6,7 @@ namespace VmEngine\Cms\Services;
 
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Models\CmsBuilderPage;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsPage;
 use VmEngine\Cms\Models\CmsSection;
@@ -21,6 +22,7 @@ class CmsSitemapService
         $urls = array_merge(
             $this->staticUrls(),
             $this->pageUrls(),
+            $this->builderPageUrls(),
             $this->sectionUrls(),
             $this->categoryUrls(),
             $this->articleUrls(),
@@ -63,6 +65,23 @@ class CmsSitemapService
                 'priority' => $p->parent_id === null ? '0.8' : '0.6',
             ])
             ->toArray();
+    }
+
+    /**
+     * @return array<int, array{path: string|null, lastmod: string, changefreq: string, priority: string}>
+     */
+    private function builderPageUrls(): array
+    {
+        return CmsBuilderPage::published()
+            ->get()
+            ->map(fn (CmsBuilderPage $page): array => [
+                'path' => CmsUrl::path($page),
+                'lastmod' => $page->updated_at->toAtomString(),
+                'changefreq' => 'weekly',
+                'priority' => '0.7',
+            ])
+            ->values()
+            ->all();
     }
 
     /**

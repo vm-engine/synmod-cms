@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Model;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Models\CmsBuilderPage;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsDownloadFile;
@@ -30,6 +31,7 @@ final class CmsUrl
     {
         return match (true) {
             $model instanceof CmsPage => $model->full_slug,
+            $model instanceof CmsBuilderPage => $model->slug,
             $model instanceof CmsSection => $model->slug,
             $model instanceof CmsCategory => $model->section->slug.'/'.$model->slug,
             $model instanceof CmsArticle => $model->section->slug

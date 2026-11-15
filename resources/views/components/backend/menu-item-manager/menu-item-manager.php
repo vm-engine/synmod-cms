@@ -8,6 +8,7 @@ use Livewire\Component;
 use VmEngine\Cms\Models\CmsMenu;
 use VmEngine\Cms\Models\CmsMenuItem;
 use VmEngine\Cms\Services\CmsArticleService;
+use VmEngine\Cms\Services\CmsBuilderPageService;
 use VmEngine\Cms\Services\CmsDownloadService;
 use VmEngine\Cms\Services\CmsGalleryService;
 use VmEngine\Cms\Services\CmsMenuService;
@@ -99,7 +100,7 @@ new class extends Component
 
     public function addItem(): void
     {
-        $validTypes = 'url,page,section,category,article,album,album_image,album_list,download,download_list';
+        $validTypes = 'url,page,builder_page,section,category,article,album,album_image,album_list,download,download_list';
         $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'newLabel' => 'required|string|max:255',
@@ -150,7 +151,7 @@ new class extends Component
 
     public function saveEdit(): void
     {
-        $validTypes = 'url,page,section,category,article,album,album_image,album_list,download,download_list';
+        $validTypes = 'url,page,builder_page,section,category,article,album,album_image,album_list,download,download_list';
         $noIdTypes = ['url', 'album_list', 'download_list'];
         $this->validate([
             'editLabel' => 'required|string|max:255',
@@ -233,6 +234,16 @@ new class extends Component
     public function loadPages(int|array $ids): array
     {
         return app(CmsPageService::class)->loadOptions($ids);
+    }
+
+    public function searchBuilderPages(string $query): array
+    {
+        return app(CmsBuilderPageService::class)->searchOptions($query);
+    }
+
+    public function loadBuilderPages(int|array $ids): array
+    {
+        return app(CmsBuilderPageService::class)->loadOptions($ids);
     }
 
     public function searchSections(string $query): array
@@ -321,6 +332,7 @@ new class extends Component
         return [
             ['value' => 'url', 'label' => __('cms::labels.type_url')],
             ['value' => 'page', 'label' => __('cms::labels.type_page')],
+            ['value' => 'builder_page', 'label' => __('cms::labels.type_builder_page')],
             ['value' => 'section', 'label' => __('cms::labels.type_section')],
             ['value' => 'category', 'label' => __('cms::labels.type_category')],
             ['value' => 'article', 'label' => __('cms::labels.type_article')],

@@ -67,6 +67,14 @@
                     "icon": "ph ph-file-text",
                     "acl": "cms.page.read"
                 },
+                "builder": {
+                    "id": "builder",
+                    "name": "__cms::menu.be.builder",
+                    "class": "",
+                    "route": "cms.builder.index",
+                    "icon": "ph ph-layout",
+                    "acl": "cms.builder.read"
+                },
                 "section": {
                     "id": "section",
                     "name": "__cms::menu.be.section",
@@ -170,6 +178,22 @@
             "sub": {
                 "publish": {
                     "label": "__cms::acl.page_publish",
+                    "create": 0,
+                    "read": 1,
+                    "update": 1,
+                    "delete": 0
+                }
+            }
+        },
+        "builder": {
+            "label": "__cms::acl.builder",
+            "create": 1,
+            "read": 1,
+            "update": 1,
+            "delete": 1,
+            "sub": {
+                "publish": {
+                    "label": "__cms::acl.builder_publish",
                     "create": 0,
                     "read": 1,
                     "update": 1,

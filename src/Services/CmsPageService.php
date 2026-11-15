@@ -149,7 +149,7 @@ class CmsPageService
     /**
      * Parent dropdown for the page form: root pages and their direct children, indented.
      *
-     * @return array<int, array{value: int|string, label: string}>
+     * @return array<int, array{value: int|string, label: string, depth?: int}>
      */
     public function getParentOptions(?int $excludeId = null): array
     {
@@ -162,9 +162,9 @@ class CmsPageService
             ->get();
 
         foreach ($pages as $page) {
-            $options[] = ['value' => $page->id, 'label' => $page->title];
+            $options[] = ['value' => $page->id, 'label' => $page->title, 'depth' => 0];
             foreach ($page->children->where('id', '!=', $excludeId) as $child) {
-                $options[] = ['value' => $child->id, 'label' => '— '.$child->title];
+                $options[] = ['value' => $child->id, 'label' => $child->title, 'depth' => 1];
             }
         }
 

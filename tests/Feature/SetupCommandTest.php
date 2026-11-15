@@ -195,3 +195,21 @@ it('registers the frontend search page even when the search index cannot be rebu
 
     expect(Fallback::exists('search'))->toBeTrue();
 });
+
+it('adds the page builder palette source to base.css once', function () {
+    mkdir($this->basePath.'/resources/css', 0755, true);
+    $baseCss = $this->basePath.'/resources/css/base.css';
+    file_put_contents($baseCss, "@import 'tailwindcss';\n");
+
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+    $this->artisan('cms:setup')->expectsQuestion('Default rich-text editor', 'jodit')->assertSuccessful();
+
+    expect(substr_count((string) file_get_contents($baseCss), "@source '../../vendor/vm-engine/synmod-cms/resources/builder/class-palette.json';"))->toBe(1);
+});
+
+it('warns instead of failing when base.css is missing', function () {
+    $this->artisan('cms:setup')
+        ->expectsQuestion('Default rich-text editor', 'jodit')
+        ->expectsOutputToContain('resources/css/base.css not found')
+        ->assertSuccessful();
+});

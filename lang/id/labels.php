@@ -180,6 +180,7 @@ return [
     'delete_item_confirm' => 'Hapus item menu ini?',
     'type_url' => 'URL Kustom',
     'type_page' => 'Halaman',
+    'type_builder_page' => 'Halaman Builder',
     'type_section' => 'Seksi',
     'type_category' => 'Kategori',
     'type_article' => 'Artikel',

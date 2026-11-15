@@ -42,6 +42,12 @@
             search-method="searchPages"
             load-method="loadPages"
         />
+    @elseif ($targetType === 'builder_page')
+        <x-synapse-adv-select
+            wire-model="{{ $wireModelTargetId }}"
+            search-method="searchBuilderPages"
+            load-method="loadBuilderPages"
+        />
     @elseif ($targetType === 'section')
         <x-synapse-adv-select
             wire-model="{{ $wireModelTargetId }}"

@@ -1,0 +1,26 @@
+{
+    "spacing": {
+        "label": "cms::builder.palette_spacing",
+        "classes": ["p-0", "p-2", "p-4", "p-6", "p-8", "p-12", "px-4", "px-6", "px-8", "py-4", "py-8", "py-12", "py-16", "py-24", "my-0", "my-4", "my-8", "my-12", "mt-8", "mb-8"]
+    },
+    "background": {
+        "label": "cms::builder.palette_background",
+        "classes": ["bg-transparent", "bg-white", "bg-gray-50", "bg-gray-100", "bg-gray-900", "bg-brand-50", "bg-brand-500", "bg-brand-900", "dark:bg-gray-800", "dark:bg-gray-900"]
+    },
+    "text": {
+        "label": "cms::builder.palette_text",
+        "classes": ["text-left", "text-center", "text-right", "text-white", "text-gray-700", "text-gray-900", "text-brand-500", "dark:text-white"]
+    },
+    "border": {
+        "label": "cms::builder.palette_border",
+        "classes": ["rounded-none", "rounded-md", "rounded-xl", "rounded-2xl", "shadow-sm", "shadow-md", "shadow-lg", "border", "border-gray-200", "dark:border-gray-800"]
+    },
+    "width": {
+        "label": "cms::builder.palette_width",
+        "classes": ["w-full", "mx-auto", "max-w-3xl", "max-w-5xl", "max-w-7xl", "mx-[calc(50%-50vw)]"]
+    },
+    "visibility": {
+        "label": "cms::builder.palette_visibility",
+        "classes": ["hidden", "block", "sm:hidden", "sm:block", "md:hidden", "md:block", "lg:hidden", "lg:block"]
+    }
+}

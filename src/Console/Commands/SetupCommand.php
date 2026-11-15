@@ -15,7 +15,8 @@ use function Laravel\Prompts\select;
  * Wires CMS assets into the host app and picks the default rich-text editor:
  * cms.js (admin: editors, sortable) into app.js, cms-frontend.js (public:
  * search box) and the synapse components (datepicker in the custom field
- * filters) into frontend.js, the sitemap into public/robots.txt, and the RSS
+ * filters) into frontend.js, the page builder class palette @source into
+ * resources/css/base.css, the sitemap into public/robots.txt, and the RSS
  * feed links into the theme's cms-head partial. Both editors are always wired
  * so the choice can change later from CMS settings.
  */
@@ -38,6 +39,8 @@ class SetupCommand extends Command
     private const TINYMCE_TARGET = "\n                    // TinyMCE (synmod-cms) — static assets (skins, themes, icons, plugins)"
         ."\n                    { src: 'node_modules/tinymce', dest: 'tinymce' },";
 
+    private const BUILDER_PALETTE_SOURCE = "@source '../../vendor/vm-engine/synmod-cms/resources/builder/class-palette.json';";
+
     private const FEED_LINKS = '{{-- CMS: RSS feed autodiscovery --}}'.PHP_EOL.'<x-cms::feed-links />';
 
     public function handle(CmsFallbackService $fallback): int
@@ -49,6 +52,7 @@ class SetupCommand extends Command
         $this->patchEntry('app.js', self::CMS_JS_IMPORT, 'synmod-cms/resources/js/cms.js');
         $this->patchEntry('frontend.js', self::CMS_FRONTEND_JS_IMPORT, 'synmod-cms/resources/js/cms-frontend.js');
         $this->patchEntry('frontend.js', self::SYNAPSE_FRONTEND_IMPORTS, 'synapse-components.js', alsoIn: ['synapps/resources/js/synapps-frontend.js']);
+        $this->patchBuilderPaletteSource();
         $this->removeLegacySynappsImport();
         $this->patchViteConfig();
         $this->patchRobots();
@@ -197,6 +201,31 @@ class SetupCommand extends Command
 
         file_put_contents($path, rtrim($contents).PHP_EOL.self::FEED_LINKS.PHP_EOL);
         $this->line('  cms-head.blade.php — RSS feed links added');
+    }
+
+    /**
+     * Page builder classes live in a JSON palette; Tailwind must scan it or the
+     * classes editors pick have no CSS. base.css is the entry that imports tailwindcss.
+     */
+    private function patchBuilderPaletteSource(): void
+    {
+        $path = base_path('resources/css/base.css');
+        $contents = $this->read($path);
+
+        if ($contents === null) {
+            $this->warn('  resources/css/base.css not found — add manually: '.self::BUILDER_PALETTE_SOURCE);
+
+            return;
+        }
+
+        if (str_contains($contents, 'synmod-cms/resources/builder/class-palette.json')) {
+            $this->line('  base.css — page builder palette already sourced (skipped)');
+
+            return;
+        }
+
+        file_put_contents($path, rtrim($contents).PHP_EOL.self::BUILDER_PALETTE_SOURCE.PHP_EOL);
+        $this->line('  base.css — page builder class palette @source added');
     }
 
     private function read(string $path): ?string

@@ -11,6 +11,11 @@
         @endforeach
     @else
         <div class="cms-widget-gallery {{ $wrapperClass }}">
+            @if ($showAlbumTitle)
+                <h2 class="cms-widget__heading">
+                    <a href="{{ \VmEngine\Cms\Support\CmsUrl::to($albumRecord) }}" class="cms-widget__heading-link">{{ $albumRecord->translate('title') }}</a>
+                </h2>
+            @endif
             <div class="cms-gallery-grid {{ $gridClass }}">
                 @foreach ($images as $image)
                     @if ($card)

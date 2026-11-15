@@ -25,8 +25,11 @@ class Gallery extends Component
         CmsGalleryService $galleryService,
         public string $album = '',
         public int $limit = 0,
+        /** Per-image titles under each picture. */
         public bool $showTitle = true,
         public bool $showCaption = true,
+        /** The album name as a linked heading above the grid (off by default so existing embeds don't change). */
+        public bool $showAlbumTitle = false,
         /** Custom Blade view rendered per image (receives $image + $album + $with). */
         public string $card = '',
         /** Fully custom view replacing the entire gallery (receives $images + $album + $with). */

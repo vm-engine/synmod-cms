@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Collection;
 use VmEngine\Cms\Enums\AlbumType;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Models\CmsBuilderPage;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsMenuItem;
@@ -46,6 +47,29 @@ class CmsFallbackService
         Fallback::forget((string) CmsUrl::path($page));
 
         $this->search->forget($page);
+    }
+
+    public function syncBuilderPage(CmsBuilderPage $page): void
+    {
+        if ($page->status !== 'published') {
+            $this->forgetBuilderPage($page);
+
+            return;
+        }
+
+        Fallback::register(
+            slug: (string) CmsUrl::path($page),
+            handler: 'cms::frontend.builder-page-viewer',
+            module: 'cms',
+            params: ['builder_page_id' => $page->id],
+            handlerType: 'livewire',
+        );
+    }
+
+    /** Pass $slug to forget a previous path (slug rename). */
+    public function forgetBuilderPage(CmsBuilderPage $page, ?string $slug = null): void
+    {
+        Fallback::forget($slug ?? (string) CmsUrl::path($page));
     }
 
     public function syncSection(CmsSection $section): void

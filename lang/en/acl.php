@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'page' => 'Static Pages',
     'page_publish' => 'Publish Pages',
+    'builder' => 'Page Builder',
+    'builder_publish' => 'Publish Builder Pages',
     'section' => 'Sections',
     'article' => 'Articles',
     'article_publish' => 'Publish Articles',

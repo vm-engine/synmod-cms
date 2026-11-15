@@ -5,6 +5,8 @@ declare(strict_types=1);
 return [
     'page' => 'Halaman Statis',
     'page_publish' => 'Terbitkan Halaman',
+    'builder' => 'Page Builder',
+    'builder_publish' => 'Terbitkan Halaman Builder',
     'section' => 'Seksi',
     'article' => 'Artikel',
     'article_publish' => 'Terbitkan Artikel',

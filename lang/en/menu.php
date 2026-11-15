@@ -6,6 +6,7 @@ return [
     'be' => [
         'parent' => 'CMS',
         'page' => 'Pages',
+        'builder' => 'Page Builder',
         'section' => 'Articles',
         'gallery' => 'Gallery',
         'download' => 'Downloads',

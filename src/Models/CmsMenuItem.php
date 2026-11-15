@@ -131,6 +131,7 @@ class CmsMenuItem extends Model implements TranslatableContent
 
         return match ($this->target_type) {
             'page' => CmsPage::find($this->target_id),
+            'builder_page' => CmsBuilderPage::published()->find($this->target_id),
             'section' => CmsSection::find($this->target_id),
             'category' => CmsCategory::with('section')->find($this->target_id),
             'article' => CmsArticle::with(['section', 'category'])->find($this->target_id),

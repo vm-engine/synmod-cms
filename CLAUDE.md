@@ -62,6 +62,7 @@ Use `synmod-make` from inside this package directory (or `--path` from project r
 | `CmsMenu` | `cms_menus` | Identified by `position` string (e.g. `header`) |
 | `CmsMenuItem` | `cms_menu_items` | 8 target types; URL resolved via `resolveUrl()` |
 | `CmsTag` | `cms_tags` | Shared across articles; unique slug |
+| `CmsBuilderPage` | `cms_builder_pages` | Page builder page; edits go to `layout_draft`, publish copies to `layout`; route synced by `CmsBuilderPageObserver` |
 
 All deletable models use the `WithDeleteToken` trait for CSRF-safe deletion.
 
@@ -113,6 +114,7 @@ Every content model (`CmsPage`, `CmsSection`, `CmsCategory`, `CmsArticle`, `CmsA
 Since v1.1.7, all queries/writes outside the model itself go through these — never call `Cms*::query()` directly from Livewire/forms/controllers:
 
 - **`CmsPageService`** — `CmsPage` finders, backend listing, create/update/delete, adv-select search/load
+- **`CmsBuilderPageService`** — `CmsBuilderPage` CRUD, publish, and every draft-layout mutation (add/move/duplicate/remove widgets, region classes, template switch), each run through `normalize()`; widget defs live in `CmsWidgetRegistry`, templates in `CmsBuilderTemplates`, allowed classes in `CmsBuilderClassPalette`
 - **`CmsArticleService`** — `CmsArticle` **and** `CmsSection`/`CmsCategory`/`CmsTag` (no separate services for those three)
 - **`CmsGalleryService`** — `CmsAlbum` **and** `CmsAlbumImage`, incl. `reorderImagesInAlbum()` and the auto-cover logic (moved out of `CmsAlbumImageObserver`)
 - **`CmsDownloadService`** — `CmsDownload` **and** `CmsDownloadFile`, incl. `reorderFilesInDownload()`

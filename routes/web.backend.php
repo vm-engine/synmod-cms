@@ -12,6 +12,16 @@ Route::group([], function () {
     Route::livewire('/page/form/{id?}', 'cms::backend.page-form')->name('page.form')
         ->middleware('can-access:cms.page.create|cms.page.update');
 
+    // Page Builder
+    Route::livewire('/builder', 'cms::backend.builder-page-list')->name('builder.index')
+        ->middleware('can-access:cms.builder.read');
+    Route::livewire('/builder/form/{id?}', 'cms::backend.builder-page-form')->name('builder.form')
+        ->middleware('can-access:cms.builder.create|cms.builder.update');
+    Route::livewire('/builder/{id}/editor', 'cms::backend.builder-editor')->name('builder.editor')
+        ->middleware('can-access:cms.builder.update');
+    Route::livewire('/builder/{id}/canvas', 'cms::backend.builder-canvas')->name('builder.canvas')
+        ->middleware('can-access:cms.builder.update');
+
     // Sections
     Route::livewire('/section', 'cms::backend.section-list')->name('section.index')
         ->middleware('can-access:cms.article.section.read');

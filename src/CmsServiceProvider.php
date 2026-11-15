@@ -14,6 +14,7 @@ use VmEngine\Cms\Console\Commands\SetupCommand;
 use VmEngine\Cms\Models\CmsAlbum;
 use VmEngine\Cms\Models\CmsAlbumImage;
 use VmEngine\Cms\Models\CmsArticle;
+use VmEngine\Cms\Models\CmsBuilderPage;
 use VmEngine\Cms\Models\CmsCategory;
 use VmEngine\Cms\Models\CmsDownload;
 use VmEngine\Cms\Models\CmsDownloadFile;
@@ -23,6 +24,7 @@ use VmEngine\Cms\Models\CmsSection;
 use VmEngine\Cms\Observers\CmsAlbumImageObserver;
 use VmEngine\Cms\Observers\CmsAlbumObserver;
 use VmEngine\Cms\Observers\CmsArticleObserver;
+use VmEngine\Cms\Observers\CmsBuilderPageObserver;
 use VmEngine\Cms\Observers\CmsCategoryObserver;
 use VmEngine\Cms\Observers\CmsDownloadFileObserver;
 use VmEngine\Cms\Observers\CmsDownloadObserver;
@@ -33,6 +35,7 @@ use VmEngine\Cms\Services\Analytics\FakeGoogleApiClient;
 use VmEngine\Cms\Services\Analytics\GoogleApiClient;
 use VmEngine\Cms\Services\CmsAccessService;
 use VmEngine\Cms\Services\CmsCustomFieldService;
+use VmEngine\Cms\Support\CmsWidgetRegistry;
 use VmEngine\Synapse\Traits\AutoRegistersComponents;
 
 class CmsServiceProvider extends ServiceProvider
@@ -45,6 +48,7 @@ class CmsServiceProvider extends ServiceProvider
 
         $this->app->scoped(CmsAccessService::class);
         $this->app->scoped(CmsCustomFieldService::class);
+        $this->app->singleton(CmsWidgetRegistry::class);
 
         // Dev-only dummy Google data for the Analytics dashboard. Never in production,
         // and never under tests, so a host's local flag can't leak into the suite.
@@ -83,6 +87,7 @@ class CmsServiceProvider extends ServiceProvider
         CmsDownload::observe(CmsDownloadObserver::class);
         CmsDownloadFile::observe(CmsDownloadFileObserver::class);
         CmsMenuItem::observe(CmsMenuItemObserver::class);
+        CmsBuilderPage::observe(CmsBuilderPageObserver::class);
     }
 
     /**

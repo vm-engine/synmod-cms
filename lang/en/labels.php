@@ -180,6 +180,7 @@ return [
     'delete_item_confirm' => 'Delete this menu item?',
     'type_url' => 'Custom URL',
     'type_page' => 'Page',
+    'type_builder_page' => 'Builder Page',
     'type_section' => 'Section',
     'type_category' => 'Category',
     'type_article' => 'Article',
