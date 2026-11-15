@@ -5,7 +5,10 @@ All notable changes to `vm-engine/synmod-cms` will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [2.5.0] - 2026-11-15
+
+### Changed
+- Requires vm-engine/synapse ^3.11 (named drawer with footer slot, adv-select `depth`).
 
 ### Added
 - Page Builder (CMS → Page Builder): standalone pages composed from the 8 CMS widgets on a live canvas. Widgets go into regions declared by theme templates (`theme.json` → `page_builder.templates`; `full` and `sidebar-right` ship with the package), can be dragged within and across regions, and regions/widgets are styled from a curated Tailwind class palette. Edits stay in a draft until published (`cms.builder.publish`). Builder pages get a fallback route, can be menu targets and are listed in the sitemap. New ACL: `cms.builder`, `cms.builder.publish`.
